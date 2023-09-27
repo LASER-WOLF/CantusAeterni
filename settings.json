@@ -5,5 +5,8 @@
   "debug_error_log_to_file": true,
   "enable_minimap": true,
   "enable_music": false,
-  "music_volume": 0.5
+  "music_volume": 0.5,
+  "enable_boot_screen": true,
+  "enable_sound": true,
+  "enable_sound_ui": true
 }

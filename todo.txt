@@ -1,6 +1,3 @@
-# redo code for ui_window_main, upper, lower, dynamic size. size calculated not printed, then all windows printed at same time.
-# use arrows to select on menu
-# divide stuff in bottom ui into functions
 # character creator
 # character screen / stats
 # npcs
@@ -8,11 +5,17 @@
 # items
 # inventory
 # save game
-# animations
+# new sound when changing room
+# animation when changing room
+# animation when changing mode
+# right aligned ui elements in lower window (settings/quit/etc.)
+# portal placement stored in portals and room file (duplicate data)
+# minimap in map screen
+# menu select -> scroll position select
+# sounds / music at the same time not working
 # linux / mac support: maximize window, handle input, hide cursor
+# animations?
 # combat?
-# touch
-# taste
 
 # move
 # dynamic window sizes (main/bottom)
@@ -49,6 +52,15 @@
 # map selection persistent vertical
 # make system for drawing printing lines
 # change move controls, movement with wasd
+# add back minimap
+# add back movement
+# add back interactions
+# redo code for ui_window_main, upper, lower, dynamic size. size calculated not printed, then all windows printed at same time.
+# use arrows to select on menu
+# divide stuff in bottom ui into functions
+# boot screen
+# ui sounds
+# correct direction selection in map screen
 
 https://www.compart.com/en/unicode/
 https://mandolingals.tripod.com/midi/midis.html
