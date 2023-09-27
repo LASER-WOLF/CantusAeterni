@@ -2,7 +2,7 @@
   "slime": {
     "active": false,
     "text": "You are engulfed in sticky slime.",
-    "activation_text": "You have become completely covered in nasty slime.",
+    "activation_text": "You have been completely covered in nasty slime.",
     "deactivation_text": "You are no longer covered in slime."
   },
   "blind": {

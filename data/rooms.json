@@ -1,6 +1,7 @@
 {
   "1": {
     "noun": "grotto",
+    "location": "You find yourself in a slimy grotto. The walls are covered in sticky slime and the floor is made of hard rock.",
 	"visited": {
       "nw": false,
       "n": false,
@@ -12,7 +13,6 @@
       "s": false,
       "se": false
     },
-    "location": "You find yourself in a slimy grotto. The walls are covered in sticky slime and the floor is made of hard rock.",
     "on_enter": [],
     "portal": [
       {
@@ -136,6 +136,17 @@
   "2": {
     "noun": "grotto",
     "location": "You find yourself in a pitch black grotto.",
+	"visited": {
+      "nw": false,
+      "n": false,
+      "ne": false,
+      "w": false,
+      "c": false,
+      "e": false,
+      "sw": false,
+      "s": false,
+      "se": false
+    },
     "on_enter": [],
     "portal": [
       {
@@ -186,6 +197,17 @@
   "3": {
     "noun": "void",
     "location": "You find yourself in a void.",
+	"visited": {
+      "nw": false,
+      "n": false,
+      "ne": false,
+      "w": false,
+      "c": false,
+      "e": false,
+      "sw": false,
+      "s": false,
+      "se": false
+    },
     "on_enter": [],
     "portal": [
       {

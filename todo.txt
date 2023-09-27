@@ -1,13 +1,16 @@
+# scrollable log
+# no debug logging when exit map
+# implement minimap?
+# music
+# linux / max support: maximize window, handle input, hide cursor
+# map
 # items
 # inventory
-# debug screen
-# position log
-# map
 # character creator
+# character screen
 # npcs
 # dialogue
 # combat?
-# reset game
 # save game
 # stats / character screen
 
@@ -28,3 +31,9 @@
 # sight
 # smell
 # sound
+# clear input after keypress
+# debug screen
+# position log
+# reset game
+# mini map
+# debug logging level

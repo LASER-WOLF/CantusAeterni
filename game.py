@@ -2,7 +2,9 @@ import os
 import ctypes
 import json
 import re
-import keyboard
+import msvcrt
+import time
+from datetime import datetime
 
 class MainWindowContent:
   def __init__(self, lines, centered_horizontal = False, centered_vertical = False):
@@ -17,6 +19,7 @@ def initialize():
   queue_list = []
   mode = "start_menu"
   previous_mode = mode
+  add_debug_log("Main initialization")
 
 def import_settings():
   global settings
@@ -46,6 +49,7 @@ def initialize_new_game():
   active_room = "1"
   current_position = "c"
   change_mode("cutscene")
+  add_debug_log("Initializing new game")
 
 def get_window_size():
   global window_size_x
@@ -58,6 +62,34 @@ def clear_console():
      os.system('clear')
   else:
      os.system('cls')
+
+def hide_cursor():
+  print('\033[?25l')
+
+def show_cursor():
+  print('\033[?25h')
+
+def get_keypress():
+  while True:
+    if msvcrt.kbhit():
+      key = msvcrt.getwch()
+      if key == " ":
+        key = "space"
+      elif key == "\r":
+        key = "enter"
+      global debug_input_char
+      debug_input_char = key
+      return key
+    time.sleep(0.1)
+
+def user_input():
+  return input(line_margin +  "> ")
+
+def press_to_continue(target_key = "enter"):
+  print_line("PRESS [" + target_key.upper() + "] TO CONTINUE")
+  key = ""
+  while key != target_key:
+    key = get_keypress()
 
 def export_json(name, content):
   with open(name + ".json", "w") as outfile:
@@ -74,6 +106,23 @@ def format_direction(text):
 
 def format_portal(text):
   return color_portal + text + color_end
+
+def format_color_tags(content):
+  content = re.sub("<i>(.*?)</i>", format_interactable(r"\1"), content)
+  content = re.sub("<s>(.*?)</s>", format_status(r"\1"), content)
+  content = re.sub("<d>(.*?)</d>", format_direction(r"\1"), content)
+  content = re.sub("<p>(.*?)</p>", format_portal(r"\1"), content)
+  return content
+
+def format_position_text(abr):
+  position_string = ""
+  if abr in direction_abr:
+    position_string = format_direction(direction_abr[abr])
+    if abr != "c":
+      position_string += " side"
+  else:
+    position_string = "INVALID"
+  return position_string
 
 def make_line(line, fill = "", align = "<"):
   if align == "<":
@@ -96,10 +145,10 @@ def print_line_centered(line, fill = ""):
 def print_seperator_line():
   print_line_centered("", "-")
 
-def main_window(content):
+def ui_main_window(content):
   if content.lines:
     main_window_size_subtract = ui_size_upper+ui_size_lower
-    if mode == "game":
+    if mode == "game" or mode == "debug":
       main_window_size_subtract += ui_size_log
     num_upper_padding = 0
     if content.centered_vertical:
@@ -123,16 +172,18 @@ def ui_upper():
     ui_upper_content.append("MAIN MENU")
   elif mode == "settings_menu":
     ui_upper_content.append("SETTINGS")
-  elif mode == "test":
-    ui_upper_content.append("TEST SCREEN")
+  elif mode == "debug":
+    ui_upper_content.append("DEBUG SCREEN")
   elif mode == "cutscene" or mode == "game":
-    ui_upper_content.append("PLAYER LEVEL / HEALTH / ETC.")
+    ui_upper_content.append("PLAYER NAME / LEVEL / HEALTH / ETC.")
+  elif mode == "map":
+    ui_upper_content.append("MAP")
   if settings['debug_mode']:
     ui_upper_content.append("DEBUG MODE")
     ui_upper_content.append("WINDOW SIZE: " + str(window_size_x) + "x" + str(window_size_y))
     ui_upper_content.append("LOOP #: " + str(loop_count))
-    ui_upper_content.append("MODE: " + mode)
-    ui_upper_content.append("DEBUG LOG: " + debug_log_list[-1])
+    #ui_upper_content.append("MODE: " + mode)
+    #ui_upper_content.append("DEBUG LOG: " + debug_log_list[-1])
   for num, item in enumerate(ui_upper_content):
     if num != 0:
       ui_upper_string += " | "
@@ -145,62 +196,78 @@ def ui_lower():
   global mode
   global quit_game
   global ui_quit_prompt
+  global ui_pre_quit_prompt
   global ui_restart_prompt
   global ui_current_menu
   global settings
+  # PRE QUIT PROMPT
+  if ui_pre_quit_prompt:
+    print_line("SELECT ACTION:")
+    print_line("[1] RETURN TO TITLE SCREEN")
+    print_line("[2] QUIT GAME")
+    print_line("[B] <- GO BACK")
+    key = get_keypress()
+    if(key == "1"):
+      ui_pre_quit_prompt = False
+      ui_restart_prompt = True
+    elif(key == "2"):
+      ui_pre_quit_prompt = False
+      ui_quit_prompt = True
+    elif(key == "b"):
+      ui_pre_quit_prompt = False
   # QUIT PROMPT
-  if ui_quit_prompt:
+  elif ui_quit_prompt:
     print_line("ARE YOU SURE?")
     print_line("[Y] YES")
     print_line("[N] NO")
-    command = user_input()
-    if(command.lower() == "y"):
+    key = get_keypress()
+    if(key.lower() == "y"):
       quit_game = True
-    elif(command.lower() == "n"):
+    elif(key.lower() == "n"):
       ui_quit_prompt = False
   # RESTART PROMPT
   elif ui_restart_prompt:
     print_line("ARE YOU SURE?")
     print_line("[Y] YES")
     print_line("[N] NO")
-    command = user_input()
-    if(command.lower() == "y"):
+    key = get_keypress()
+    if(key.lower() == "y"):
       initialize()
       change_mode(mode)
       ui_restart_prompt = False
-    elif(command.lower() == "n"):
+    elif(key.lower() == "n"):
       ui_restart_prompt = False
   # START MENU
   elif mode == "start_menu": 
     print_line("[1] START GAME")
     print_line("[S] SETTINGS")
     if settings['debug_mode']:
-      print_line("[T] TEST SCREEN")
+      print_line("[D] DEBUG SCREEN")
     print_line("[Q] QUIT")
-    command = user_input()
-    if(command.lower() == "q"):
+    key = get_keypress()
+    if(key.lower() == "q"):
       ui_quit_prompt = True
-    elif(settings['debug_mode'] and command.lower() == "t"):
-      change_mode("test")
-    elif(command == "1"):
+    elif(key.lower() == "d" and settings['debug_mode']):
+      change_mode("debug")
+    elif(key == "1"):
       initialize_new_game()
-    elif(command.lower() == "s"):
+    elif(key.lower() == "s"):
       change_mode("settings_menu")
   # SETTINGS MENU
   elif mode == "settings_menu": 
     print_line("[1] DEBUG MODE: " + str(settings['debug_mode']).upper())
     print_line("[B] <- GO BACK")
-    command = user_input()
-    if(command.lower() == "b"):
+    key = get_keypress()
+    if(key.lower() == "b"):
       export_json('settings', settings)
       change_mode(previous_mode)
-    elif(command == "1"):
+    elif(key == "1"):
       settings['debug_mode'] = not settings['debug_mode']
-  # TEST SCREEN
-  elif mode == "test": 
+  # DEBUG SCREEN
+  elif mode == "debug": 
     print_line("[B] <- GO BACK")
-    command = user_input()
-    if(command.lower() == "b"):
+    key = get_keypress()
+    if(key.lower() == "b"):
       change_mode(previous_mode)
   # GAME MODE
   elif mode == "game": 
@@ -239,12 +306,12 @@ def ui_lower():
       for line in menu_options_move_text:
         print_line(line)
       print_line("[B] <- GO BACK")
-      command = user_input()
-      if(command.lower() == "b"):
+      key = get_keypress()
+      if(key.lower() == "b"):
         ui_current_menu = ""      
       num = 1
       for item in menu_options_move:
-        if(command == str(num)):
+        if(key == str(num)):
           ui_current_menu = ""
           change_position(menu_options_move[num-1], True)
         num += 1
@@ -254,18 +321,18 @@ def ui_lower():
       for line in menu_options_examine_text:
         print_line(line)
       print_line("[B] <- GO BACK")
-      command = user_input()
-      if(command.lower() == "b"):
+      key = get_keypress()
+      if(key.lower() == "b"):
         ui_current_menu = ""      
       num = 1
       for item in menu_options_examine:
-        if(command == str(num)):
+        if(key == str(num)):
           ui_current_menu = ""
           examine(menu_options_examine[num-1])
         num += 1
       num = 1
       for item in menu_options_portal:
-        if(command == str(num)):
+        if(key == str(num)):
           ui_current_menu = ""
           enter_portal(menu_options_portal[num-1])
         num += 1
@@ -277,29 +344,30 @@ def ui_lower():
         print_line("[2] INTERACT")
       print_line("[M] MAP")
       print_line("[S] SETTINGS")
-      print_line("[R] RESTART")
+      if settings['debug_mode']:
+        print_line("[D] DEBUG SCREEN")
       print_line("[Q] QUIT")
-      command = user_input()
-      if(command.lower() == "q"):
-        ui_quit_prompt = True
-      elif(command == "1"):
-        ui_current_menu = "move"
-      elif(command == "2" and menu_options_examine_text):
-        ui_current_menu = "interact"
-      elif(command.lower() == "s"):
+      key = get_keypress()
+      if(key.lower() == "q"):
+        ui_pre_quit_prompt = True
+      elif(key.lower() == "d" and settings['debug_mode']):
+        change_mode("debug")
+      elif(key.lower() == "s"):
         change_mode("settings_menu")
-      elif(command.lower() == "m"):
+      elif(key.lower() == "m"):
         change_mode("map")
-      elif(command.lower() == "r"):
-        ui_restart_prompt = True
+      elif(key == "1"):
+        ui_current_menu = "move"
+      elif(key == "2" and menu_options_examine_text):
+        ui_current_menu = "interact"
   # DEFAULT BEHAVIOR
   else:
     press_to_continue()
 
-def ui_log():
-  log_list_shortened = log_list[-abs(ui_log_display_length):]
+def ui_log(target_list):
+  log_list_shortened = target_list[-abs(ui_log_display_length):]
   num = len(log_list_shortened)
-  while num < ui_size_log-1:
+  while num < ui_log_display_length:
     print_line("")
     num += 1
   for num, line in enumerate(log_list_shortened):
@@ -314,6 +382,9 @@ def add_log(item):
 def add_debug_log(item):
   global debug_log_list
   debug_log_list.append(item)
+  if settings['debug_log_to_file']:
+    with open('debug_log.txt', 'a') as file:
+      file.write(datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
 
 def change_mode(new_mode):
   global mode
@@ -321,17 +392,37 @@ def change_mode(new_mode):
   previous_mode = mode
   mode = new_mode
 
-def user_input():
-  return input(line_margin +  "> ")
+def queue_action(action):
+  queue_list.append(action)
 
-def press_to_continue():
-  input(line_margin + "PRESS [ENTER] TO CONTINUE")
+def execute_action(action):
+  if action['type'] == 'enter_room':
+    enter_room(action['link'])
+  elif action['type'] == 'change_position':
+    change_position(action['link'])
+  elif action['type'] == 'activate_status':
+    activate_status(action['link'])
+  elif action['type'] == 'change_mode':
+    change_mode(action['link'])
+  add_debug_log("Action: " + action['type'] + " -> " + action['link'])
+
+def run_queued_actions():
+  while queue_list:
+    action = queue_list.pop(0)
+    execute_action(action)
 
 def enable_event(link, category, disable = False):
+  num = 0
   for room in rooms.values():
     for line in room[category]:
         if line['link'] == link:
           line['disabled'] = disable
+          num += 1
+  if num > 0:
+    disable_text = "enabled"
+    if disable:
+      disable_text = "disabled"
+    add_debug_log("Change event (" + str(num) + "): " + category + ":" + link + " -> " + disable_text)
 
 def disable_event(link, category):
   enable_event(link, category, True)
@@ -376,44 +467,20 @@ def disable_event_all(link):
   disable_event_smell(link)
   disable_event_sound(link)
 
-def examine(link):
-  interactable = interactables[link]
-  disable_event_interactable(link)
-  if interactable['enable']:
-    enable_event_all(interactable['enable'])
-  if interactable['disable']:
-    disable_event_all(interactable['disable'])
-  if interactable['type'] == "item":
-    add_to_inventory(interactable['link'])
-    add_log("You pick up: " + interactable['text'])
-  if interactable['type'] == "portal":
-    enable_event_portal(interactable['link'])
-    add_log("You have discovered: " + interactable['text'])
-  for line in interactable['on_interact']:
-    execute_action(line)
+def activate_status(status, activate = True):
+  global statuses
+  if status in statuses:
+    if statuses[status]['active'] != activate:
+      statuses[status]['active'] = activate
+      if activate:
+        add_log(statuses[status]['activation_text'])
+      else:
+        add_log(statuses[status]['deactivation_text'])
 
-def enter_portal(link):
-  portal = portals[link]
-  target_room = None
-  target_pos = None
-  if portals[link]['link1'] == active_room:
-    target_room = portals[link]['link2']
-    target_pos = portals[link]['pos2']
-    add_log(portals[link]['text1to2'])
-  else:
-    target_room = portals[link]['link1']
-    target_pos = portals[link]['pos1']
-    add_log(portals[link]['text2to1'])
-  enter_room(target_room)
-  change_position(target_pos)
-  for line in portal['on_interact']:
-    execute_action(line)
+def deactivate_status(status):
+  activate_status(status, False)
 
-def add_to_inventory(item):
-  global inventory_list
-  inventory_list.append(item)
-
-def start_menu():
+def main_window_start_menu():
   lines = []
   lines.append(color_title_screen)
   lines.append('  .g8"""bgd     db      `7MN.   `7MF\'MMP""MM""YMM `7MMF\'   `7MF\'.M"""bgd    ')
@@ -423,14 +490,6 @@ def start_menu():
   lines.append('MM.          AbmmmqMA     M   `MM.M       MM        MM       M .     `MM    ')
   lines.append('`Mb.     ,\' A\'     VML    M     YMM       MM        YM.     ,M Mb     dM    ')
   lines.append('  `"bmmmd\'.AMA.   .AMMA..JML.    YM     .JMML.       `bmmmmd"\' P"Ybmmd"     ')
-  #lines.append('')
-  #lines.append('`7MM"""Mq.  `7MM"""YMM    .g8"""bgd `7MN.   `7MF\'`7MMF\'   ')
-  #lines.append('  MM   `MM.   MM    `7  .dP\'     `M   MMN.    M    MM     ')
-  #lines.append('  MM   ,M9    MM   d    dM\'       `   M YMb   M    MM     ')
-  #lines.append('  MMmmdM9     MMmmMM    MM            M  `MN. M    MM     ')
-  #lines.append('  MM  YM.     MM   Y  , MM.    `7MMF\' M   `MM.M    MM     ')
-  #lines.append('  MM   `Mb.   MM     ,M `Mb.     MM   M     YMM    MM     ')
-  #lines.append('.JMML. .JMM..JMMmmmmMMM   `"bmmmdPY .JML.    YM  .JMML.   ')
   lines.append('')
   lines.append('      db      `7MM"""YMM MMP""MM""YMM `7MM"""YMM  `7MM"""Mq.  `7MN.   `7MF\'`7MMF\'   ')
   lines.append('     ;MM:       MM    `7 P\'   MM   `7   MM    `7    MM   `MM.   MMN.    M    MM     ')
@@ -441,6 +500,31 @@ def start_menu():
   lines.append('.AMA.   .AMMA..JMMmmmmMMM   .JMML.    .JMMmmmmMMM .JMML. .JMM..JML.    YM  .JMML.   ')
   lines.append(color_end)
   return MainWindowContent(lines, True, True)
+
+def main_window_debug():
+  lines = []
+  lines.append('RED: '.ljust(10) + color_red + ' FG ' + color_bright_red + ' BRIGHT ' + color_bg_red + ' BG ' + color_end + ' ' + color_bg_bright_red + ' BRIGHT ' + color_end)
+  lines.append('GREEN: '.ljust(10) + color_green + ' FG ' + color_bright_green + ' BRIGHT ' + color_bg_green + ' BG ' + color_end + ' ' + color_bg_bright_green + ' BRIGHT ' + color_end)
+  lines.append('YELLOW: '.ljust(10) + color_yellow + ' FG ' + color_bright_yellow + ' BRIGHT ' + color_bg_yellow + ' BG ' + color_end + ' ' + color_bg_bright_yellow + ' BRIGHT ' + color_end)
+  lines.append('BLUE: '.ljust(10) + color_blue + ' FG ' + color_bright_blue + ' BRIGHT ' + color_bg_blue + ' BG ' + color_end + ' ' + color_bg_bright_blue + ' BRIGHT ' + color_end)
+  lines.append('MAGENTA: '.ljust(10) + color_magenta + ' FG ' + color_bright_magenta + ' BRIGHT ' + color_bg_magenta + ' BG ' + color_end + ' ' + color_bg_bright_magenta + ' BRIGHT ' + color_end)
+  lines.append('CYAN: '.ljust(10) + color_cyan + ' FG ' + color_bright_cyan + ' BRIGHT ' + color_bg_cyan + ' BG ' + color_end + ' ' + color_bg_bright_cyan + ' BRIGHT ' + color_end)
+  lines.append('WHITE: '.ljust(10) + color_white + ' FG ' + color_bright_white + ' BRIGHT ' + color_bg_white + ' BG ' + color_end + ' ' + color_bg_bright_white + ' BRIGHT ' + color_end)
+  lines.append("")
+  lines.append('LAST INPUT: "' + debug_input_char + '"')
+  return MainWindowContent(lines)
+
+def main_window_cutscene():
+  lines = load_cutscene(active_cutscene)
+  return MainWindowContent(lines)
+
+def main_window_game():
+  lines = []
+  lines.extend(show_active_status())
+  lines.append("")
+  lines.extend(load_room(active_room))
+  return MainWindowContent(lines)
+
 """
 def map_portal_check(loop_sel,loop_val):
   global map_room_list
@@ -460,9 +544,8 @@ def map_portal_check(loop_sel,loop_val):
 
 map_room_list = []
 """
-def map():
+def main_window_map():
   lines = []
-  
   map_char_tile_top = color_bright_black + "┌───┐" + color_end
   map_char_tile_mid = color_bright_black + "│   │" + color_end
   map_char_tile_low = color_bright_black + "└───┘" + color_end
@@ -486,7 +569,6 @@ def map():
   map_char_tile_interactable_current_mid = color_interactable + "│" + color_bright_yellow + "YOU" + color_interactable + "│" + color_end
   #map_char_tile_interactable_current_mid = color_interactable + "│YOU│" + color_end
   map_char_tile_interactable_current_low = color_interactable + "└───┘" + color_end
-  
   for y in range(3):
     line_top = ""
     line_mid = ""
@@ -539,23 +621,8 @@ def map():
     lines.append(line_mid)
     lines.append(line_low)
   queue_action({'type': 'change_mode', 'link': previous_mode})
+  #change_mode(previous_mode)
   return MainWindowContent(lines, False, True)
-
-def test():
-  lines = []
-  lines.append('COLORS:')
-  lines.append('RED: '.ljust(10) + color_red + ' FG ' + color_bright_red + ' BRIGHT ' + color_bg_red + ' BG ' + color_end + ' ' + color_bg_bright_red + ' BRIGHT ' + color_end)
-  lines.append('GREEN: '.ljust(10) + color_green + ' FG ' + color_bright_green + ' BRIGHT ' + color_bg_green + ' BG ' + color_end + ' ' + color_bg_bright_green + ' BRIGHT ' + color_end)
-  lines.append('YELLOW: '.ljust(10) + color_yellow + ' FG ' + color_bright_yellow + ' BRIGHT ' + color_bg_yellow + ' BG ' + color_end + ' ' + color_bg_bright_yellow + ' BRIGHT ' + color_end)
-  lines.append('BLUE: '.ljust(10) + color_blue + ' FG ' + color_bright_blue + ' BRIGHT ' + color_bg_blue + ' BG ' + color_end + ' ' + color_bg_bright_blue + ' BRIGHT ' + color_end)
-  lines.append('MAGENTA: '.ljust(10) + color_magenta + ' FG ' + color_bright_magenta + ' BRIGHT ' + color_bg_magenta + ' BG ' + color_end + ' ' + color_bg_bright_magenta + ' BRIGHT ' + color_end)
-  lines.append('CYAN: '.ljust(10) + color_cyan + ' FG ' + color_bright_cyan + ' BRIGHT ' + color_bg_cyan + ' BG ' + color_end + ' ' + color_bg_bright_cyan + ' BRIGHT ' + color_end)
-  lines.append('WHITE: '.ljust(10) + color_white + ' FG ' + color_bright_white + ' BRIGHT ' + color_bg_white + ' BG ' + color_end + ' ' + color_bg_bright_white + ' BRIGHT ' + color_end)
-  return MainWindowContent(lines)
-
-def cutscene():
-  lines = load_cutscene(active_cutscene)
-  return MainWindowContent(lines)
   
 def load_cutscene(cutscene_id):
   lines = []
@@ -570,25 +637,6 @@ def load_cutscene(cutscene_id):
     queue_action(line)
   return lines
 
-def queue_action(action):
-  queue_list.append(action)
-
-def run_queued_actions():
-  while queue_list:
-    action = queue_list.pop(0)
-    execute_action(action)
-
-def execute_action(action):
-  if action['type'] == 'enter_room':
-    enter_room(action['link'])
-  elif action['type'] == 'change_position':
-    change_position(action['link'])
-  elif action['type'] == 'activate_status':
-    activate_status(action['link'])
-  elif action['type'] == 'change_mode':
-    change_mode(action['link'])
-  add_debug_log(action['type'] + " -> " + action['link'])
-
 def enter_room(room_id, logging = False):
   global active_room
   active_room = room_id
@@ -602,14 +650,6 @@ def enter_room(room_id, logging = False):
     log_string = "You enter the " + rooms[active_room]['noun']
     add_log(log_string)
 
-def game():
-  lines = []
-  lines.extend(show_active_status())
-  lines.append("")
-  lines.extend(load_room(active_room))
-  #lines.extend(show_log())
-  return MainWindowContent(lines)
-
 def load_room(room_id):
   lines = []
   if(settings['debug_mode']):
@@ -620,10 +660,29 @@ def load_room(room_id):
   lines.extend(sense_sound(room_id))
   lines.extend(sense_smell(room_id))
   lines.append("")
-  lines.append("You are positioned at the " + get_position(current_position) + " of the " + room['noun'] + ".")
+  lines.append("You are positioned at the " + format_position_text(current_position) + " of the " + room['noun'] + ".")
   lines.extend(sense_sight(room_id, True))
   lines.extend(sense_sound(room_id, True))
   lines.extend(sense_smell(room_id, True))
+  return lines
+
+def show_active_status():
+  lines = []
+  for line in statuses:
+    if (statuses[line]['active']):
+      lines.append(format_status(statuses[line]['text']))
+  return lines
+
+def sense_scan(sense, sense_text, room_id, position_mode = False):
+  lines = []
+  room = rooms[room_id]
+  for line in room[sense]:
+    if not line['disabled']:
+      content = format_color_tags(line['content'])
+      if not position_mode and (line['position'] == "" or (line['position'][0] == "-" and line['position'][1:] != current_position)):
+        lines.append(sense_text + content)
+      elif (position_mode and line['position'] == current_position):
+        lines.append(sense_text + content)
   return lines
 
 def sense_sight(room_id, position_mode = False):
@@ -660,35 +719,6 @@ def sense_smell(room_id, position_mode = False):
     lines.append(sense_text + "You don't smell anything.")
   return lines
 
-def sense_scan(sense, sense_text, room_id, position_mode = False):
-  lines = []
-  room = rooms[room_id]
-  for line in room[sense]:
-    if not line['disabled']:
-      content = format_color_tags(line['content'])
-      if not position_mode and (line['position'] == "" or (line['position'][0] == "-" and line['position'][1:] != current_position)):
-        lines.append(sense_text + content)
-      elif (position_mode and line['position'] == current_position):
-        lines.append(sense_text + content)
-  return lines
-
-def format_color_tags(content):
-  content = re.sub("<i>(.*?)</i>", format_interactable(r"\1"), content)
-  content = re.sub("<s>(.*?)</s>", format_status(r"\1"), content)
-  content = re.sub("<d>(.*?)</d>", format_direction(r"\1"), content)
-  content = re.sub("<p>(.*?)</p>", format_portal(r"\1"), content)
-  return content
-
-def get_position(abr):
-  position_string = ""
-  if abr in direction_abr:
-    position_string = format_direction(direction_abr[abr])
-    if abr != "c":
-      position_string += " side"
-  else:
-    position_string = "INVALID"
-  return position_string
-
 def change_position(position, logging = False):
   global current_position
   current_position = position
@@ -701,36 +731,54 @@ def change_position(position, logging = False):
     log_string += " of the " + rooms[active_room]['noun']
     add_log(log_string)
 
-def show_active_status():
-  lines = []
-  for line in statuses:
-    if (statuses[line]['active']):
-      lines.append(format_status(statuses[line]['text']))
-  return lines
+def examine(link):
+  interactable = interactables[link]
+  disable_event_interactable(link)
+  if interactable['enable']:
+    enable_event_all(interactable['enable'])
+  if interactable['disable']:
+    disable_event_all(interactable['disable'])
+  if interactable['type'] == "item":
+    add_to_inventory(interactable['link'])
+    add_log("You pick up: " + interactable['text'])
+  if interactable['type'] == "portal":
+    enable_event_portal(interactable['link'])
+    add_log("You have discovered: " + interactable['text'])
+  for line in interactable['on_interact']:
+    execute_action(line)
 
-def activate_status(status, activate = True):
-  global statuses
-  if status in statuses:
-    if statuses[status]['active'] != activate:
-      statuses[status]['active'] = activate
-      if activate:
-        add_log(statuses[status]['activation_text'])
-      else:
-        add_log(statuses[status]['deactivation_text'])
+def add_to_inventory(item):
+  global inventory_list
+  inventory_list.append(item)
 
-def deactivate_status(status):
-  activate_status(status, False)
+def enter_portal(link):
+  portal = portals[link]
+  target_room = None
+  target_pos = None
+  if portals[link]['link1'] == active_room:
+    target_room = portals[link]['link2']
+    target_pos = portals[link]['pos2']
+    add_log(portals[link]['text1to2'])
+  else:
+    target_room = portals[link]['link1']
+    target_pos = portals[link]['pos1']
+    add_log(portals[link]['text2to1'])
+  enter_room(target_room)
+  change_position(target_pos)
+  for line in portal['on_interact']:
+    execute_action(line)
 
 # SETUP
-initialize()
-import_settings()
 main_title = "Cantus Aeterni"
 debug_log_list = ["Starting game"]
+debug_input_char = None
 ui_size_upper = 3
 ui_lower_input_options_length = 10
 ui_size_lower = ui_lower_input_options_length + 3
 ui_log_display_length = 10
 ui_size_log = ui_log_display_length + 1
+ui_log_active = False
+ui_pre_quit_prompt = False
 ui_quit_prompt = False
 ui_restart_prompt = False
 ui_current_menu = ""
@@ -742,6 +790,8 @@ window_size_y = default_window_size_y
 loop_count = 0
 quit_game = False
 direction_abr = {'nw': 'north-west', 'n': 'north', 'ne': 'north-east', 'w': 'west', 'c': 'center', 'e': 'east', 'sw': 'south-west', 's': 'south', 'se': 'south-east' }
+import_settings()
+initialize()
 
 # SET COLORS
 color_red = '\x1b[0;31;40m'
@@ -796,217 +846,26 @@ if(os.name == 'nt'):
   user32.ShowWindow(hWnd, SW_NORMAL)
   user32.ShowWindow(hWnd, SW_MAXIMIZE)
 
-"""
-# FULLSCREEN
-if(os.name == 'nt' and settings['start_fullscreen']):
-  keyboard.press('f11')
-"""
-
 # MAIN LOOP
 while not quit_game:
   get_window_size()
+  hide_cursor()
   clear_console()
   run_queued_actions()
   ui_upper()
   if mode == "start_menu":
-    main_window(start_menu())
-  elif mode == "test":
-    main_window(test())
+    ui_main_window(main_window_start_menu())
+  elif mode == "debug":
+    ui_main_window(main_window_debug())
+    ui_log(debug_log_list)
   elif mode == "cutscene":
-    main_window(cutscene())
+    ui_main_window(main_window_cutscene())
   elif mode == "map":
-    main_window(map())
+    ui_main_window(main_window_map())
   elif mode == "game":
-    main_window(game())
-    ui_log()
+    ui_main_window(main_window_game())
+    ui_log(log_list)
   ui_lower()
   loop_count += 1
-  #exec("main_window(" + mode + "())")
 
-"""
-color_tags = {'<i>': color_interactable, '</i>': color_end, '<s>': color_status, '</s>': color_end, '<d>': color_direction, '</d>': color_end, '<p>': color_portal, '</p>': color_end}
-
-def replace_multi(text, dic):
-    for i, j in dic.items():
-        text = text.replace(i, j)
-    return text
-
-class EncodeJSON(json.JSONEncoder):
-        def default(self, o):
-            return o.__dict__
-with open("rooms.json", "w") as outfile:
-    json.dump(rooms, outfile, indent = 2, cls=EncodeJSON)
-with open("statuses.json", "w") as outfile:
-    json.dump(statuses, outfile, indent = 2, cls=EncodeJSON)
-with open("cutscenes.json", "w") as outfile:
-    json.dump(cutscenes, outfile, indent = 2, cls=EncodeJSON)
-with open("interactables.json", "w") as outfile:
-    json.dump(interactables, outfile, indent = 2, cls=EncodeJSON)
-with open("portals.json", "w") as outfile:
-    json.dump(portals, outfile, indent = 2, cls=EncodeJSON)
-
-rooms_pickled = jsonpickle.encode(rooms, indent = 2)
-rooms_unpickled = jsonpickle.decode(rooms_pickled)
-f = open("rooms-pickle.json", "w")
-f.write(rooms_pickled)
-f.close()
-
-statuses = {
-    'slime': {
-        'active': False,
-        'text': "You are engulfed in sticky slime.",
-        'activation_text': "You have become completely covered in nasty slime.",
-        'deactivation_text': "You are no longer covered in slime.",
-    },
-    'blind': {
-        'active': False,
-        'text': "You are blind.",
-        'activation_text': "You have lost the ability to see.",
-        'deactivation_text': "You've regained your vision.",
-    }
-}
-cutscenes = {
-    1: {
-        'on_enter': [
-        ],
-        'on_exit': [
-        "enter_room(1)",
-        "change_position('e')",
-        ],
-        'text': [
-        "You regain consciousness.",
-        ],
-    }
-}
-interactables = {
-    1: {
-        'type': "portal",
-        'link': 1,
-        'enable': 2,
-        'disable': 1,
-        'text': "A pool of slime that is very deep. You could dive in and try to swim to the end.",
-        'on_interact': [
-        ],
-    },
-    2: {
-        'type': "item",
-        'link': 1,
-        'enable': None,
-        'disable': 3,
-        'text': "A key. It seems quite old. It has some slime on it.",
-        'on_interact': [
-        ],
-    },
-    3: {
-        'type': "portal",
-        'link': 2,
-        'enable': 5,
-        'disable': 4,
-        'text': "A cave that looks big enough for you to fit inside.",
-        'on_interact': [
-        ],
-    },
-}
-portals = {
-    1: {
-        'link1': 1,
-        'link2': 2,
-        'pos1': "c",
-        'pos2': "c",
-        'text1to2': "You dive into the deep slime pool. After a long and terrifying swim through the submerged cave you emerge in a pitch black grotto.",
-        'text2to1': "You jump back into the slime pool. You emerge in a slimy grotto.",
-        'on_interact': [
-        "activate_status('slime')",
-        ],
-    },
-    2: {
-        'link1': 1,
-        'link2': 3,
-        'pos1': "s",
-        'pos2': "n",
-        'text1to2': "You squeeze yourself through the tight cave opening. You emerge on the other side.",
-        'text2to1': "You head back into the cave. You emerge in a grotto.",
-        'on_interact': [
-        ],
-    },
-}
-rooms = {
-    1: {
-        'noun': "grotto",
-        'location': "You find yourself in a slimy grotto. The walls are covered in sticky slime and the floor is made of hard rock.",
-        'interactable': [
-        Event("c","A deep pool of slime on the grotto floor",1),
-        Event("ne","Something glinting in the darkness",2),
-        Event("s","A narrow cave entrance on the grotto wall",3),
-        ],
-        'sight': [
-        Event("-c","It is very dark, but you see " + format_interactable("a deep pool of slime") + " in the " + format_direction("center") +" of the grotto.",1),
-        Event("c","You see " + format_interactable("a deep pool of slime") + " in front of you.",1),
-        Event("-c","It is very dark, but you see " + format_portal("a deep pool of slime") + " in the " + format_direction("center") +" of the grotto.",2,True),
-        Event("c","You see " + format_portal("a deep pool of slime") + " leading in an " + format_direction("unknown") + " direction.",2,True),
-        Event("-ne","It is very dark, but you see " + format_interactable("something glinting") + " in the darkness in the " + format_direction("north-east") +" corner of the grotto.",3),
-        Event("ne","You see " + format_interactable("something glinting") + " in the darkness in front of you.",3),
-        Event("-s","It is very dark, but you see " + format_interactable("a narrow cave entrance") + " on the " + format_direction("southern") + " wall of the grotto.",4),
-        Event("s","You see " + format_interactable("a narrow cave entrance") + " in front of you.",4),
-        Event("-s","It is very dark, but you see " + format_portal("a narrow cave entrance") + " on the " + format_direction("southern") + " wall of the grotto.",5,True),
-        Event("s","You see " + format_portal("a narrow cave") + " leading " + format_direction("south") + ".",5,True),
-        ],
-        'smell': [
-        Event("","The grotto smells like wet slime."),
-        Event("c","The smell of slime is overwhelmingly strong here."),
-        ],
-        'sound': [
-        Event("","You hear the faint sound of slime dripping on slime."),
-        ],
-        'on_enter': [
-        ],
-        'portal': [
-        Event("c","Dive into the deep pool of slime leading in an unknown direction",1,True),
-        Event("s","Climb into the cave leading south",2,True),
-        ],
-    },
-    2: {
-        'noun': "grotto",
-        'location': "You find yourself in a pitch black grotto.",
-        'interactable': [
-        ],
-        'sight': [
-        #Event("-c","It is almost pitch black, but you can barely make out " + format_portal("a deep pool of slime") + " in the " + format_direction("center") +" of the grotto."),
-        Event("-c","It is almost pitch black, you see nothing."),
-        Event("c","It is very dark, but you make out " + format_portal("a deep pool of slime") + " leading in an " + format_direction("unknown") + " direction."),
-        ],
-        'smell': [
-        Event("","The grotto smells like fungus and slime."),
-        Event("c","The smell of slime is very strong here."),
-        ],
-        'sound': [
-        Event("s","You hear a barely audible rumbling sound."),
-        ],
-        'on_enter': [
-        ],
-        'portal': [
-        Event("c","Dive into the deep pool of slime leading back to the grotto",1,True),
-        ],
-    },
-    3: {
-        'noun': "void",
-        'location': "You find yourself in a void.",
-        'interactable': [
-        ],
-        'sight': [
-        Event("-n","You see " + format_portal("a narrow cave entrance") + " on the " + format_direction("northern") + " side of the void."),
-        Event("n","You see " + format_portal("a narrow cave") + " leading " + format_direction("north") + " to a grotto."),
-        ],
-        'smell': [
-        Event("n","You detect a faint smell of slime coming from the " + format_direction("north") + "."),
-        ],
-        'sound': [
-        ],
-        'on_enter': [
-        ],
-        'portal': [
-        Event("n","Climb back into the cave leading north",1,True),
-        ],
-    },
-}
-"""
+add_debug_log("Quitting game")
