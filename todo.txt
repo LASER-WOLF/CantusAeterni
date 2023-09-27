@@ -1,8 +1,7 @@
-# scrollable log
-# no debug logging when exit map
-# implement minimap?
+# divide stuff in top ui into functions
+# change move controls
 # music
-# linux / max support: maximize window, handle input, hide cursor
+# linux / mac support: maximize window, handle input, hide cursor
 # map
 # items
 # inventory
@@ -37,3 +36,13 @@
 # reset game
 # mini map
 # debug logging level
+# mode names as constants
+# scrollbar style
+# scrollbar num
+# scrollable log
+# no debug logging when exit map
+# ui horizontal blocks
+# implement minimap?
+
+https://www.compart.com/en/unicode/
+https://mandolingals.tripod.com/midi/midis.html

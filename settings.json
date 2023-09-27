@@ -1,4 +1,8 @@
 {
   "debug_mode": true,
-  "debug_log_to_file": true
+  "debug_on_start": false,
+  "debug_log_to_file": true,
+  "enable_minimap": true,
+  "enable_music": true,
+  "music_volume": 0.5
 }
