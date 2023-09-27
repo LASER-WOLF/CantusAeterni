@@ -1,8 +1,11 @@
+# map selection persistent vertical
+# map background pattern
+# make system for drawing printing lines
+# animated main window
 # divide stuff in top ui into functions
-# change move controls
-# music
+# change move controls, movement with wasd
+# use arrows to select on menu
 # linux / mac support: maximize window, handle input, hide cursor
-# map
 # items
 # inventory
 # character creator
@@ -43,6 +46,10 @@
 # no debug logging when exit map
 # ui horizontal blocks
 # implement minimap?
+# music
+# map: check for rooms on same coords
+# import only part of pygame
+# map
 
 https://www.compart.com/en/unicode/
 https://mandolingals.tripod.com/midi/midis.html

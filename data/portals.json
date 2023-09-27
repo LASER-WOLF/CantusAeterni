@@ -23,5 +23,15 @@
     "text1to2": "You squeeze yourself through the tight cave opening. You emerge on the other side.",
     "text2to1": "You head back into the cave. You emerge in a grotto.",
     "on_interact": []
+  },
+  "test1": {
+    "link1": "3",
+    "link2": "test1",
+    "pos1": "nw",
+    "pos2": "sw",
+    "dir": "nw",
+    "text1to2": "test text 1",
+    "text2to1": "test text 2",
+    "on_interact": []
   }
 }

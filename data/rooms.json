@@ -212,9 +212,15 @@
     "portal": [
       {
         "position": "n",
-        "link": "1",
+        "link": "2",
         "content": "Climb back into the cave leading north",
         "disabled": true
+      },
+	  {
+        "position": "nw",
+        "link": "test1",
+        "content": "Enter portal",
+        "disabled": false
       }
     ],
     "interactable": [],
@@ -230,6 +236,18 @@
         "link": null,
         "content": "You see <p>a narrow cave</p> leading <d>north</d> to a grotto.",
         "disabled": false
+      },
+      {
+        "position": "-nw",
+        "link": null,
+        "content": "You see <p>a portal</p> on the <d>north-west</d> side of the void.",
+        "disabled": false
+      },
+      {
+        "position": "nw",
+        "link": null,
+        "content": "You see <p>a portal</p> leading <d>north</d>.",
+        "disabled": false
       }
     ],
     "smell": [
@@ -239,6 +257,48 @@
         "content": "You detect a faint smell of slime coming from the <d>north</d>.",
         "disabled": false
       }
+    ],
+    "sound": []
+  },
+  "test1": {
+    "noun": "test",
+    "location": "You find yourself in a void.",
+	"visited": {
+      "nw": false,
+      "n": false,
+      "ne": false,
+      "w": false,
+      "c": false,
+      "e": false,
+      "sw": false,
+      "s": false,
+      "se": false
+    },
+    "on_enter": [],
+    "portal": [
+      {
+        "position": "sw",
+        "link": "test1",
+        "content": "Enter portal",
+        "disabled": false
+      }
+    ],
+    "interactable": [],
+    "sight": [
+      {
+        "position": "-sw",
+        "link": null,
+        "content": "You see <p>a portal</p> on the <d>south-west</d> side.",
+        "disabled": false
+      },
+      {
+        "position": "sw",
+        "link": null,
+        "content": "You see <p>a portal</p> leading <d>south</d>.",
+        "disabled": false
+      }
+    ],
+    "smell": [
     ],
     "sound": []
   }

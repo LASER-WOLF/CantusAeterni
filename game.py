@@ -1,4 +1,5 @@
 import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import ctypes
 import json
 import re
@@ -6,7 +7,8 @@ import msvcrt
 import time
 from datetime import datetime
 import threading
-import pygame
+from pygame import mixer as pygame_mixer
+from pygame import time as pygame_time
 import random
 
 MAIN_TITLE = "Cantus Aeterni"
@@ -21,6 +23,9 @@ MUSIC_TYPE_MAIN = "main"
 MUSIC_TYPE_GAME = "game"
 MUSIC = [
   {"file": "music/main1.mid", "type": MUSIC_TYPE_MAIN, "title": "Belle Qui Tiens Ma Vie"},
+  #{"file": "music/court1.mid", "type": MUSIC_TYPE_GAME, "title": "Greensleeves"},
+  #{"file": "music/court2.mid", "type": MUSIC_TYPE_GAME, "title": "Trotto"},
+  #{"file": "music/court3.mid", "type": MUSIC_TYPE_GAME, "title": "Saltarello"},
   {"file": "music/game_a1.mid", "type": MUSIC_TYPE_GAME, "title": "Robert deVisée - Guitar Suite in Gm - 1st Movement"},
   {"file": "music/game_a2.mid", "type": MUSIC_TYPE_GAME, "title": "Robert deVisée - Guitar Suite in Gm - 2nd Movement"},
   {"file": "music/game_a3.mid", "type": MUSIC_TYPE_GAME, "title": "Robert deVisée - Guitar Suite in Gm - 3rd Movement"},
@@ -28,12 +33,19 @@ MUSIC = [
   {"file": "music/game_a5.mid", "type": MUSIC_TYPE_GAME, "title": "Robert deVisée - Guitar Suite in Gm - 5th Movement"},
   {"file": "music/game_a6.mid", "type": MUSIC_TYPE_GAME, "title": "Robert deVisée - Guitar Suite in Gm - 6th Movement"},
   {"file": "music/game_a7.mid", "type": MUSIC_TYPE_GAME, "title": "Robert deVisée - Guitar Suite in Gm - 7th Movement"},
+  #{"file": "music/drama1.mid", "type": MUSIC_TYPE_GAME, "title": "François Couperin - Les Plaisirs de Saint Germain en Laÿe"},
+  #{"file": "music/drama2.mid", "type": MUSIC_TYPE_GAME, "title": "Germain Pinell - Branle des Frondeurs"},
+  #{"file": "music/drama3.mid", "type": MUSIC_TYPE_GAME, "title": "Ennemond Gaultier le vieux - Canarie in A"},
+  #{"file": "music/drama4.mid", "type": MUSIC_TYPE_GAME, "title": "Menuett in A"},
+  #{"file": "music/drama5.mid", "type": MUSIC_TYPE_GAME, "title": "François Couperin - Les Baricades Misterieuses"},
   {"file": "music/game_b1.mid", "type": MUSIC_TYPE_GAME, "title": "Suite in Bm - 1st Movement"},
   {"file": "music/game_b2.mid", "type": MUSIC_TYPE_GAME, "title": "Suite in Bm - 2nd Movement"},
   {"file": "music/game_b3.mid", "type": MUSIC_TYPE_GAME, "title": "Suite in Bm - 3rd Movement"},
   {"file": "music/game_b4.mid", "type": MUSIC_TYPE_GAME, "title": "Suite in Bm - 4th Movement"},
   {"file": "music/game_b5.mid", "type": MUSIC_TYPE_GAME, "title": "Suite in Bm - 5th Movement"},
   {"file": "music/game_b6.mid", "type": MUSIC_TYPE_GAME, "title": "Suite in Bm - 6th Movement"},
+  #{"file": "music/mystery1.mid", "type": MUSIC_TYPE_GAME, "title": "Courante in Am"},
+  #{"file": "music/mystery2.mid", "type": MUSIC_TYPE_GAME, "title": "Johann Georg Weichenberger - Menuett in Gm"},
   {"file": "music/game_c1.mid", "type": MUSIC_TYPE_GAME, "title": "Aria in Bm"},
   {"file": "music/game_c2.mid", "type": MUSIC_TYPE_GAME, "title": "Camille Tallard - Menuett in A"},
   {"file": "music/game_c3.mid", "type": MUSIC_TYPE_GAME, "title": "Rondeau in C"},
@@ -46,16 +58,6 @@ MUSIC = [
   {"file": "music/game_c10.mid", "type": MUSIC_TYPE_GAME, "title": "Bouree in F"},
   {"file": "music/game_c11.mid", "type": MUSIC_TYPE_GAME, "title": "Ivan Gelinek - Allemande in Gm"}
 ]
-#  {"file": "music/mystery1.mid", "title": "Courante in Am"},
-#  {"file": "music/mystery2.mid", "title": "Johann Georg Weichenberger - Menuett in Gm"},
-#  {"file": "music/drama1.mid", "title": "François Couperin - Les Plaisirs de Saint Germain en Laÿe"},
-#  {"file": "music/drama2.mid", "title": "Germain Pinell - Branle des Frondeurs"},
-#  {"file": "music/drama3.mid", "title": "Ennemond Gaultier le vieux - Canarie in A"},
-#  {"file": "music/drama4.mid", "title": "Menuett in A"},
-#  {"file": "music/drama5.mid", "title": "François Couperin - Les Baricades Misterieuses"},
-#  {"file": "music/court1.mid", "title": "Greensleeves"},
-#  {"file": "music/court2.mid", "title": "Trotto"},
-#  {"file": "music/court3.mid", "title": "Saltarello"},
 
 def main_loop():
   global loop_count
@@ -103,20 +105,20 @@ def music_initialize():
   bitsize = -16   # unsigned 16 bit
   channels = 1  # 1 is mono, 2 is stereo
   buffer = 1024   # number of samples
-  pygame.mixer.init(freq, bitsize, channels, buffer)
+  pygame_mixer.init(freq, bitsize, channels, buffer)
   music_change_volume(settings['music_volume'])
 
 def music_play(midi_filename):
-  clock = pygame.time.Clock()
-  pygame.mixer.music.load(midi_filename)
-  pygame.mixer.music.play()
-  while pygame.mixer.music.get_busy():
+  clock = pygame_time.Clock()
+  pygame_mixer.music.load(midi_filename)
+  pygame_mixer.music.play()
+  while pygame_mixer.music.get_busy():
     clock.tick(30)
 
 def music_change_volume(volume = 1):
   global music_volume
   music_volume = volume
-  pygame.mixer.music.set_volume(volume)  
+  pygame_mixer.music.set_volume(volume)  
 
 def music_start():
   global music_enable
@@ -127,17 +129,18 @@ def music_start():
 def music_stop():
   global music_enable
   music_enable = False
-  pygame.mixer.music.stop()
+  pygame_mixer.music.stop()
 
 def music_change_type(new_type = None):
   global music_type
   old_type = music_type
   music_type = new_type
   if old_type != new_type:
+    music_shuffle_next()
     music_next()
 
-def music_next():
-   pygame.mixer.music.fadeout(250)
+def music_next(fadeout = 250):
+   pygame_mixer.music.fadeout(fadeout)
 
 def music_shuffle_next():
   global music_skip_track_num
@@ -187,21 +190,23 @@ def initialize_new_game():
   change_mode(MODE_CUTSCENE)
   add_debug_log("Initializing new game")
 
-def initialize_new_mode():
-  global ui_log_scroll_pos
-  ui_log_scroll_pos = 0
-  if mode == MODE_MAIN_MENU:
-    music_change_type(MUSIC_TYPE_MAIN)
-  elif mode == MODE_CUTSCENE or mode == MODE_GAME:
-    music_shuffle_next()
-    music_change_type(MUSIC_TYPE_GAME)
-
 def change_mode(new_mode):
   global mode
   global previous_mode
+  global ui_selection_options
+  global ui_selection_x
+  global ui_selection_y
+  global ui_log_scroll_pos
   previous_mode = mode
   mode = new_mode
-  initialize_new_mode()
+  ui_log_scroll_pos = 0
+  ui_selection_options = None
+  ui_selection_x = 0
+  ui_selection_y = 0
+  if mode == MODE_MAIN_MENU:
+    music_change_type(MUSIC_TYPE_MAIN)
+  elif mode == MODE_CUTSCENE or mode == MODE_GAME:
+    music_change_type(MUSIC_TYPE_GAME)
 
 def get_window_size():
   global window_size_x
@@ -370,7 +375,7 @@ def ui_upper():
   print_line(ui_upper_string)
   print_seperator_line()
 
-def ui_block_minimap():
+def ui_block_minimap(room_id):
   lines = []
   lines.append("MEMORY (LOCAL):")
   map_char_tile_top = color_bright_black + "┌───┐" + color_end
@@ -413,7 +418,7 @@ def ui_block_minimap():
       tile_top = map_char_tile_top
       tile_mid = map_char_tile_mid
       tile_low = map_char_tile_low
-      if rooms[active_room]['visited'][pos]:
+      if rooms[room_id]['visited'][pos]:
         tile_top = map_char_tile_visited_top
         tile_mid = map_char_tile_visited_mid
         tile_low = map_char_tile_visited_low
@@ -421,8 +426,8 @@ def ui_block_minimap():
           tile_top = map_char_tile_current_top
           tile_mid = map_char_tile_current_mid
           tile_low = map_char_tile_current_low
-      for portal in rooms[active_room]['portal']:
-        if portal['position'] == pos and portal['disabled'] == False and rooms[active_room]['visited'][pos]:
+      for portal in rooms[room_id]['portal']:
+        if portal['position'] == pos and portal['disabled'] == False and rooms[room_id]['visited'][pos]:
           tile_top = map_char_portal_top
           tile_mid = map_char_portal_mid
           tile_low = map_char_portal_low
@@ -430,8 +435,8 @@ def ui_block_minimap():
             tile_top = map_char_tile_portal_current_top
             tile_mid = map_char_tile_portal_current_mid
             tile_low = map_char_tile_portal_current_low
-      for interactable in rooms[active_room]['interactable']:
-        if interactable['position'] == pos and interactable['disabled'] == False and rooms[active_room]['visited'][pos]:
+      for interactable in rooms[room_id]['interactable']:
+        if interactable['position'] == pos and interactable['disabled'] == False and rooms[room_id]['visited'][pos]:
           tile_top = map_char_interactable_top
           tile_mid = map_char_interactable_mid
           tile_low = map_char_interactable_low
@@ -474,6 +479,7 @@ def ui_lower():
   global ui_current_menu
   global settings
   global ui_log_scroll_pos
+  global ui_selection_options
   ui_blocks = []
   # PRE QUIT PROMPT
   if ui_pre_quit_prompt:
@@ -504,8 +510,9 @@ def ui_lower():
     print_line("[1] DEBUG MODE: " + str(settings['debug_mode']).upper())
     print_line("[2] DEBUG SCREEN ON START: " + str(settings['debug_on_start']).upper())
     print_line("[3] DEBUG LOG TO FILE: " + str(settings['debug_log_to_file']).upper())
-    print_line("[4] ENABLE MINIMAP: " + str(settings['enable_minimap']).upper())
-    print_line("[5] ENABLE MUSIC: " + str(settings['enable_music']).upper())
+    print_line("[4] ERROR LOG TO FILE: " + str(settings['debug_error_log_to_file']).upper())
+    print_line("[5] ENABLE MINIMAP: " + str(settings['enable_minimap']).upper())
+    print_line("[6] ENABLE MUSIC: " + str(settings['enable_music']).upper())
     print_line("[B] <- GO BACK")
   # DEBUG SCREEN
   elif mode == MODE_DEBUG: 
@@ -566,14 +573,22 @@ def ui_lower():
         lines.append("[D] DEBUG SCREEN")
       lines.append("[?] HELP")
       lines.append("[Q] QUIT")
-      
       if settings['enable_minimap']:
-        ui_blocks.append(ui_block_minimap())
+        ui_blocks.append(ui_block_minimap(active_room))
       ui_blocks.append(lines)
       for line in ui_combine_blocks(ui_blocks):
         print_line(line)
-  # MAP / HELP SCREEN
-  elif mode == MODE_MAP or mode == MODE_HELP: 
+  # MAP SCREEN
+  elif mode == MODE_MAP:
+    lines = []
+    lines.append("SELECT ACTION:")
+    lines.append("[B] <- GO BACK")
+    ui_blocks.append(ui_block_minimap(ui_selection_options[ui_selection_y][ui_selection_x]))
+    ui_blocks.append(lines)
+    for line in ui_combine_blocks(ui_blocks):
+      print_line(line)
+  # HELP SCREEN
+  elif mode == MODE_HELP: 
     print_line("[B] <- GO BACK")
     
   # HANDLE INPUT
@@ -629,8 +644,10 @@ def ui_lower():
       elif(key == "3"):
         settings['debug_log_to_file'] = not settings['debug_log_to_file']
       elif(key == "4"):
-        settings['enable_minimap'] = not settings['enable_minimap']
+        settings['debug_error_log_to_file'] = not settings['debug_error_log_to_file']
       elif(key == "5"):
+        settings['enable_minimap'] = not settings['enable_minimap']
+      elif(key == "6"):
         settings['enable_music'] = not settings['enable_music']
         if settings['enable_music'] and not music_enable:
           music_start()
@@ -645,33 +662,33 @@ def ui_lower():
       elif(key == "down"):
           ui_log_scroll_pos -= 1
       elif(key == "right"):
-          music_next()
+          music_next(0)
     # GAME MODE
     elif mode == MODE_GAME:
       # MOVE MENU
       if ui_current_menu == "move":
         if(key.lower() == "b"):
-          ui_current_menu = ""      
+          ui_current_menu = None
         num = 1
         for item in menu_options_move:
           if(key == str(num)):
-            ui_current_menu = ""
+            ui_current_menu = None
             change_position(menu_options_move[num-1], True)
           num += 1
       # INTERACT MENU
       elif ui_current_menu == "interact":
         if(key.lower() == "b"):
-          ui_current_menu = ""      
+          ui_current_menu = None
         num = 1
         for item in menu_options_examine:
           if(key == str(num)):
-            ui_current_menu = ""
+            ui_current_menu = None
             examine(menu_options_examine[num-1])
           num += 1
         num = 1
         for item in menu_options_portal:
           if(key == str(num)):
-            ui_current_menu = ""
+            ui_current_menu = None
             enter_portal(menu_options_portal[num-1])
           num += 1
       # MAIN MENU (GAME)
@@ -694,10 +711,54 @@ def ui_lower():
         ui_log_scroll_pos += 1
       elif(key == "down"):
           ui_log_scroll_pos -= 1
-    # MAP / HELP SCREEN
-    elif mode == MODE_MAP or mode == MODE_HELP: 
+    # MAP SCREEN
+    elif mode == MODE_MAP: 
       if(key.lower() == "b"):
         change_mode(previous_mode)
+      elif(key == "up"):
+        ui_selection_y_prev()
+      elif(key == "down"):
+        ui_selection_y_next()
+      elif(key == "left"):
+        ui_selection_x_prev()
+      elif(key == "right"):
+        ui_selection_x_next()
+    # HELP SCREEN
+    elif mode == MODE_HELP: 
+      if(key.lower() == "b"):
+        change_mode(previous_mode)
+
+def ui_selection_y_prev():
+  global ui_selection_y
+  global ui_selection_x
+  if ui_selection_y > 0:
+    ui_selection_y -= 1
+  while ui_selection_x > 0 and ui_selection_x >= len(ui_selection_options[ui_selection_y]):
+    ui_selection_x -= 1
+
+def ui_selection_y_next():
+  global ui_selection_y
+  global ui_selection_x
+  if ui_selection_y < len(ui_selection_options)-1:
+    ui_selection_y += 1
+  while ui_selection_x > 0 and ui_selection_x >= len(ui_selection_options[ui_selection_y]):
+    ui_selection_x -= 1
+
+def ui_selection_x_prev():
+  global ui_selection_y
+  global ui_selection_x
+  if ui_selection_x > 0:
+    ui_selection_x -= 1
+  while ui_selection_y > 0 and ui_selection_y >= len(ui_selection_options):
+    ui_selection_x -= 1
+
+def ui_selection_x_next():
+  global ui_selection_y
+  global ui_selection_x
+  if ui_selection_x < len(ui_selection_options[ui_selection_y])-1:
+    ui_selection_x += 1
+  while ui_selection_y > 0 and ui_selection_y >= len(ui_selection_options):
+    ui_selection_y -= 1
 
 def make_scrollbar(scrollbar_window_height, scroll_pos, scroll_max):
   scrollbar_style_line = "│"
@@ -754,10 +815,15 @@ def add_log(item):
   global log_list
   log_list.append(item)
 
-def add_debug_log(item):
+def add_debug_log(item, error = False):
   global debug_log_list
+  if error:
+    item = "ERROR: " + item
   debug_log_list.append(item)
-  if settings['debug_log_to_file']:
+  if settings['debug_error_log_to_file'] and error:
+    with open('error_log.txt', 'a') as file:
+      file.write(datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
+  elif settings['debug_log_to_file']:
     with open('debug_log.txt', 'a') as file:
       file.write(datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
 
@@ -910,82 +976,105 @@ def main_window_game():
   lines.extend(load_room(active_room))
   return MainWindowContent(lines)
 
+def map_portal_check(portal_check_dict = {'selected_room': '1', 'current_coords': {'x': 0, 'y': 0}, 'checked_rooms': {}}):
+  selected_room_root = portal_check_dict['selected_room']
+  current_coords_root = portal_check_dict['current_coords']
+  portal_check_dict['checked_rooms'][selected_room_root] = portal_check_dict['current_coords']
+  for portal in rooms[selected_room_root]['portal']:
+    if portal['disabled'] == False:
+      next_room = portals[portal['link']]['link2']
+      next_dir = portals[portal['link']]['dir']
+      if next_room == selected_room_root:
+        next_room = portals[portal['link']]['link1']
+        next_dir = direction_reverse[next_dir]
+      if not next_room in portal_check_dict['checked_rooms']:
+        next_coords = {'x': current_coords_root['x'] + direction_to_coord[next_dir]['x'], 'y': current_coords_root['y'] + direction_to_coord[next_dir]['y']}
+        portal_check_dict['selected_room'] = next_room
+        portal_check_dict['current_coords'] = next_coords
+        portal_check_dict = map_portal_check(portal_check_dict)
+  return portal_check_dict
+
 def main_window_map():
+  global ui_selection_options
+  global ui_selection_y
+  global ui_selection_x
+  ui_selection_options_update = []
   lines = []
-  lines.append("MEMORY (LOCAL):")
-  map_char_tile_top = color_bright_black + "┌───┐" + color_end
-  map_char_tile_mid = color_bright_black + "│   │" + color_end
-  map_char_tile_low = color_bright_black + "└───┘" + color_end
-  map_char_tile_visited_top = color_bright_yellow + "┌───┐" + color_end
-  map_char_tile_visited_mid = color_bright_yellow + "│   │" + color_end
-  map_char_tile_visited_low = color_bright_yellow + "└───┘" + color_end
-  map_char_tile_current_top = color_bright_yellow + "┌───┐" + color_end
-  map_char_tile_current_mid = color_bright_yellow + "│YOU│" + color_end
-  map_char_tile_current_low = color_bright_yellow + "└───┘" + color_end
-  map_char_portal_top = color_portal + "┌───┐" + color_end
-  map_char_portal_mid = color_portal + "│ P │" + color_end
-  map_char_portal_low = color_portal + "└───┘" + color_end
-  map_char_tile_portal_current_top = color_portal + "┌───┐" + color_end
-  map_char_tile_portal_current_mid = color_portal + "│" + color_bright_yellow + "YOU" + color_portal + "│" + color_end
-  map_char_tile_portal_current_low = color_portal + "└───┘" + color_end
-  map_char_interactable_top = color_interactable + "┌───┐" + color_end
-  map_char_interactable_mid = color_interactable + "│ E │" + color_end
-  map_char_interactable_low = color_interactable + "└───┘" + color_end
-  map_char_tile_interactable_current_top = color_interactable + "┌───┐" + color_end
-  map_char_tile_interactable_current_mid = color_interactable + "│" + color_bright_yellow + "YOU" + color_interactable + "│" + color_end
-  map_char_tile_interactable_current_low = color_interactable + "└───┘" + color_end
-  for y in range(3):
-    line_top = ""
-    line_mid = ""
-    line_low = ""
-    for x in range(3):
-      pos = ""
-      if y == 1 and x == 1:
-        pos = "c"
-      if y == 0:
-        pos += "n"
-      elif y == 2:
-        pos += "s"
-      if x == 0:
-        pos += "w"
-      elif x == 2:
-        pos += "e"
-      tile_top = map_char_tile_top
-      tile_mid = map_char_tile_mid
-      tile_low = map_char_tile_low
-      if rooms[active_room]['visited'][pos]:
-        tile_top = map_char_tile_visited_top
-        tile_mid = map_char_tile_visited_mid
-        tile_low = map_char_tile_visited_low
-        if pos == current_position:
-          tile_top = map_char_tile_current_top
-          tile_mid = map_char_tile_current_mid
-          tile_low = map_char_tile_current_low
-      for portal in rooms[active_room]['portal']:
-        if portal['position'] == pos and portal['disabled'] == False and rooms[active_room]['visited'][pos]:
-          tile_top = map_char_portal_top
-          tile_mid = map_char_portal_mid
-          tile_low = map_char_portal_low
-          if pos == current_position:
-            tile_top = map_char_tile_portal_current_top
-            tile_mid = map_char_tile_portal_current_mid
-            tile_low = map_char_tile_portal_current_low
-      for interactable in rooms[active_room]['interactable']:
-        if interactable['position'] == pos and interactable['disabled'] == False and rooms[active_room]['visited'][pos]:
-          tile_top = map_char_interactable_top
-          tile_mid = map_char_interactable_mid
-          tile_low = map_char_interactable_low
-          if pos == current_position:
-            tile_top = map_char_tile_interactable_current_top
-            tile_mid = map_char_tile_interactable_current_mid
-            tile_low = map_char_tile_interactable_current_low
-      line_top += tile_top
-      line_mid += tile_mid
-      line_low += tile_low
-    lines.append(line_top)
-    lines.append(line_mid)
-    lines.append(line_low)
-  return MainWindowContent(lines, False, True)
+  map_tile_empty_top = color_bright_black + "   " + color_end
+  map_tile_empty_low = color_bright_black + "   " + color_end
+  map_tile_visited_top = color_bright_black + "┌─┐" + color_end
+  map_tile_visited_low = color_bright_black + "└─┘" + color_end
+  map_tile_selected_top = color_bright_yellow + "╔═╗" + color_end
+  map_tile_selected_low = color_bright_yellow + "╚═╝" + color_end
+  map_tile_active_top = color_bright_yellow + "┌|┐" + color_end
+  map_tile_active_low = color_bright_yellow + "└─┘" + color_end
+  map_tile_active_selected_top = color_bright_yellow + "╔|╗" + color_end
+  map_tile_active_selected_low = color_bright_yellow + "╚═╝" + color_end
+  known_rooms = map_portal_check({'selected_room': active_room, 'current_coords': {'x': 0, 'y': 0}, 'checked_rooms': {}})['checked_rooms']
+  #known_rooms_sorted = sorted(known_rooms.items(), key=lambda room: (room[1]['y'], room[1]['x']))
+  zero_x = min(coord['x'] for coord in known_rooms.values())
+  zero_y = min(coord['y'] for coord in known_rooms.values())
+  for room in known_rooms.values():
+    room['x'] += abs(zero_x)
+    room['y'] += abs(zero_y)
+  max_x = max(coord['x'] for coord in known_rooms.values())+1
+  max_y = max(coord['y'] for coord in known_rooms.values())+1
+  y = 0
+  x = 0
+  found_x = 0
+  while y < max_y:
+    ui_selection_options_update.append([])
+    map_line_top = ""
+    map_line_low = ""
+    while x < max_x:
+      if x > 0:
+        map_line_top += " "
+        map_line_low += " "
+      if {'x': x, 'y': y} in known_rooms.values():
+        found_rooms = [k for k, v in known_rooms.items() if v == {'x': x, 'y': y}]
+        found_room = found_rooms[0]
+        ui_selection_options_update[y].append(found_room)
+        if len(found_rooms) > 1:
+          add_debug_log("Multiple rooms with same coordinates " + "(ID: " + str(found_rooms) + ")", True)
+        selected_room = active_room
+        if ui_selection_options:
+          selected_room = ui_selection_options[ui_selection_y][ui_selection_x]
+        elif found_room == selected_room:
+          ui_selection_x = found_x
+          ui_selection_y = y
+        if found_room == active_room:
+          if found_room == selected_room:
+            map_line_top += map_tile_active_selected_top
+            map_line_low += map_tile_active_selected_low
+          else:
+            map_line_top += map_tile_active_top
+            map_line_low += map_tile_active_low
+        elif found_room == selected_room:
+          map_line_top += map_tile_selected_top
+          map_line_low += map_tile_selected_low
+        else:
+          map_line_top += map_tile_visited_top
+          map_line_low += map_tile_visited_low
+        found_x += 1
+      else:
+        map_line_top += map_tile_empty_top
+        map_line_low += map_tile_empty_low
+      x += 1
+    lines.append(map_line_top)
+    lines.append(map_line_low)
+    x = 0
+    y += 1
+    found_x = 0
+  #if settings['debug_mode']:
+  #  lines.append("DEBUG: " + str(known_rooms))
+  #lines.append("DEBUG: " + str(known_rooms_sorted))
+  ui_selection_options = ui_selection_options_update
+  lines.append("DEBUG: " + str(ui_selection_options))
+  lines.append("DEBUG: Y=" + str(ui_selection_y) + " X=" + str(ui_selection_x))
+  lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y]))
+  lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y][ui_selection_x]))
+  
+  return MainWindowContent(lines, True, True)
   
 def load_cutscene(cutscene_id):
   lines = []
@@ -1144,7 +1233,10 @@ ui_size_log = ui_size_log_num_lines + 1
 ui_pre_quit_prompt = False
 ui_quit_prompt = False
 ui_restart_prompt = False
-ui_current_menu = ""
+ui_current_menu = None
+ui_selection_options = None
+ui_selection_x = None
+ui_selection_y = None
 default_window_size_x = 50
 default_window_size_y = 200
 window_size_x = default_window_size_x
@@ -1152,6 +1244,8 @@ window_size_y = default_window_size_y
 loop_count = 0
 quit_game = False
 direction_abr = {'nw': 'north-west', 'n': 'north', 'ne': 'north-east', 'w': 'west', 'c': 'center', 'e': 'east', 'sw': 'south-west', 's': 'south', 'se': 'south-east' }
+direction_to_coord = {'nw': {'x': -1, 'y': -1}, 'n': {'x': 0, 'y': -1}, 'ne': {'x': 1, 'y': -1}, 'w': {'x': -1, 'y': 0}, 'c': {'x': 0, 'y': 0}, 'e': {'x': 1, 'y': 0}, 'sw': {'x': -1, 'y': 1}, 's': {'x': 0, 'y': 1}, 'se': {'x': 1, 'y': 1} }
+direction_reverse = {'nw': 'se', 'n': 's', 'ne': 'sw', 'w': 'e', 'c': 'c', 'e': 'w', 'sw': 'ne', 's': 'n', 'se': 'nw' }
 music_enable = False
 music_title = None
 music_type = None
@@ -1218,22 +1312,3 @@ thread_main = threading.Thread(target=main_loop)
 thread_main.start()
 if settings['enable_music']:
   music_start()
-"""
-def map_portal_check(loop_sel,loop_val):
-  global map_room_list
-  for portal in rooms[loop_sel]['portal']:
-    if portal['disabled'] == False:
-      loop_val_new = loop_val
-      loop_next = portals[portal['link']]['link1']
-      if portals[portal['link']]['link1'] == loop_sel:
-        loop_next = portals[portal['link']]['link2']
-      if portals[portal['link']]['dir'] == "nw" or portals[portal['link']]['dir'] == "n" or portals[portal['link']]['dir'] == "ne":
-        loop_val_new -= 1
-      if portals[portal['link']]['dir'] == "sw" or portals[portal['link']]['dir'] == "s" or portals[portal['link']]['dir'] == "se":
-        loop_val_new += 1
-      #add to list with loop_next and loop_val_new
-      map_room_list.append(loop_sel + " " + str(loop_val_new))
-      map_portal_check(loop_next, loop_val_new)
-
-map_room_list = []
-"""
