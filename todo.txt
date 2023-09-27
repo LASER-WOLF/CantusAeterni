@@ -1,21 +1,15 @@
-# map selection persistent vertical
-# map background pattern
-# make system for drawing printing lines
-# animated main window
-# divide stuff in top ui into functions
-# change move controls, movement with wasd
 # use arrows to select on menu
-# linux / mac support: maximize window, handle input, hide cursor
-# items
-# inventory
+# divide stuff in bottom ui into functions
 # character creator
-# character screen
+# character screen / stats
 # npcs
 # dialogue
-# combat?
+# items
+# inventory
 # save game
-# stats / character screen
-
+# animations
+# linux / mac support: maximize window, handle input, hide cursor
+# combat?
 # touch
 # taste
 
@@ -50,6 +44,10 @@
 # map: check for rooms on same coords
 # import only part of pygame
 # map
+# map background pattern
+# map selection persistent vertical
+# make system for drawing printing lines
+# change move controls, movement with wasd
 
 https://www.compart.com/en/unicode/
 https://mandolingals.tripod.com/midi/midis.html

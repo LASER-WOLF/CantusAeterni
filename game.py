@@ -10,7 +10,9 @@ import threading
 from pygame import mixer as pygame_mixer
 from pygame import time as pygame_time
 import random
+import math
 
+# SET CONSTANTS
 MAIN_TITLE = "Cantus Aeterni"
 MODE_MAIN_MENU = "main_menu"
 MODE_DEBUG = "debug_screen"
@@ -19,6 +21,8 @@ MODE_HELP = "help"
 MODE_CUTSCENE = "cutscene"
 MODE_GAME = "game"
 MODE_MAP = "map"
+
+# SET MUSIC
 MUSIC_TYPE_MAIN = "main"
 MUSIC_TYPE_GAME = "game"
 MUSIC = [
@@ -58,6 +62,111 @@ MUSIC = [
   {"file": "music/game_c10.mid", "type": MUSIC_TYPE_GAME, "title": "Bouree in F"},
   {"file": "music/game_c11.mid", "type": MUSIC_TYPE_GAME, "title": "Ivan Gelinek - Allemande in Gm"}
 ]
+
+# SET COLORS
+COLORS = {
+  "red": "\x1b[0;31;40m",
+  "green": "\x1b[0;32;40m",
+  "yellow": "\x1b[0;33;40m",
+  "blue": "\x1b[0;34;40m",
+  "magenta": "\x1b[0;35;40m",
+  "cyan": "\x1b[0;36;40m",
+  "white": "\x1b[0;37;40m",
+  "bright_black": "\x1b[0;90;40m",
+  "bright_red": "\x1b[0;91;40m",
+  "bright_green": "\x1b[0;92;40m",
+  "bright_yellow": "\x1b[0;93;40m",
+  "bright_blue": "\x1b[0;94;40m",
+  "bright_magenta": "\x1b[0;95;40m",
+  "bright_cyan": "\x1b[0;96;40m",
+  "bright_white": "\x1b[0;97;40m",
+  "bg_red": "\x1b[0;30;41m",
+  "bg_green": "\x1b[0;30;42m",
+  "bg_yellow": "\x1b[0;30;43m",
+  "bg_blue": "\x1b[0;30;44m",
+  "bg_magenta": "\x1b[0;30;45m",
+  "bg_cyan": "\x1b[0;30;46m",
+  "bg_white": "\x1b[0;30;47m",
+  "bg_bright_black": "\x1b[0;30;100m",
+  "bg_bright_red": "\x1b[0;30;101m",
+  "bg_bright_green": "\x1b[0;30;102m",
+  "bg_bright_yellow": "\x1b[0;30;103m",
+  "bg_bright_blue": "\x1b[0;30;104m",
+  "bg_bright_magenta": "\x1b[0;30;105m",
+  "bg_bright_cyan": "\x1b[0;30;106m",
+  "bg_bright_white": "\x1b[0;30;107m",
+}
+COLOR_DEFAULT = COLORS['bright_yellow']
+COLOR_DARK = COLORS['bright_black']
+COLOR_HIGHLIGHT = COLORS['bright_white']
+COLOR_TITLE_SCREEN = COLORS['bright_cyan']
+COLOR_INTERACTABLE = COLORS['bright_green']
+COLOR_PORTAL = COLORS['bright_cyan']
+COLOR_DIRECTION = COLORS['bright_blue']
+COLOR_STATUS = COLORS['bright_magenta']
+COLOR_FILL = COLOR_DARK
+COLOR_MAP_INACTIVE = COLOR_DARK
+COLOR_MAP_SELECTED = COLOR_DEFAULT
+
+# SET PATTERNS
+FILL_CHAR = "ƒ"
+FILL_PATTERNS = {
+  'dots1': [
+    "  .",
+    ".  "
+  ],
+  'dots2': [
+    " ´    ",
+    "      ",
+    "      ",
+    "    ` ",
+    "      ",
+    "      ",
+  ],
+  'crosses1': [
+    " ┼    ",
+    "      ",
+    "    ┼ ",
+  ],
+  'floral1': [
+    " ,´    ",
+    "       ",
+    "    `, ",
+  ],
+  'arrows1': [
+    " »    ",
+    "    « ",
+  ],
+  'stars1': [
+    "     *  ",
+    "      -    ",
+    "    *     ",
+    "    -      ",
+    "  *   ",
+    "       - ",
+    "      * ",
+    "  -       ",
+    " *      ",
+    " -    ",
+  ],
+  'title_screen': [
+    " ´    ",
+    "      ",
+    "      ",
+    "    ` ",
+    "      ",
+    "      ",
+  ]
+}
+FILL_PATTERN_COLORS = {
+  'title_screen': [
+    COLORS['red'],
+    COLORS['yellow'],
+    COLORS['green'],
+    COLORS['magenta'],
+    COLORS['cyan'],
+  ]
+}
 
 def main_loop():
   global loop_count
@@ -147,10 +256,13 @@ def music_shuffle_next():
   music_skip_track_num = random.randrange(0, len(MUSIC))
 
 class MainWindowContent:
-  def __init__(self, lines, centered_horizontal = False, centered_vertical = False):
+  def __init__(self, lines, line_color = None, centered_horizontal = False, centered_vertical = False, fill = None, fill_color = None):
     self.lines = lines
+    self.line_color = line_color
     self.centered_horizontal = centered_horizontal
     self.centered_vertical = centered_vertical
+    self.fill = fill
+    self.fill_color = fill_color
 
 def initialize():
   global queue_list
@@ -211,8 +323,8 @@ def change_mode(new_mode):
 def get_window_size():
   global window_size_x
   global window_size_y
-  window_size_x = os.get_terminal_size().lines
-  window_size_y = os.get_terminal_size().columns
+  window_size_x = os.get_terminal_size().columns
+  window_size_y = os.get_terminal_size().lines
 
 def clear_console():
   if(os.name == 'posix'):
@@ -229,7 +341,8 @@ def show_cursor():
 def get_keypress():
   while True:
     if msvcrt.kbhit():
-      key = msvcrt.getch()
+      key_raw = msvcrt.getch()
+      key = key_raw
       if ord(key) == 224:
         key = ord(msvcrt.getch())
         if key == 72:
@@ -252,13 +365,17 @@ def get_keypress():
         key = "space"
       elif ord(key) == 8:
         key = "backspace"
+      elif ord(key) == 27:
+        key = "escape"
       else:
         if key.isascii():
           key = key.decode("ascii")
         else:
           key = "unknown"
       global debug_input_char
+      global debug_input_char_ord
       debug_input_char = key
+      debug_input_char_ord = ord(key_raw)
       return key
     time.sleep(0.1)
 
@@ -276,16 +393,16 @@ def export_json(name, content):
       json.dump(content, outfile, indent = 2)
 
 def format_status(text):
-  return color_status + text + color_end
+  return COLOR_STATUS + text + COLOR_DEFAULT
 
 def format_interactable(text):
-  return color_interactable + text + color_end
+  return COLOR_INTERACTABLE + text + COLOR_DEFAULT
 
 def format_direction(text):
-  return color_direction + text + color_end
+  return COLOR_DIRECTION + text + COLOR_DEFAULT
 
 def format_portal(text):
-  return color_portal + text + color_end
+  return COLOR_PORTAL + text + COLOR_DEFAULT
 
 def format_color_tags(content):
   content = re.sub("<i>(.*?)</i>", format_interactable(r"\1"), content)
@@ -304,48 +421,132 @@ def format_position_text(abr):
     position_string = "INVALID"
   return position_string
 
-def make_line(line, fill = "", align = "<", margin = 0):
-  line_margin = ""
-  for n in range(margin):
-    line_margin += " "
-  if align == "<":
-    line = line_margin + line
-  if align == ">":
-    line = line + line_margin
-  return '{message:{fill}{align}{width}}'.format(
-   message=line,
-   fill=fill,
-   align=align,
-   width=window_size_y,
-  )
+def multi_replace(target_line, target_dict):
+  for substring in target_dict.values():
+    target_line = target_line.replace(substring, '')
+  return target_line
 
-def print_line(line, fill = "", align = "<", margin = 2):
-  print(make_line(line, fill, align, margin));
+def make_line(line, line_color = None, fill = None, fill_color = None, align = "l", margin = 0):
+  def increment_fill(fill_num, fill_length):
+    fill_num += 1
+    if fill_num >= fill_length:
+      fill_num = 0
+    return fill_num
+  line_without_hidden_chars = multi_replace(line, COLORS)
+  line_length = len(line_without_hidden_chars)
+  centered_start = math.floor((window_size_x - line_length) / 2)
+  if fill:
+    fill_length = len(fill)
+    if not fill_color:
+      fill_color = COLOR_FILL
+  line_formatted = ""
+  num = 0
+  while num < window_size_x:
+    if line_length > 0 and ((align == "l" and num == margin) or (align == "c" and num == centered_start) or (align == "r" and num == window_size_x - (line_length + margin))):
+      num += line_length
+      line_formatted += line
+    else:
+      line_formatted += FILL_CHAR
+      num += 1
+  if line_color:
+    line_formatted_color = ""
+    non_fill_combo = ""
+    for character in line_formatted:
+      if character == FILL_CHAR:
+        if non_fill_combo:
+          line_formatted_color += line_color + non_fill_combo
+          non_fill_combo = ""
+        line_formatted_color += FILL_CHAR
+      else:
+        non_fill_combo += character
+    if non_fill_combo:
+          line_formatted_color += line_color + non_fill_combo
+    line_formatted = line_formatted_color
+  if fill:
+    line_formatted = re.sub("(" + FILL_CHAR + "+)", fill_color + r"\1" + COLOR_DEFAULT, line_formatted)
+    if fill_length <= 1:
+      line_formatted = line_formatted.replace(FILL_CHAR, fill)
+    else:
+      fill_num = 0
+      line_formatted_fill = ""
+      non_fill_combo = ""
+      for character in line_formatted:
+        if character == FILL_CHAR:
+          if non_fill_combo:
+            line_formatted_fill += non_fill_combo
+            for n in range(len(multi_replace(non_fill_combo, COLORS))):
+              fill_num = increment_fill(fill_num, fill_length)
+            non_fill_combo = ""
+          line_formatted_fill += fill[fill_num]
+          fill_num = increment_fill(fill_num, fill_length)
+        else:
+          non_fill_combo += character
+      if non_fill_combo:
+            line_formatted_fill += non_fill_combo
+      line_formatted = line_formatted_fill
+  else:
+    line_formatted = line_formatted.replace(FILL_CHAR, " ")
+  return line_formatted
+
+def print_line(line, line_color = None, fill = None, fill_color = None, align = "l", margin = 2):
+  print(make_line(line, line_color, fill, fill_color, align, margin));
   
-def print_line_centered(line, fill = ""):
-  print_line(line, fill, "^")
+def print_line_centered(line, line_color = None, fill = None, fill_color = None):
+  print_line(line, line_color, fill, fill_color, "c")
   
 def print_seperator_line():
-  print_line_centered("", "-")
+  print_line_centered("", None, "-", COLOR_DEFAULT)
+
+def increment_list_loop(fill_list, fill_num):
+  fill_num += 1
+  if fill_num >= len(fill_list):
+    fill_num = 0
+  return fill_list[fill_num], fill_num
 
 def ui_main_window(content):
   if content.lines:
+    fill = content.fill
+    if fill:
+      fill_list = fill
+      fill_num = 0
+      fill = fill_list[fill_num]
+    fill_color = content.fill_color
+    if fill_color:
+      fill_color_list = fill_color
+      fill_color_num = 0
+      fill_color = fill_color_list[fill_color_num]
     main_window_size_subtract = ui_size_upper+ui_size_lower
     if mode == MODE_GAME or mode == MODE_DEBUG:
       main_window_size_subtract += ui_size_log
     num_upper_padding = 0
+    
     if content.centered_vertical:
-      while num_upper_padding < ((window_size_x - main_window_size_subtract) - len(content.lines)) / 2:
-        print_line("")
+      while num_upper_padding < ((window_size_y - main_window_size_subtract) - len(content.lines)) / 2:
+        print_line("", None, fill, fill_color)
+        if fill:
+          fill, fill_num = increment_list_loop(fill_list, fill_num)
+        if fill_color:
+          fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
         num_upper_padding += 1
+    
     for num, line in enumerate(content.lines):
       if content.centered_horizontal:
-        print_line_centered(line)
+        print_line_centered(line, content.line_color, fill, fill_color)
       else:
-        print_line(line)
-    while num+num_upper_padding+1 < window_size_x-main_window_size_subtract:
-      print_line("")
+        print_line(line, content.line_color, fill)
+      if fill:
+        fill, fill_num = increment_list_loop(fill_list, fill_num)
+      if fill_color:
+        fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
+    
+    while num+num_upper_padding+1 < window_size_y-main_window_size_subtract:
+      print_line("", None, fill, fill_color)
+      if fill:
+          fill, fill_num = increment_list_loop(fill_list, fill_num)
+      if fill_color:
+        fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
       num += 1
+    
     print_seperator_line()
 
 def ui_upper():
@@ -377,28 +578,32 @@ def ui_upper():
 
 def ui_block_minimap(room_id):
   lines = []
-  lines.append("MEMORY (LOCAL):")
-  map_char_tile_top = color_bright_black + "┌───┐" + color_end
-  map_char_tile_mid = color_bright_black + "│   │" + color_end
-  map_char_tile_low = color_bright_black + "└───┘" + color_end
-  map_char_tile_visited_top = color_bright_yellow + "┌───┐" + color_end
-  map_char_tile_visited_mid = color_bright_yellow + "│   │" + color_end
-  map_char_tile_visited_low = color_bright_yellow + "└───┘" + color_end
-  map_char_tile_current_top = color_bright_yellow + "┌───┐" + color_end
-  map_char_tile_current_mid = color_bright_yellow + "│YOU│" + color_end
-  map_char_tile_current_low = color_bright_yellow + "└───┘" + color_end
-  map_char_portal_top = color_portal + "┌───┐" + color_end
-  map_char_portal_mid = color_portal + "│ P │" + color_end
-  map_char_portal_low = color_portal + "└───┘" + color_end
-  map_char_tile_portal_current_top = color_portal + "┌───┐" + color_end
-  map_char_tile_portal_current_mid = color_portal + "│" + color_bright_yellow + "YOU" + color_portal + "│" + color_end
-  map_char_tile_portal_current_low = color_portal + "└───┘" + color_end
-  map_char_interactable_top = color_interactable + "┌───┐" + color_end
-  map_char_interactable_mid = color_interactable + "│ E │" + color_end
-  map_char_interactable_low = color_interactable + "└───┘" + color_end
-  map_char_tile_interactable_current_top = color_interactable + "┌───┐" + color_end
-  map_char_tile_interactable_current_mid = color_interactable + "│" + color_bright_yellow + "YOU" + color_interactable + "│" + color_end
-  map_char_tile_interactable_current_low = color_interactable + "└───┘" + color_end
+  lines.append("MEMORY (LOCAL):".ljust(15))
+  map_char_tile_top_upper_left = COLOR_MAP_INACTIVE + "┌─   " + COLOR_DEFAULT
+  map_char_tile_top_upper_right = COLOR_MAP_INACTIVE + "   ─┐" + COLOR_DEFAULT
+  map_char_tile_bottom_lower_left = COLOR_MAP_INACTIVE + "└─   " + COLOR_DEFAULT
+  map_char_tile_bottom_lower_right = COLOR_MAP_INACTIVE + "   ─┘" + COLOR_DEFAULT
+  map_char_tile_top = COLOR_MAP_INACTIVE + "     " + COLOR_DEFAULT
+  map_char_tile_mid = COLOR_MAP_INACTIVE + "  -  " + COLOR_DEFAULT
+  map_char_tile_low = COLOR_MAP_INACTIVE + "     " + COLOR_DEFAULT
+  map_char_tile_visited_top = COLOR_MAP_INACTIVE + "┌───┐" + COLOR_DEFAULT
+  map_char_tile_visited_mid = COLOR_MAP_INACTIVE + "│   │" + COLOR_DEFAULT
+  map_char_tile_visited_low = COLOR_MAP_INACTIVE + "└───┘" + COLOR_DEFAULT
+  map_char_tile_current_top = COLOR_MAP_SELECTED + "┌───┐" + COLOR_DEFAULT
+  map_char_tile_current_mid = COLOR_MAP_SELECTED + "│YOU│" + COLOR_DEFAULT
+  map_char_tile_current_low = COLOR_MAP_SELECTED + "└───┘" + COLOR_DEFAULT
+  map_char_portal_top = COLOR_PORTAL + "┌───┐" + COLOR_DEFAULT
+  map_char_portal_mid = COLOR_PORTAL + "│ P │" + COLOR_DEFAULT
+  map_char_portal_low = COLOR_PORTAL + "└───┘" + COLOR_DEFAULT
+  map_char_tile_portal_current_top = COLOR_PORTAL + "┌───┐" + COLOR_DEFAULT
+  map_char_tile_portal_current_mid = COLOR_PORTAL + "│" + COLOR_MAP_SELECTED + "YOU" + COLOR_PORTAL + "│" + COLOR_DEFAULT
+  map_char_tile_portal_current_low = COLOR_PORTAL + "└───┘" + COLOR_DEFAULT
+  map_char_interactable_top = COLOR_INTERACTABLE + "┌───┐" + COLOR_DEFAULT
+  map_char_interactable_mid = COLOR_INTERACTABLE + "│ E │" + COLOR_DEFAULT
+  map_char_interactable_low = COLOR_INTERACTABLE + "└───┘" + COLOR_DEFAULT
+  map_char_tile_interactable_current_top = COLOR_INTERACTABLE + "┌───┐" + COLOR_DEFAULT
+  map_char_tile_interactable_current_mid = COLOR_INTERACTABLE + "│" + COLOR_MAP_SELECTED + "YOU" + COLOR_INTERACTABLE + "│" + COLOR_DEFAULT
+  map_char_tile_interactable_current_low = COLOR_INTERACTABLE + "└───┘" + COLOR_DEFAULT
   for y in range(3):
     line_top = ""
     line_mid = ""
@@ -418,6 +623,14 @@ def ui_block_minimap(room_id):
       tile_top = map_char_tile_top
       tile_mid = map_char_tile_mid
       tile_low = map_char_tile_low
+      if pos == 'nw':
+        tile_top = map_char_tile_top_upper_left
+      elif pos == 'ne':
+        tile_top = map_char_tile_top_upper_right
+      elif pos == 'sw':
+        tile_low = map_char_tile_bottom_lower_left
+      elif pos == 'se':
+        tile_low = map_char_tile_bottom_lower_right
       if rooms[room_id]['visited'][pos]:
         tile_top = map_char_tile_visited_top
         tile_mid = map_char_tile_visited_mid
@@ -484,9 +697,9 @@ def ui_lower():
   # PRE QUIT PROMPT
   if ui_pre_quit_prompt:
     print_line("SELECT ACTION:")
-    print_line("[1] RETURN TO TITLE SCREEN")
-    print_line("[2] QUIT GAME")
-    print_line("[B] <- GO BACK")
+    print_line("[1]   RETURN TO TITLE SCREEN")
+    print_line("[2]   QUIT GAME")
+    print_line("[ESC] <- GO BACK")
   # QUIT PROMPT
   elif ui_quit_prompt:
     print_line("ARE YOU SURE?")
@@ -499,24 +712,24 @@ def ui_lower():
     print_line("[N] NO")
   # START MENU
   elif mode == MODE_MAIN_MENU: 
-    print_line("[1] START GAME")
-    print_line("[S] SETTINGS")
+    print_line("[1]   START GAME")
+    print_line("[P]   PREFERENCES")
     if settings['debug_mode']:
-      print_line("[D] DEBUG SCREEN")
-    print_line("[?] HELP")
-    print_line("[Q] QUIT")
+      print_line("[-]   DEBUG SCREEN")
+    print_line("[?]   HELP")
+    print_line("[ESC] QUIT")
   # SETTINGS MENU
   elif mode == MODE_SETTINGS: 
-    print_line("[1] DEBUG MODE: " + str(settings['debug_mode']).upper())
-    print_line("[2] DEBUG SCREEN ON START: " + str(settings['debug_on_start']).upper())
-    print_line("[3] DEBUG LOG TO FILE: " + str(settings['debug_log_to_file']).upper())
-    print_line("[4] ERROR LOG TO FILE: " + str(settings['debug_error_log_to_file']).upper())
-    print_line("[5] ENABLE MINIMAP: " + str(settings['enable_minimap']).upper())
-    print_line("[6] ENABLE MUSIC: " + str(settings['enable_music']).upper())
-    print_line("[B] <- GO BACK")
+    print_line("[1]   DEBUG MODE: " + str(settings['debug_mode']).upper())
+    print_line("[2]   DEBUG SCREEN ON START: " + str(settings['debug_on_start']).upper())
+    print_line("[3]   DEBUG LOG TO FILE: " + str(settings['debug_log_to_file']).upper())
+    print_line("[4]   ERROR LOG TO FILE: " + str(settings['debug_error_log_to_file']).upper())
+    print_line("[5]   ENABLE MINIMAP: " + str(settings['enable_minimap']).upper())
+    print_line("[6]   ENABLE MUSIC: " + str(settings['enable_music']).upper())
+    print_line("[ESC] <- GO BACK")
   # DEBUG SCREEN
   elif mode == MODE_DEBUG: 
-    print_line("[B] <- GO BACK")
+    print_line("[ESC] <- GO BACK")
   # GAME MODE
   elif mode == MODE_GAME:
     # CHECK INTERACT OPTIONS
@@ -528,51 +741,31 @@ def ui_lower():
     for line in room['interactable']:
       if line['position'] == current_position and not line['disabled']:
         menu_options_examine.append(line['link'])
-        menu_options_examine_text.append("[" + str(num) + "] (EXAMINE) " + line['content'].upper())
+        menu_options_examine_text.append("[" + str(num) + "]   (EXAMINE) " + line['content'].upper())
         num += 1
     for line in room['portal']:
       if line['position'] == current_position and not line['disabled']:
         menu_options_portal.append(line['link'])
-        menu_options_examine_text.append("[" + str(num) + "] (EXIT) " + line['content'].upper())
+        menu_options_examine_text.append("[" + str(num) + "]   (EXIT) " + line['content'].upper())
         num += 1
-    # CHECK MOVE OPTIONS
-    menu_options_move = []
-    menu_options_move_text = []
-    num = 1
-    for key, value in direction_abr.items():
-      if key != current_position:
-        menu_options_move.append(key)
-        line_string = "[" + str(num) + "] " + value.upper()
-        if key != "c":
-          line_string += " SIDE"
-        line_string += " OF " + rooms[active_room]['noun'].upper()
-        menu_options_move_text.append(line_string)
-        num += 1
-    # MOVE MENU
-    if ui_current_menu == "move":
-      print_line("MOVE TO:")
-      for line in menu_options_move_text:
-        print_line(line)
-      print_line("[B] <- GO BACK")
     # INTERACT MENU
-    elif ui_current_menu == "interact":
+    if ui_current_menu == "interact":
       print_line("AVAILABLE INTERACTIONS:")
       for line in menu_options_examine_text:
         print_line(line)
-      print_line("[B] <- GO BACK")
+      print_line("[ESC] <- GO BACK")
     # MAIN MENU (GAME)
     else:
       lines = []
       lines.append("SELECT ACTION:")
-      lines.append("[1] MOVE")
       if menu_options_examine_text:
-        lines.append("[2] INTERACT")
-      lines.append("[M] MAP")
-      lines.append("[S] SETTINGS")
+        lines.append("[E]   INTERACT")
+      lines.append("[M]   MAP")
+      lines.append("[P]   PREFERENCES")
       if settings['debug_mode']:
-        lines.append("[D] DEBUG SCREEN")
-      lines.append("[?] HELP")
-      lines.append("[Q] QUIT")
+        lines.append("[-]   DEBUG SCREEN")
+      lines.append("[?]   HELP")
+      lines.append("[ESC] QUIT")
       if settings['enable_minimap']:
         ui_blocks.append(ui_block_minimap(active_room))
       ui_blocks.append(lines)
@@ -582,14 +775,14 @@ def ui_lower():
   elif mode == MODE_MAP:
     lines = []
     lines.append("SELECT ACTION:")
-    lines.append("[B] <- GO BACK")
+    lines.append("[ESC] <- GO BACK")
     ui_blocks.append(ui_block_minimap(ui_selection_options[ui_selection_y][ui_selection_x]))
     ui_blocks.append(lines)
     for line in ui_combine_blocks(ui_blocks):
       print_line(line)
   # HELP SCREEN
   elif mode == MODE_HELP: 
-    print_line("[B] <- GO BACK")
+    print_line("[ESC] <- GO BACK")
     
   # HANDLE INPUT
   if mode == MODE_CUTSCENE:
@@ -604,7 +797,7 @@ def ui_lower():
       elif(key == "2"):
         ui_pre_quit_prompt = False
         ui_quit_prompt = True
-      elif(key == "b"):
+      elif(key == "escape"):
         ui_pre_quit_prompt = False
     # QUIT PROMPT
     elif ui_quit_prompt:
@@ -622,19 +815,19 @@ def ui_lower():
         ui_restart_prompt = False
     # START MENU
     elif mode == MODE_MAIN_MENU: 
-      if(key.lower() == "q"):
+      if(key.lower() == "escape"):
         ui_quit_prompt = True
-      elif(key.lower() == "d" and settings['debug_mode']):
+      elif(key.lower() == "-" and settings['debug_mode']):
         change_mode(MODE_DEBUG)
       elif(key == "1"):
         initialize_new_game()
-      elif(key.lower() == "s"):
+      elif(key.lower() == "p"):
         change_mode(MODE_SETTINGS)
       elif(key.lower() == "?"):
         change_mode(MODE_HELP)
     # SETTINGS MENU
     elif mode == MODE_SETTINGS: 
-      if(key.lower() == "b"):
+      if(key == "escape"):
         export_json('settings', settings)
         change_mode(previous_mode)
       elif(key == "1"):
@@ -655,7 +848,7 @@ def ui_lower():
           music_stop()
     # DEBUG SCREEN
     elif mode == MODE_DEBUG: 
-      if(key.lower() == "b"):
+      if(key == "escape"):
         change_mode(previous_mode)
       if(key == "up"):
         ui_log_scroll_pos += 1
@@ -665,19 +858,9 @@ def ui_lower():
           music_next(0)
     # GAME MODE
     elif mode == MODE_GAME:
-      # MOVE MENU
-      if ui_current_menu == "move":
-        if(key.lower() == "b"):
-          ui_current_menu = None
-        num = 1
-        for item in menu_options_move:
-          if(key == str(num)):
-            ui_current_menu = None
-            change_position(menu_options_move[num-1], True)
-          num += 1
       # INTERACT MENU
-      elif ui_current_menu == "interact":
-        if(key.lower() == "b"):
+      if ui_current_menu == "interact":
+        if(key == "escape"):
           ui_current_menu = None
         num = 1
         for item in menu_options_examine:
@@ -693,78 +876,119 @@ def ui_lower():
           num += 1
       # MAIN MENU (GAME)
       else:
-        if(key.lower() == "q"):
+        if(key.lower() == "escape"):
           ui_pre_quit_prompt = True
-        elif(key.lower() == "d" and settings['debug_mode']):
+        elif(key.lower() == "-" and settings['debug_mode']):
           change_mode(MODE_DEBUG)
-        elif(key.lower() == "s"):
+        elif(key.lower() == "p"):
           change_mode(MODE_SETTINGS)
         elif(key.lower() == "m"):
           change_mode(MODE_MAP)
-        elif(key == "1"):
-          ui_current_menu = "move"
-        elif(key == "2" and menu_options_examine_text):
+        elif(key == "e" and menu_options_examine_text):
           ui_current_menu = "interact"
         elif(key.lower() == "?"):
           change_mode(MODE_HELP)
+        elif(key.lower() == "w"):
+          move_north()
+        elif(key.lower() == "s"):
+          move_south()
+        elif(key.lower() == "a"):
+          move_west()
+        elif(key.lower() == "d"):
+          move_east()
       if(key == "up"):
         ui_log_scroll_pos += 1
       elif(key == "down"):
           ui_log_scroll_pos -= 1
     # MAP SCREEN
     elif mode == MODE_MAP: 
-      if(key.lower() == "b"):
+      if(key == "escape"):
         change_mode(previous_mode)
-      elif(key == "up"):
+      elif(key.lower() == "w"):
         ui_selection_y_prev()
-      elif(key == "down"):
+      elif(key.lower() == "s"):
         ui_selection_y_next()
-      elif(key == "left"):
+      elif(key.lower() == "a"):
         ui_selection_x_prev()
-      elif(key == "right"):
+      elif(key.lower() == "d"):
         ui_selection_x_next()
     # HELP SCREEN
     elif mode == MODE_HELP: 
-      if(key.lower() == "b"):
+      if(key == "escape"):
         change_mode(previous_mode)
+
+def dict_key_by_value(target_dict, target_value):
+  return [k for k, v in target_dict.items() if v == target_value]
+
+def move_north():
+  global current_position
+  pos = direction_to_coord[current_position]
+  if pos['y'] > -1:
+    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x'], 'y': pos['y']-1})[0], True)
+    
+def move_south():
+  global current_position
+  pos = direction_to_coord[current_position]
+  if pos['y'] < 1:
+    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x'], 'y': pos['y']+1})[0], True)
+    
+def move_west():
+  global current_position
+  pos = direction_to_coord[current_position]
+  if pos['x'] > -1:
+    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x']-1, 'y': pos['y']})[0], True)
+
+def move_east():
+  global current_position
+  pos = direction_to_coord[current_position]
+  if pos['x'] < 1:
+    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x']+1, 'y': pos['y']})[0], True)
 
 def ui_selection_y_prev():
   global ui_selection_y
   global ui_selection_x
   if ui_selection_y > 0:
     ui_selection_y -= 1
-  while ui_selection_x > 0 and ui_selection_x >= len(ui_selection_options[ui_selection_y]):
-    ui_selection_x -= 1
+    while ui_selection_x > 0 and ui_selection_options[ui_selection_y][ui_selection_x] is None:
+      ui_selection_x -= 1
+    while ui_selection_x < len(ui_selection_options[ui_selection_y]) and ui_selection_options[ui_selection_y][ui_selection_x] is None:
+      ui_selection_x += 1
 
 def ui_selection_y_next():
   global ui_selection_y
   global ui_selection_x
   if ui_selection_y < len(ui_selection_options)-1:
     ui_selection_y += 1
-  while ui_selection_x > 0 and ui_selection_x >= len(ui_selection_options[ui_selection_y]):
-    ui_selection_x -= 1
+    while ui_selection_x > 0 and ui_selection_options[ui_selection_y][ui_selection_x] is None:
+      ui_selection_x -= 1
+    while ui_selection_x < len(ui_selection_options[ui_selection_y]) and ui_selection_options[ui_selection_y][ui_selection_x] is None:
+      ui_selection_x += 1
 
 def ui_selection_x_prev():
   global ui_selection_y
   global ui_selection_x
   if ui_selection_x > 0:
     ui_selection_x -= 1
-  while ui_selection_y > 0 and ui_selection_y >= len(ui_selection_options):
-    ui_selection_x -= 1
+    while ui_selection_y > 0 and ui_selection_options[ui_selection_y][ui_selection_x] is None:
+      ui_selection_y -= 1
+    while ui_selection_y < len(ui_selection_options) and ui_selection_options[ui_selection_y][ui_selection_x] is None:
+      ui_selection_y += 1
 
 def ui_selection_x_next():
   global ui_selection_y
   global ui_selection_x
   if ui_selection_x < len(ui_selection_options[ui_selection_y])-1:
     ui_selection_x += 1
-  while ui_selection_y > 0 and ui_selection_y >= len(ui_selection_options):
-    ui_selection_y -= 1
+    while ui_selection_y > 0 and ui_selection_options[ui_selection_y][ui_selection_x] is None:
+      ui_selection_y -= 1
+    while ui_selection_y < len(ui_selection_options) and ui_selection_options[ui_selection_y][ui_selection_x] is None:
+      ui_selection_y += 1
 
 def make_scrollbar(scrollbar_window_height, scroll_pos, scroll_max):
   scrollbar_style_line = "│"
-  scrollbar_style_body_top = color_bg_bright_yellow + " " + color_end
-  scrollbar_style_body_mid = color_bg_bright_yellow + " " + color_end
-  scrollbar_style_body_low = color_bg_bright_yellow + " " + color_end
+  scrollbar_style_body_top = COLORS['bg_bright_yellow'] + " " + COLOR_DEFAULT
+  scrollbar_style_body_mid = COLORS['bg_bright_yellow'] + " " + COLOR_DEFAULT
+  scrollbar_style_body_low = COLORS['bg_bright_yellow'] + " " + COLOR_DEFAULT
   lines = []
   scrollbar_pos = 0
   scrollbar_size = 1
@@ -917,41 +1141,41 @@ def deactivate_status(status):
 
 def main_window_start_menu():
   lines = []
-  lines.append(color_title_screen)
-  lines.append('  .g8"""bgd     db      `7MN.   `7MF\'MMP""MM""YMM `7MMF\'   `7MF\'.M"""bgd    ')
-  lines.append('.dP\'     `M    ;MM:       MMN.    M  P\'   MM   `7   MM       M ,MI    "Y    ')
-  lines.append('dM\'       `   ,V^MM.      M YMb   M       MM        MM       M `MMb.        ')
-  lines.append('MM           ,M  `MM      M  `MN. M       MM        MM       M   `YMMNq.    ')
-  lines.append('MM.          AbmmmqMA     M   `MM.M       MM        MM       M .     `MM    ')
-  lines.append('`Mb.     ,\' A\'     VML    M     YMM       MM        YM.     ,M Mb     dM    ')
-  lines.append('  `"bmmmd\'.AMA.   .AMMA..JML.    YM     .JMML.       `bmmmmd"\' P"Ybmmd"     ')
   lines.append('')
-  lines.append('      db      `7MM"""YMM MMP""MM""YMM `7MM"""YMM  `7MM"""Mq.  `7MN.   `7MF\'`7MMF\'   ')
-  lines.append('     ;MM:       MM    `7 P\'   MM   `7   MM    `7    MM   `MM.   MMN.    M    MM     ')
-  lines.append('    ,V^MM.      MM   d        MM        MM   d      MM   ,M9    M YMb   M    MM     ')
-  lines.append('   ,M  `MM      MMmmMM        MM        MMmmMM      MMmmdM9     M  `MN. M    MM     ')
-  lines.append('   AbmmmqMA     MM   Y  ,     MM        MM   Y  ,   MM  YM.     M   `MM.M    MM     ')
-  lines.append('  A\'     VML    MM     ,M     MM        MM     ,M   MM   `Mb.   M     YMM    MM     ')
-  lines.append('.AMA.   .AMMA..JMMmmmmMMM   .JMML.    .JMMmmmmMMM .JMML. .JMM..JML.    YM  .JMML.   ')
-  lines.append(color_end)
-  return MainWindowContent(lines, True, True)
+  lines.append('ƒƒ.g8"""bgdƒƒƒƒƒdbƒƒƒƒƒƒ`7MN.ƒƒƒ`7MF\'MMP""MM""YMMƒ`7MMF\'ƒƒƒ`7MF\'.M"""bgdƒ')
+  lines.append('.dP\'ƒƒƒƒƒ`Mƒƒƒƒ;MM:ƒƒƒƒƒƒƒMMN.ƒƒƒƒMƒƒP\'ƒƒƒMMƒƒƒ`7ƒƒƒMMƒƒƒƒƒƒƒMƒ,MIƒƒƒƒ"Yƒ')
+  lines.append('dM\'ƒƒƒƒƒƒƒ`ƒƒƒ,V^MM.ƒƒƒƒƒƒMƒYMbƒƒƒMƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒMƒ`MMb.ƒƒƒƒƒ')
+  lines.append('MMƒƒƒƒƒƒƒƒƒƒƒ,Mƒƒ`MMƒƒƒƒƒƒMƒƒ`MN.ƒMƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒMƒƒƒ`YMMNq.ƒ')
+  lines.append('MM.ƒƒƒƒƒƒƒƒƒƒAbmmmqMAƒƒƒƒƒMƒƒƒ`MM.MƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒMƒ.ƒƒƒƒƒ`MMƒ')
+  lines.append('`Mb.ƒƒƒƒƒ,\'ƒA\'ƒƒƒƒƒVMLƒƒƒƒMƒƒƒƒƒYMMƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒYM.ƒƒƒƒƒ,MƒMbƒƒƒƒƒdMƒ')
+  lines.append('ƒƒ`"bmmmd\'.AMA.ƒƒƒ.AMMA..JML.ƒƒƒƒYMƒƒƒƒƒ.JMML.ƒƒƒƒƒƒƒ`bmmmmd"\'ƒP"Ybmmd"ƒƒ')
+  lines.append('')
+  lines.append('ƒƒƒƒƒƒdbƒƒƒƒƒƒ`7MM"""YMMƒMMP""MM""YMMƒ`7MM"""YMMƒƒ`7MM"""Mq.ƒƒ`7MN.ƒƒƒ`7MF\'`7MMF\'')
+  lines.append('ƒƒƒƒƒ;MM:ƒƒƒƒƒƒƒMMƒƒƒƒ`7ƒP\'ƒƒƒMMƒƒƒ`7ƒƒƒMMƒƒƒƒ`7ƒƒƒƒMMƒƒƒ`MM.ƒƒƒMMN.ƒƒƒƒMƒƒƒƒMMƒƒ')
+  lines.append('ƒƒƒƒ,V^MM.ƒƒƒƒƒƒMMƒƒƒdƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒdƒƒƒƒƒƒMMƒƒƒ,M9ƒƒƒƒMƒYMbƒƒƒMƒƒƒƒMMƒƒ')
+  lines.append('ƒƒƒ,Mƒƒ`MMƒƒƒƒƒƒMMmmMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMmmMMƒƒƒƒƒƒMMmmdM9ƒƒƒƒƒMƒƒ`MN.ƒMƒƒƒƒMMƒƒ')
+  lines.append('ƒƒƒAbmmmqMAƒƒƒƒƒMMƒƒƒYƒƒ,ƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒYƒƒ,ƒƒƒMMƒƒYM.ƒƒƒƒƒMƒƒƒ`MM.MƒƒƒƒMMƒƒ')
+  lines.append('ƒƒA\'ƒƒƒƒƒVMLƒƒƒƒMMƒƒƒƒƒ,MƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒ,MƒƒƒMMƒƒƒ`Mb.ƒƒƒMƒƒƒƒƒYMMƒƒƒƒMMƒƒ')
+  lines.append('.AMA.ƒƒƒ.AMMA..JMMmmmmMMMƒƒƒ.JMML.ƒƒƒƒ.JMMmmmmMMMƒ.JMML.ƒ.JMM..JML.ƒƒƒƒYMƒƒ.JMML.')
+  lines.append('')
+  return MainWindowContent(lines, COLOR_TITLE_SCREEN, True, True, FILL_PATTERNS['title_screen'])
 
 def main_window_debug():
   lines = []
   justnum = 15
-  lines.append('RED: '.ljust(justnum) + color_red + ' FG ' + color_bright_red + ' BRIGHT ' + color_bg_red + ' BG ' + color_end + ' ' + color_bg_bright_red + ' BRIGHT ' + color_end)
-  lines.append('GREEN: '.ljust(justnum) + color_green + ' FG ' + color_bright_green + ' BRIGHT ' + color_bg_green + ' BG ' + color_end + ' ' + color_bg_bright_green + ' BRIGHT ' + color_end)
-  lines.append('YELLOW: '.ljust(justnum) + color_yellow + ' FG ' + color_bright_yellow + ' BRIGHT ' + color_bg_yellow + ' BG ' + color_end + ' ' + color_bg_bright_yellow + ' BRIGHT ' + color_end)
-  lines.append('BLUE: '.ljust(justnum) + color_blue + ' FG ' + color_bright_blue + ' BRIGHT ' + color_bg_blue + ' BG ' + color_end + ' ' + color_bg_bright_blue + ' BRIGHT ' + color_end)
-  lines.append('MAGENTA: '.ljust(justnum) + color_magenta + ' FG ' + color_bright_magenta + ' BRIGHT ' + color_bg_magenta + ' BG ' + color_end + ' ' + color_bg_bright_magenta + ' BRIGHT ' + color_end)
-  lines.append('CYAN: '.ljust(justnum) + color_cyan + ' FG ' + color_bright_cyan + ' BRIGHT ' + color_bg_cyan + ' BG ' + color_end + ' ' + color_bg_bright_cyan + ' BRIGHT ' + color_end)
-  lines.append('WHITE: '.ljust(justnum) + color_white + ' FG ' + color_bright_white + ' BRIGHT ' + color_bg_white + ' BG ' + color_end + ' ' + color_bg_bright_white + ' BRIGHT ' + color_end)
+  lines.append('RED: '.ljust(justnum) + COLORS['red'] + ' FG ' + COLORS['bright_red'] + ' BRIGHT ' + COLORS['bg_red'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_red'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('GREEN: '.ljust(justnum) + COLORS['green'] + ' FG ' + COLORS['bright_green'] + ' BRIGHT ' + COLORS['bg_green'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_green'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('YELLOW: '.ljust(justnum) + COLORS['yellow'] + ' FG ' + COLORS['bright_yellow'] + ' BRIGHT ' + COLORS['bg_yellow'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_yellow'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('BLUE: '.ljust(justnum) + COLORS['blue'] + ' FG ' + COLORS['bright_blue'] + ' BRIGHT ' + COLORS['bg_blue'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_blue'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('MAGENTA: '.ljust(justnum) + COLORS['magenta'] + ' FG ' + COLORS['bright_magenta'] + ' BRIGHT ' + COLORS['bg_magenta'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_magenta'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('CYAN: '.ljust(justnum) + COLORS['cyan'] + ' FG ' + COLORS['bright_cyan'] + ' BRIGHT ' + COLORS['bg_cyan'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_cyan'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('WHITE: '.ljust(justnum) + COLORS['white'] + ' FG ' + COLORS['bright_white'] + ' BRIGHT ' + COLORS['bg_white'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_white'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('BLACK: '.ljust(justnum)  + '    ' + COLORS['bright_black'] + ' BRIGHT ' + '    ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_black'] + ' BRIGHT ' + COLOR_DEFAULT)
   lines.append("")
-  lines.append('LAST INPUT: '.ljust(justnum) + '"' + str(debug_input_char)  + '"')
+  lines.append('LAST INPUT: '.ljust(justnum) + '"' + str(debug_input_char)  + '" (' + str(debug_input_char_ord) + ')')
   lines.append('')
   lines.append('MUSIC STATUS: '.ljust(justnum) + str(music_enable) + ":" + str(music_type) + ":" + str(settings['music_volume']))
   lines.append('MUSIC TITLE: '.ljust(justnum) + str(music_title))
-  
   return MainWindowContent(lines)
 
 def main_window_help():
@@ -984,10 +1208,12 @@ def map_portal_check(portal_check_dict = {'selected_room': '1', 'current_coords'
     if portal['disabled'] == False:
       next_room = portals[portal['link']]['link2']
       next_dir = portals[portal['link']]['dir']
+      next_portal_pos = portals[portal['link']]['pos2']
       if next_room == selected_room_root:
         next_room = portals[portal['link']]['link1']
         next_dir = direction_reverse[next_dir]
-      if not next_room in portal_check_dict['checked_rooms']:
+        next_portal_pos = portals[portal['link']]['pos1']
+      if not next_room in portal_check_dict['checked_rooms'] and rooms[next_room]['visited'][next_portal_pos]:
         next_coords = {'x': current_coords_root['x'] + direction_to_coord[next_dir]['x'], 'y': current_coords_root['y'] + direction_to_coord[next_dir]['y']}
         portal_check_dict['selected_room'] = next_room
         portal_check_dict['current_coords'] = next_coords
@@ -1000,16 +1226,16 @@ def main_window_map():
   global ui_selection_x
   ui_selection_options_update = []
   lines = []
-  map_tile_empty_top = color_bright_black + "   " + color_end
-  map_tile_empty_low = color_bright_black + "   " + color_end
-  map_tile_visited_top = color_bright_black + "┌─┐" + color_end
-  map_tile_visited_low = color_bright_black + "└─┘" + color_end
-  map_tile_selected_top = color_bright_yellow + "╔═╗" + color_end
-  map_tile_selected_low = color_bright_yellow + "╚═╝" + color_end
-  map_tile_active_top = color_bright_yellow + "┌|┐" + color_end
-  map_tile_active_low = color_bright_yellow + "└─┘" + color_end
-  map_tile_active_selected_top = color_bright_yellow + "╔|╗" + color_end
-  map_tile_active_selected_low = color_bright_yellow + "╚═╝" + color_end
+  map_tile_empty_top = "ƒƒƒ"
+  map_tile_empty_low = "ƒƒƒ"
+  map_tile_visited_top = COLOR_MAP_INACTIVE + "┌─┐" + COLOR_DEFAULT
+  map_tile_visited_low = COLOR_MAP_INACTIVE + "└─┘" + COLOR_DEFAULT
+  map_tile_selected_top = COLOR_MAP_SELECTED + "╔═╗" + COLOR_DEFAULT
+  map_tile_selected_low = COLOR_MAP_SELECTED + "╚═╝" + COLOR_DEFAULT
+  map_tile_active_top = COLOR_MAP_SELECTED + "┌|┐" + COLOR_DEFAULT
+  map_tile_active_low = COLOR_MAP_SELECTED + "└─┘" + COLOR_DEFAULT
+  map_tile_active_selected_top = COLOR_MAP_SELECTED + "╔|╗" + COLOR_DEFAULT
+  map_tile_active_selected_low = COLOR_MAP_SELECTED + "╚═╝" + COLOR_DEFAULT
   known_rooms = map_portal_check({'selected_room': active_room, 'current_coords': {'x': 0, 'y': 0}, 'checked_rooms': {}})['checked_rooms']
   #known_rooms_sorted = sorted(known_rooms.items(), key=lambda room: (room[1]['y'], room[1]['x']))
   zero_x = min(coord['x'] for coord in known_rooms.values())
@@ -1021,7 +1247,6 @@ def main_window_map():
   max_y = max(coord['y'] for coord in known_rooms.values())+1
   y = 0
   x = 0
-  found_x = 0
   while y < max_y:
     ui_selection_options_update.append([])
     map_line_top = ""
@@ -1031,7 +1256,7 @@ def main_window_map():
         map_line_top += " "
         map_line_low += " "
       if {'x': x, 'y': y} in known_rooms.values():
-        found_rooms = [k for k, v in known_rooms.items() if v == {'x': x, 'y': y}]
+        found_rooms = dict_key_by_value(known_rooms, {'x': x, 'y': y})
         found_room = found_rooms[0]
         ui_selection_options_update[y].append(found_room)
         if len(found_rooms) > 1:
@@ -1040,7 +1265,7 @@ def main_window_map():
         if ui_selection_options:
           selected_room = ui_selection_options[ui_selection_y][ui_selection_x]
         elif found_room == selected_room:
-          ui_selection_x = found_x
+          ui_selection_x = x
           ui_selection_y = y
         if found_room == active_room:
           if found_room == selected_room:
@@ -1055,8 +1280,8 @@ def main_window_map():
         else:
           map_line_top += map_tile_visited_top
           map_line_low += map_tile_visited_low
-        found_x += 1
       else:
+        ui_selection_options_update[y].append(None)
         map_line_top += map_tile_empty_top
         map_line_low += map_tile_empty_low
       x += 1
@@ -1064,17 +1289,16 @@ def main_window_map():
     lines.append(map_line_low)
     x = 0
     y += 1
-    found_x = 0
-  #if settings['debug_mode']:
-  #  lines.append("DEBUG: " + str(known_rooms))
-  #lines.append("DEBUG: " + str(known_rooms_sorted))
   ui_selection_options = ui_selection_options_update
-  lines.append("DEBUG: " + str(ui_selection_options))
-  lines.append("DEBUG: Y=" + str(ui_selection_y) + " X=" + str(ui_selection_x))
-  lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y]))
-  lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y][ui_selection_x]))
-  
-  return MainWindowContent(lines, True, True)
+  if settings['debug_mode']:
+    lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y][ui_selection_x]))
+  #lines.append("DEBUG: " + str(known_rooms_sorted))
+  #lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y]))
+  #lines.append("DEBUG: " + str(ui_selection_options))
+  #lines.append("DEBUG: Y=" + str(ui_selection_y) + " X=" + str(ui_selection_x))
+  #lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y][ui_selection_x]))
+  #lines.append(str(ui_selection_options_update))
+  return MainWindowContent(lines, None, True, True, FILL_PATTERNS['dots1'])
   
 def load_cutscene(cutscene_id):
   lines = []
@@ -1225,6 +1449,7 @@ mode = None
 previous_mode = None
 debug_log_list = ["Starting game"]
 debug_input_char = None
+debug_input_char_ord = None
 ui_size_upper = 3
 ui_size_lower_num_lines = 10
 ui_size_lower = ui_size_lower_num_lines + 3
@@ -1254,46 +1479,8 @@ import_settings()
 music_initialize()
 initialize()
 
-# SET COLORS
-color_red = '\x1b[0;31;40m'
-color_green = '\x1b[0;32;40m'
-color_yellow = '\x1b[0;33;40m'
-color_blue = '\x1b[0;34;40m'
-color_magenta = '\x1b[0;35;40m'
-color_cyan = '\x1b[0;36;40m'
-color_white = '\x1b[0;37;40m'
-color_bright_black = '\x1b[0;90;40m'
-color_bright_red = '\x1b[0;91;40m'
-color_bright_green = '\x1b[0;92;40m'
-color_bright_yellow = '\x1b[0;93;40m'
-color_bright_blue = '\x1b[0;94;40m'
-color_bright_magenta = '\x1b[0;95;40m'
-color_bright_cyan = '\x1b[0;96;40m'
-color_bright_white = '\x1b[0;97;40m'
-color_bg_red = '\x1b[0;30;41m'
-color_bg_green = '\x1b[0;30;42m'
-color_bg_yellow = '\x1b[0;30;43m'
-color_bg_blue = '\x1b[0;30;44m'
-color_bg_magenta = '\x1b[0;30;45m'
-color_bg_cyan = '\x1b[0;30;46m'
-color_bg_white = '\x1b[0;30;47m'
-color_bg_bright_black = '\x1b[0;30;100m'
-color_bg_bright_red = '\x1b[0;30;101m'
-color_bg_bright_green = '\x1b[0;30;102m'
-color_bg_bright_yellow = '\x1b[0;30;103m'
-color_bg_bright_blue = '\x1b[0;30;104m'
-color_bg_bright_magenta = '\x1b[0;30;105m'
-color_bg_bright_cyan = '\x1b[0;30;106m'
-color_bg_bright_white = '\x1b[0;30;107m'
-color_end = color_bright_yellow
-color_title_screen = color_bright_cyan
-color_interactable = color_bright_green
-color_direction = color_bright_blue
-color_portal = color_bright_cyan
-color_status = color_bright_magenta
-
 # SET WINDOW TITLE & SIZE & FG/BG COLOR
-os.system("mode "+str(default_window_size_y)+","+str(default_window_size_x))
+os.system("mode "+str(default_window_size_x)+","+str(default_window_size_y))
 os.system("color 0E")
 os.system("title " + MAIN_TITLE)
 
