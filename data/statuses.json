@@ -1,0 +1,26 @@
+{
+  "slime": {
+    "active": false,
+    "text": "You are engulfed in sticky slime.",
+    "activation_text": "You have become completely covered in nasty slime.",
+    "deactivation_text": "You are no longer covered in slime."
+  },
+  "blind": {
+    "active": false,
+    "text": "You are blind.",
+    "activation_text": "You have lost your sense of vision.",
+    "deactivation_text": "You have regained your sense of vision."
+  },
+  "deaf": {
+    "active": false,
+    "text": "You are deaf.",
+    "activation_text": "You have lost your sense of hearing.",
+    "deactivation_text": "You have regained your sense of hearing."
+  },
+  "anosmic": {
+    "active": false,
+    "text": "You are anosmic.",
+    "activation_text": "You have lost your sense of smell.",
+    "deactivation_text": "You have regained your sense of smell."
+  }
+}

@@ -1,0 +1,30 @@
+# items
+# inventory
+# debug screen
+# position log
+# map
+# character creator
+# npcs
+# dialogue
+# combat?
+# reset game
+# save game
+# stats / character screen
+
+# touch
+# taste
+
+# move
+# dynamic window sizes (main/bottom)
+# hide empty main screen
+# settings full screen
+# interact
+# listen
+# smell
+# auto-smell
+# auto-listen
+# exit room actions
+# replace exec
+# sight
+# smell
+# sound

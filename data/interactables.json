@@ -1,0 +1,26 @@
+{
+  "1": {
+    "type": "portal",
+    "link": "1",
+    "enable": "2",
+    "disable": "1",
+    "text": "A pool of slime that is very deep. You could dive in and try to swim to the end.",
+    "on_interact": []
+  },
+  "2": {
+    "type": "item",
+    "link": "1",
+    "enable": null,
+    "disable": "3",
+    "text": "An iron key. It seems quite old. It has some slime on it.",
+    "on_interact": []
+  },
+  "3": {
+    "type": "portal",
+    "link": "2",
+    "enable": "5",
+    "disable": "4",
+    "text": "A cave that looks big enough for you to fit inside.",
+    "on_interact": []
+  }
+}

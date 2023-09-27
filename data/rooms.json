@@ -1,0 +1,223 @@
+{
+  "1": {
+    "noun": "grotto",
+	"visited": {
+      "nw": false,
+      "n": false,
+      "ne": false,
+      "w": false,
+      "c": false,
+      "e": false,
+      "sw": false,
+      "s": false,
+      "se": false
+    },
+    "location": "You find yourself in a slimy grotto. The walls are covered in sticky slime and the floor is made of hard rock.",
+    "on_enter": [],
+    "portal": [
+      {
+        "position": "c",
+        "link": "1",
+        "content": "Dive into the deep pool of slime leading in an unknown direction",
+        "disabled": true
+      },
+      {
+        "position": "s",
+        "link": "2",
+        "content": "Climb into the cave leading south",
+        "disabled": true
+      }
+    ],
+	"interactable": [
+      {
+        "position": "c",
+        "link": "1",
+        "content": "A deep pool of slime on the grotto floor",
+        "disabled": false
+      },
+      {
+        "position": "ne",
+        "link": "2",
+        "content": "Something glinting in the darkness",
+        "disabled": false
+      },
+      {
+        "position": "s",
+        "link": "3",
+        "content": "A narrow cave entrance on the grotto wall",
+        "disabled": false
+      }
+    ],
+    "sight": [
+      {
+        "position": "-c",
+        "link": "1",
+        "content": "It is very dark, but you see <i>a deep pool of slime</i> in the <d>center</d> of the grotto.",
+        "disabled": false
+      },
+      {
+        "position": "c",
+        "link": "1",
+        "content": "You see <i>a deep pool of slime</i> in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "-c",
+        "link": "2",
+        "content": "It is very dark, but you see <p>a deep pool of slime</p> in the <d>center</d> of the grotto.",
+        "disabled": true
+      },
+      {
+        "position": "c",
+        "link": "2",
+        "content": "You see <p>a deep pool of slime</p> leading in an <d>unknown</d> direction.",
+        "disabled": true
+      },
+      {
+        "position": "-ne",
+        "link": "3",
+        "content": "It is very dark, but you see <i>something glinting</i> in the darkness in the <d>north-east</d> corner of the grotto.",
+        "disabled": false
+      },
+      {
+        "position": "ne",
+        "link": "3",
+        "content": "You see <i>something glinting</i> in the darkness in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "-s",
+        "link": "4",
+        "content": "It is very dark, but you see <i>a narrow cave entrance</i> on the <d>southern</d> wall of the grotto.",
+        "disabled": false
+      },
+      {
+        "position": "s",
+        "link": "4",
+        "content": "You see <i>a narrow cave entrance</i> in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "-s",
+        "link": "5",
+        "content": "It is very dark, but you see <p>a narrow cave entrance</p> on the <d>southern</d> wall of the grotto.",
+        "disabled": true
+      },
+      {
+        "position": "s",
+        "link": "5",
+        "content": "You see <p>a narrow cave</p> leading <d>south</d>.",
+        "disabled": true
+      }
+    ],
+    "smell": [
+      {
+        "position": "",
+        "link": null,
+        "content": "The grotto smells like wet slime.",
+        "disabled": false
+      },
+      {
+        "position": "c",
+        "link": null,
+        "content": "The smell of slime is overwhelmingly strong here.",
+        "disabled": false
+      }
+    ],
+    "sound": [
+      {
+        "position": "",
+        "link": null,
+        "content": "You hear the faint sound of slime dripping on slime.",
+        "disabled": false
+      }
+    ]
+  },
+  "2": {
+    "noun": "grotto",
+    "location": "You find yourself in a pitch black grotto.",
+    "on_enter": [],
+    "portal": [
+      {
+        "position": "c",
+        "link": "1",
+        "content": "Dive into the deep pool of slime leading back to the grotto",
+        "disabled": true
+      }
+    ],
+    "interactable": [],
+    "sight": [
+      {
+        "position": "-c",
+        "link": null,
+        "content": "It is almost pitch black, you see nothing.",
+        "disabled": false
+      },
+      {
+        "position": "c",
+        "link": null,
+        "content": "It is very dark, but you make out <p>a deep pool of slime</p> leading in an <d>unknown</d> direction.",
+        "disabled": false
+      }
+    ],
+    "smell": [
+      {
+        "position": "",
+        "link": null,
+        "content": "The grotto smells like fungus and slime.",
+        "disabled": false
+      },
+      {
+        "position": "c",
+        "link": null,
+        "content": "The smell of slime is very strong here.",
+        "disabled": false
+      }
+    ],
+    "sound": [
+      {
+        "position": "s",
+        "link": null,
+        "content": "You hear a barely audible rumbling sound.",
+        "disabled": false
+      }
+    ]
+  },
+  "3": {
+    "noun": "void",
+    "location": "You find yourself in a void.",
+    "on_enter": [],
+    "portal": [
+      {
+        "position": "n",
+        "link": "1",
+        "content": "Climb back into the cave leading north",
+        "disabled": true
+      }
+    ],
+    "interactable": [],
+    "sight": [
+      {
+        "position": "-n",
+        "link": null,
+        "content": "You see <p>a narrow cave entrance</p> on the <d>northern</d> side of the void.",
+        "disabled": false
+      },
+      {
+        "position": "n",
+        "link": null,
+        "content": "You see <p>a narrow cave</p> leading <d>north</d> to a grotto.",
+        "disabled": false
+      }
+    ],
+    "smell": [
+      {
+        "position": "n",
+        "link": null,
+        "content": "You detect a faint smell of slime coming from the <d>north</d>.",
+        "disabled": false
+      }
+    ],
+    "sound": []
+  }
+}

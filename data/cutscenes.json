@@ -1,0 +1,18 @@
+{
+  "1": {
+    "on_enter": [],
+    "on_exit": [
+      {
+        "type": "enter_room",
+        "link": "1"
+      },
+      {
+        "type": "change_position",
+        "link": "e"
+      }
+    ],
+    "text": [
+      "You regain consciousness."
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "1": {
+    "link1": "1",
+    "link2": "2",
+    "pos1": "c",
+    "pos2": "c",
+    "dir": "n",
+    "text1to2": "You dive into the deep slime pool. After a long and terrifying swim through the submerged cave you emerge in a pitch black grotto.",
+    "text2to1": "You jump back into the slime pool. You emerge in a slimy grotto.",
+    "on_interact": [
+      {
+        "type": "activate_status",
+        "link": "slime"
+      }
+    ]
+  },
+  "2": {
+    "link1": "1",
+    "link2": "3",
+    "pos1": "s",
+    "pos2": "n",
+    "dir": "s",
+    "text1to2": "You squeeze yourself through the tight cave opening. You emerge on the other side.",
+    "text2to1": "You head back into the cave. You emerge in a grotto.",
+    "on_interact": []
+  }
+}
