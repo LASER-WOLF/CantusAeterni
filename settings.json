@@ -1,9 +1,9 @@
 {
-  "debug_mode": true,
+  "debug_mode": false,
   "debug_on_start": false,
   "debug_log_to_file": true,
   "debug_error_log_to_file": true,
   "enable_minimap": true,
-  "enable_music": true,
+  "enable_music": false,
   "music_volume": 0.5
 }

@@ -1,3 +1,4 @@
+# redo code for ui_window_main, upper, lower, dynamic size. size calculated not printed, then all windows printed at same time.
 # use arrows to select on menu
 # divide stuff in bottom ui into functions
 # character creator

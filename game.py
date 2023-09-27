@@ -21,6 +21,11 @@ MODE_HELP = "help"
 MODE_CUTSCENE = "cutscene"
 MODE_GAME = "game"
 MODE_MAP = "map"
+WINDOW_UPPER = "upper"
+WINDOW_CENTER = "center"
+WINDOW_LOWER = "lower"
+HIDE_CURSOR = "\033[?25l"
+SHOW_CURSOR = "\033[?25h"
 
 # SET MUSIC
 MUSIC_TYPE_MAIN = "main"
@@ -98,7 +103,7 @@ COLORS = {
 }
 COLOR_DEFAULT = COLORS['bright_yellow']
 COLOR_DARK = COLORS['bright_black']
-COLOR_HIGHLIGHT = COLORS['bright_white']
+COLOR_UI_HIGHLIGHT = COLORS['bg_bright_yellow']
 COLOR_TITLE_SCREEN = COLORS['bright_cyan']
 COLOR_INTERACTABLE = COLORS['bright_green']
 COLOR_PORTAL = COLORS['bright_cyan']
@@ -150,11 +155,11 @@ FILL_PATTERNS = {
     " -    ",
   ],
   'title_screen': [
+    "      ",
     " ´    ",
     "      ",
     "      ",
     "    ` ",
-    "      ",
     "      ",
   ]
 }
@@ -168,29 +173,52 @@ FILL_PATTERN_COLORS = {
   ]
 }
 
+"""
+def refresh_screen(lines):
+  clear_console()
+  final_string = ""
+  for line_num, line in enumerate(lines):
+    print (line)
+"""
+
+def refresh_screen(lines):
+  final_string = HIDE_CURSOR
+  for line_num, line in enumerate(lines):
+    if line_num > 0:
+      final_string += "\n"
+    final_string += line
+  clear_console()
+  print (final_string)
+
 def main_loop():
   global loop_count
   while not quit_game:
     get_window_size()
-    hide_cursor()
-    clear_console()
+    #hide_cursor()
+    #clear_console()
     run_queued_actions()
-    ui_upper()
     if mode == MODE_MAIN_MENU:
-      ui_main_window(main_window_start_menu())
+      refresh_screen(ui_combine_windows([
+        upper_window(),
+        center_window_main_menu(),
+        lower_window_main_menu(),
+      ]))
+    """
     elif mode == MODE_HELP:
-      ui_main_window(main_window_help())
+      ui_window_main(main_window_help())
     elif mode == MODE_DEBUG:
-      ui_main_window(main_window_debug())
+      ui_window_main(main_window_debug())
       ui_log(debug_log_list)
     elif mode == MODE_CUTSCENE:
-      ui_main_window(main_window_cutscene())
+      ui_window_main(main_window_cutscene())
     elif mode == MODE_MAP:
-      ui_main_window(main_window_map())
+      ui_window_main(main_window_map())
     elif mode == MODE_GAME:
-      ui_main_window(main_window_game())
+      ui_window_main(main_window_game())
       ui_log(log_list)
-    ui_lower()
+    """
+    #ui_lower()
+    handle_input()
     loop_count += 1
   music_stop()
   add_debug_log("Quitting game")
@@ -255,15 +283,6 @@ def music_shuffle_next():
   global music_skip_track_num
   music_skip_track_num = random.randrange(0, len(MUSIC))
 
-class MainWindowContent:
-  def __init__(self, lines, line_color = None, centered_horizontal = False, centered_vertical = False, fill = None, fill_color = None):
-    self.lines = lines
-    self.line_color = line_color
-    self.centered_horizontal = centered_horizontal
-    self.centered_vertical = centered_vertical
-    self.fill = fill
-    self.fill_color = fill_color
-
 def initialize():
   global queue_list
   queue_list = []
@@ -324,19 +343,13 @@ def get_window_size():
   global window_size_x
   global window_size_y
   window_size_x = os.get_terminal_size().columns
-  window_size_y = os.get_terminal_size().lines
+  window_size_y = os.get_terminal_size().lines - 1
 
 def clear_console():
   if(os.name == 'posix'):
      os.system('clear')
   else:
      os.system('cls')
-
-def hide_cursor():
-  print('\033[?25l')
-
-def show_cursor():
-  print('\033[?25h')
 
 def get_keypress():
   while True:
@@ -421,12 +434,18 @@ def format_position_text(abr):
     position_string = "INVALID"
   return position_string
 
+def multi_replace_list(target_list, target_dict):
+  new_list = []
+  for line in target_list:
+    new_list.append(multi_replace(line, target_dict))
+  return new_list
+
 def multi_replace(target_line, target_dict):
   for substring in target_dict.values():
     target_line = target_line.replace(substring, '')
   return target_line
 
-def make_line(line, line_color = None, fill = None, fill_color = None, align = "l", margin = 0):
+def make_line(line, line_color = None, fill = None, fill_color = None, align = "l", margin = 2):
   def increment_fill(fill_num, fill_length):
     fill_num += 1
     if fill_num >= fill_length:
@@ -488,6 +507,10 @@ def make_line(line, line_color = None, fill = None, fill_color = None, align = "
     line_formatted = line_formatted.replace(FILL_CHAR, " ")
   return line_formatted
 
+def make_line_centered(line, line_color = None, fill = None, fill_color = None):
+  return make_line(line, line_color, fill, fill_color, "c")
+
+"""
 def print_line(line, line_color = None, fill = None, fill_color = None, align = "l", margin = 2):
   print(make_line(line, line_color, fill, fill_color, align, margin));
   
@@ -496,85 +519,143 @@ def print_line_centered(line, line_color = None, fill = None, fill_color = None)
   
 def print_seperator_line():
   print_line_centered("", None, "-", COLOR_DEFAULT)
+"""
 
-def increment_list_loop(fill_list, fill_num):
-  fill_num += 1
-  if fill_num >= len(fill_list):
-    fill_num = 0
-  return fill_list[fill_num], fill_num
+def increment_list_loop(target_list, num):
+  item = target_list
+  if target_list:
+    num += 1
+    if num >= len(target_list):
+      num = 0
+    item = target_list[num]
+  return item, num
 
-def ui_main_window(content):
-  if content.lines:
-    fill = content.fill
-    if fill:
-      fill_list = fill
-      fill_num = 0
-      fill = fill_list[fill_num]
-    fill_color = content.fill_color
-    if fill_color:
-      fill_color_list = fill_color
-      fill_color_num = 0
-      fill_color = fill_color_list[fill_color_num]
-    main_window_size_subtract = ui_size_upper+ui_size_lower
-    if mode == MODE_GAME or mode == MODE_DEBUG:
-      main_window_size_subtract += ui_size_log
-    num_upper_padding = 0
-    
-    if content.centered_vertical:
-      while num_upper_padding < ((window_size_y - main_window_size_subtract) - len(content.lines)) / 2:
-        print_line("", None, fill, fill_color)
-        if fill:
-          fill, fill_num = increment_list_loop(fill_list, fill_num)
-        if fill_color:
-          fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
-        num_upper_padding += 1
-    
-    for num, line in enumerate(content.lines):
-      if content.centered_horizontal:
-        print_line_centered(line, content.line_color, fill, fill_color)
+class WindowContent:
+  def __init__(self, window_type, lines, line_color = None, fill = None, fill_color = None, centered_horizontal = False, centered_vertical = False):
+    self.window_type = window_type
+    self.lines = lines
+    self.line_color = line_color
+    self.fill = fill
+    self.fill_color = fill_color
+    self.centered_horizontal = centered_horizontal
+    self.centered_vertical = centered_vertical
+
+class Line:
+  def __init__(self, content, color = None, fill = None, fill_color = None, centered = False):
+    self.content = content
+    self.color = color
+    self.fill = fill
+    self.fill_color = fill_color
+    self.centered = centered
+
+def fill_init(fill):
+  fill_list = fill
+  fill_num = 0
+  if fill:
+    fill = fill_list[fill_num]
+  return fill, fill_list, fill_num
+
+def ui_seperator():
+  return Line("", fill = "-", fill_color = COLOR_DEFAULT)
+
+def ui_window_upper(content):
+  lines = []
+  # INIT FILL
+  fill, fill_list, fill_num = fill_init(content.fill)
+  fill_color, fill_color_list, fill_color_num = fill_init(content.fill_color)
+  # FIRST LINE EMPTY
+  lines.append(Line("", None, fill, fill_color))
+  # INCREMENT FILL
+  fill, fill_num = increment_list_loop(fill_list, fill_num)
+  fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
+  # CONTENT
+  for num, line in enumerate(content.lines):
+    lines.append(Line(line, content.line_color, fill, fill_color))
+    # INCREMENT FILL
+    fill, fill_num = increment_list_loop(fill_list, fill_num)
+    fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
+  lines.append(ui_seperator())
+  return lines
+
+def ui_window_lower(content):
+  lines = []
+  # INIT FILL
+  fill, fill_list, fill_num = fill_init(content.fill)
+  fill_color, fill_color_list, fill_color_num = fill_init(content.fill_color)
+  # CONTENT
+  for num, line in enumerate(content.lines):
+    lines.append(Line(line, content.line_color, fill, fill_color))
+    # INCREMENT FILL
+    fill, fill_num = increment_list_loop(fill_list, fill_num)
+    fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
+  return lines
+
+def ui_combine_windows(windows):
+  lines = []
+  # FIND UPPER AND LOWER WINDOWS
+  size_upper = 0
+  size_lower = 0
+  content_upper = []
+  content_lower = []
+  for window in windows:
+    if window.window_type == WINDOW_UPPER:
+      window_formatted = ui_window_upper(window)
+      content_upper.append(window_formatted)
+      size_upper += len(window_formatted)
+    elif window.window_type == WINDOW_LOWER:
+      window_formatted = ui_window_lower(window)
+      content_lower.append(window_formatted)
+      size_lower += len(window_formatted)
+  # FIND CENTER WINDOW
+  content_center = []
+  for window in windows:
+    if window.window_type == WINDOW_CENTER:
+      content_center.append(ui_window_center(window, size_upper, size_lower))
+  # PRINT ALL WINDOWS
+  for window in content_upper + content_center + content_lower:
+    for line in window:
+      if line.centered:
+        lines.append(make_line_centered(line.content, line.color, line.fill, line.fill_color))
       else:
-        print_line(line, content.line_color, fill)
-      if fill:
-        fill, fill_num = increment_list_loop(fill_list, fill_num)
-      if fill_color:
-        fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
-    
-    while num+num_upper_padding+1 < window_size_y-main_window_size_subtract:
-      print_line("", None, fill, fill_color)
-      if fill:
-          fill, fill_num = increment_list_loop(fill_list, fill_num)
-      if fill_color:
-        fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
-      num += 1
-    
-    print_seperator_line()
+        lines.append(make_line(line.content, line.color, line.fill, line.fill_color))
+  return lines
 
-def ui_upper():
-  ui_upper_string = ""
-  ui_upper_content = []
-  if mode == MODE_MAIN_MENU:
-    ui_upper_content.append("MAIN MENU")
-  elif mode == MODE_SETTINGS:
-    ui_upper_content.append("SETTINGS")
-  elif mode == MODE_DEBUG:
-    ui_upper_content.append("DEBUG SCREEN")
-  elif mode == MODE_HELP:
-    ui_upper_content.append("HELP")
-  elif mode == MODE_CUTSCENE or mode == MODE_GAME:
-    ui_upper_content.append("PLAYER NAME / LEVEL / HEALTH / ETC.")
-  elif mode == MODE_MAP:
-    ui_upper_content.append("MAP")
-  if settings['debug_mode']:
-    ui_upper_content.append("DEBUG MODE")
-    ui_upper_content.append("WINDOW SIZE: " + str(window_size_x) + "x" + str(window_size_y))
-    ui_upper_content.append("LOOP #: " + str(loop_count))
-  for num, item in enumerate(ui_upper_content):
-    if num != 0:
-      ui_upper_string += " | "
-    ui_upper_string += item
-  print_line("")
-  print_line(ui_upper_string)
-  print_seperator_line()
+def ui_window_center(content, padding_top = 0, padding_bottom = 0):
+  if padding_bottom > 0:
+    padding_bottom += 1
+  padding = padding_top + padding_bottom
+  lines = []
+  # INIT FILL
+  fill, fill_list, fill_num = fill_init(content.fill)
+  fill_color, fill_color_list, fill_color_num = fill_init(content.fill_color)
+  # CENTER CONTENT
+  num_empty = 0
+  if content.centered_vertical:
+    while num_empty < ((window_size_y - padding) - len(content.lines)) / 2:
+      # FIRST LINE EMPTY
+      lines.append(Line("", None, fill, fill_color))
+      # INCREMENT FILL
+      fill, fill_num = increment_list_loop(fill_list, fill_num)
+      fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
+      num_empty += 1
+  # CONTENT
+  for num, line in enumerate(content.lines):
+    lines.append(Line(line, content.line_color, fill, fill_color, content.centered_horizontal))
+    # INCREMENT FILL
+    fill, fill_num = increment_list_loop(fill_list, fill_num)
+    fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
+  #EMPTY LINES BOTTOM
+  while num + 1 + num_empty < window_size_y - padding:
+    # FIRST LINE EMPTY
+    lines.append(Line("", None, fill, fill_color))
+    # INCREMENT FILL
+    fill, fill_num = increment_list_loop(fill_list, fill_num)
+    fill_color, fill_color_num = increment_list_loop(fill_color_list, fill_color_num)
+    num_empty += 1
+  if padding_bottom > 0:
+    lines.append(ui_seperator())
+  add_debug_log(str(padding_bottom))
+  return lines
 
 def ui_block_minimap(room_id):
   lines = []
@@ -665,24 +746,703 @@ def ui_block_minimap(room_id):
     lines.append(line_low)
   return lines
 
-def ui_combine_blocks(blocks, height = 10, margin = 4):
-  line_margin = ""
-  for n in range(margin):
-    line_margin += " "
+def list_none_filter(target_list):
+  return [i for i in target_list if i is not None]
+
+def list_longest_entry(target_list):
+  return len(max(target_list, key = len))
+
+def fill_empty_space(line, length, char = None):
+  if not char:
+    char = FILL_CHAR
+  for n in range(length):
+    line += char
+  return line
+
+def ui_combine_blocks(blocks, height = 10, margin_size = 4):
+  margin = fill_empty_space("", margin_size)
   lines = []
-  num = 0
-  while num < height:
-    lines.append("")
-    num += 1
-  for block in blocks:
-    num = 0
-    for line in block:
-      if num < height:
-        if lines[num] != "":
-          lines[num] += line_margin
-        lines[num] += line
-      num += 1
+  for block_num, block in enumerate(blocks):
+    just_num = list_longest_entry(multi_replace_list(list_none_filter(block), COLORS))
+    for line_num in range(height):
+      line = ""
+      if line_num < len(block):
+        if block[line_num]:
+          line = block[line_num]
+      if line_num < height:
+        line = fill_empty_space(line, just_num - len(multi_replace(line, COLORS)))
+        if block_num == 0:
+          lines.append(line)
+        else:
+          lines[line_num] += margin + line
   return lines
+
+def dict_key_by_value(target_dict, target_value):
+  return [k for k, v in target_dict.items() if v == target_value]
+
+def move_north():
+  global current_position
+  pos = direction_to_coord[current_position]
+  if pos['y'] > -1:
+    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x'], 'y': pos['y']-1})[0], True)
+    
+def move_south():
+  global current_position
+  pos = direction_to_coord[current_position]
+  if pos['y'] < 1:
+    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x'], 'y': pos['y']+1})[0], True)
+    
+def move_west():
+  global current_position
+  pos = direction_to_coord[current_position]
+  if pos['x'] > -1:
+    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x']-1, 'y': pos['y']})[0], True)
+
+def move_east():
+  global current_position
+  pos = direction_to_coord[current_position]
+  if pos['x'] < 1:
+    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x']+1, 'y': pos['y']})[0], True)
+
+def ui_selection_y_prev():
+  global ui_selection_y
+  global ui_selection_x
+  if ui_selection_y > 0:
+    ui_selection_y -= 1
+    while ui_selection_x > 0 and ui_selection_options[ui_selection_x][ui_selection_y] is None:
+      ui_selection_x -= 1
+    while ui_selection_x < len(ui_selection_options) and ui_selection_options[ui_selection_x][ui_selection_y] is None:
+      ui_selection_x += 1
+
+def ui_selection_y_next():
+  global ui_selection_y
+  global ui_selection_x
+  if ui_selection_y < len(ui_selection_options[ui_selection_x])-1:
+    ui_selection_y += 1
+    while ui_selection_x > 0 and ui_selection_options[ui_selection_x][ui_selection_y] is None:
+      ui_selection_x -= 1
+    while ui_selection_x < len(ui_selection_options) and ui_selection_options[ui_selection_x][ui_selection_y] is None:
+      ui_selection_x += 1
+
+def ui_selection_x_prev():
+  global ui_selection_y
+  global ui_selection_x
+  if ui_selection_x > 0:
+    ui_selection_x -= 1
+    while ui_selection_y > 0 and ui_selection_options[ui_selection_x][ui_selection_y] is None:
+      ui_selection_y -= 1
+    while ui_selection_y < len(ui_selection_options[ui_selection_x]) and ui_selection_options[ui_selection_x][ui_selection_y] is None:
+      ui_selection_y += 1
+
+def ui_selection_x_next():
+  global ui_selection_y
+  global ui_selection_x
+  if ui_selection_x < len(ui_selection_options)-1:
+    ui_selection_x += 1
+    while ui_selection_y > 0 and ui_selection_options[ui_selection_x][ui_selection_y] is None:
+      ui_selection_y -= 1
+    while ui_selection_y < len(ui_selection_options[ui_selection_x]) and ui_selection_options[ui_selection_x][ui_selection_y] is None:
+      ui_selection_y += 1
+
+def make_scrollbar(scrollbar_window_height, scroll_pos, scroll_max):
+  scrollbar_style_line = "│"
+  scrollbar_style_body_top = COLORS['bg_bright_yellow'] + " " + COLOR_DEFAULT
+  scrollbar_style_body_mid = COLORS['bg_bright_yellow'] + " " + COLOR_DEFAULT
+  scrollbar_style_body_low = COLORS['bg_bright_yellow'] + " " + COLOR_DEFAULT
+  lines = []
+  scrollbar_pos = 0
+  scrollbar_size = 1
+  if scroll_pos > 0 and scroll_max > 0:
+    scrollbar_pos = int(scrollbar_window_height - (scrollbar_window_height * scroll_pos/scroll_max))+1
+    if scrollbar_pos - scrollbar_size <= 1 and scroll_pos != scroll_max:
+      scrollbar_pos = scrollbar_size + 1
+  num = 0
+  scrollbar_body_pos = 1
+  while num < scrollbar_window_height:
+    scrollbar = scrollbar_style_line
+    if scrollbar_pos != 0:
+      scrollbar_pos = min(scrollbar_pos, scrollbar_window_height - scrollbar_size)
+      scrollbar_pos = max(scrollbar_pos, scrollbar_size + 1 )
+      if num + 1 in range(scrollbar_pos-scrollbar_size, scrollbar_pos + scrollbar_size + 1):
+        if scrollbar_body_pos == 1:
+          scrollbar = scrollbar_style_body_top
+        elif scrollbar_body_pos == scrollbar_size + 1 + scrollbar_size:
+          scrollbar = scrollbar_style_body_low
+        else:
+          scrollbar = scrollbar_style_body_mid
+        scrollbar_body_pos += 1
+    lines.append(scrollbar)
+    num += 1
+  return lines
+
+def ui_log(target_list):
+  global ui_log_scroll_pos
+  target_list_len = len(target_list)
+  max_scroll_num = max(0, target_list_len-ui_size_log_num_lines)
+  ui_log_scroll_pos = max(0, ui_log_scroll_pos)
+  ui_log_scroll_pos = min(max_scroll_num, ui_log_scroll_pos)
+  ui_log_start_pos = -abs(ui_size_log_num_lines + ui_log_scroll_pos)
+  ui_log_end_pos = -abs(ui_log_scroll_pos)
+  if ui_log_end_pos == 0:
+    ui_log_end_pos = None
+  target_list_shortened = target_list[ui_log_start_pos:ui_log_end_pos]
+  scrollbar = make_scrollbar(ui_size_log_num_lines, ui_log_scroll_pos, max_scroll_num)
+  num = len(target_list_shortened)
+  while num < ui_size_log_num_lines:
+    print_line(scrollbar[num-1] + "")
+    num += 1
+  for num, line in enumerate(target_list_shortened):
+    print_line(scrollbar[num] + " " + line)
+  print_seperator_line()
+
+def add_log(item):
+  global log_list
+  log_list.append(item)
+
+def add_debug_log(item, error = False):
+  global debug_log_list
+  if error:
+    item = "ERROR: " + item
+  debug_log_list.append(item)
+  if settings['debug_error_log_to_file'] and error:
+    with open('error_log.txt', 'a') as file:
+      file.write(datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
+  elif settings['debug_log_to_file']:
+    with open('debug_log.txt', 'a') as file:
+      file.write(datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
+
+def queue_action(action):
+  queue_list.append(action)
+
+def execute_action(action):
+  if action['type'] == 'enter_room':
+    enter_room(action['link'])
+  elif action['type'] == 'change_position':
+    change_position(action['link'])
+  elif action['type'] == 'activate_status':
+    activate_status(action['link'])
+  elif action['type'] == 'change_mode':
+    change_mode(action['link'])
+  add_debug_log("Action: " + action['type'] + " -> " + action['link'])
+
+def run_queued_actions():
+  while queue_list:
+    action = queue_list.pop(0)
+    execute_action(action)
+
+def enable_event(link, category, disable = False):
+  num = 0
+  for room in rooms.values():
+    for line in room[category]:
+        if line['link'] == link:
+          line['disabled'] = disable
+          num += 1
+  if num > 0:
+    disable_text = "enabled"
+    if disable:
+      disable_text = "disabled"
+    add_debug_log("Change event (" + str(num) + "): " + category + ":" + link + " -> " + disable_text)
+
+def disable_event(link, category):
+  enable_event(link, category, True)
+
+def enable_event_interactable(link, disable = False):
+  enable_event(link, "interactable", disable)
+
+def disable_event_interactable(link):
+  enable_event_interactable(link, True)
+  
+def enable_event_sight(link, disable = False):
+  enable_event(link, "sight", disable)
+
+def disable_event_sight(link):
+  enable_event_sight(link, True)
+  
+def enable_event_smell(link, disable = False):
+  enable_event(link, "smell", disable)
+
+def disable_event_smell(link):
+  enable_event_smell(link, True)
+  
+def enable_event_sound(link, disable = False):
+  enable_event(link, "sound", disable)
+
+def disable_event_sound(link):
+  enable_event_sound(link, True)
+
+def enable_event_portal(link, disable = False):
+  enable_event(link, "portal", disable)
+
+def disable_event_portal(link):
+  enable_event_portal(link, True)
+
+def enable_event_all(link):
+  enable_event_sight(link)
+  enable_event_smell(link)
+  enable_event_sound(link)
+
+def disable_event_all(link):
+  disable_event_sight(link)
+  disable_event_smell(link)
+  disable_event_sound(link)
+
+def activate_status(status, activate = True):
+  global statuses
+  if status in statuses:
+    if statuses[status]['active'] != activate:
+      statuses[status]['active'] = activate
+      if activate:
+        add_log(statuses[status]['activation_text'])
+      else:
+        add_log(statuses[status]['deactivation_text'])
+
+def deactivate_status(status):
+  activate_status(status, False)
+
+def upper_window():
+  upper_window_content = []
+  if mode == MODE_MAIN_MENU:
+    upper_window_content.append("MAIN MENU")
+  elif mode == MODE_SETTINGS:
+    upper_window_content.append("SETTINGS")
+  elif mode == MODE_DEBUG:
+    upper_window_content.append("DEBUG SCREEN")
+  elif mode == MODE_HELP:
+    upper_window_content.append("HELP")
+  elif mode == MODE_CUTSCENE or mode == MODE_GAME:
+    upper_window_content.append("PLAYER NAME / LEVEL / HEALTH / ETC.")
+  elif mode == MODE_MAP:
+    upper_window_content.append("MAP")
+  if settings['debug_mode']:
+    if mode != MODE_DEBUG:
+      upper_window_content.append("DEBUG MODE")
+    upper_window_content.append("WINDOW SIZE: " + str(window_size_x) + "x" + str(window_size_y))
+    upper_window_content.append("LOOP #: " + str(loop_count))
+  upper_window_string = ""
+  for num, item in enumerate(upper_window_content):
+    if num != 0:
+      upper_window_string += " | "
+    upper_window_string += item
+  lines = []
+  lines.append(upper_window_string)
+  return WindowContent(WINDOW_UPPER, lines)
+
+def lower_window_main_menu():
+  global ui_selection_options
+  ui_selection_options = []
+  
+  
+  
+  options_column1 = []
+  options_column1.append("START GAME")
+  options_column1.append("PREFERENCES")
+  if settings['debug_mode']:
+    options_column1.append("DEBUG SCREEN")
+  options_column1.append("HELP")
+  options_column1.append("QUIT")
+  #ui_selection_options.append(options_column1)
+  
+  options_column2 = []
+  options_column2.append("option")
+  options_column2.append("option")
+  options_column2.append("option")
+  options_column2.append("option")
+  options_column2.append("option")
+  options_column2.append("option")
+  #ui_selection_options.append(options_column2)
+  
+  options = []
+  options.append(options_column1)
+  options.append(options_column2)
+  
+  #selection_indicator = ">"
+  
+  #ui_selection_options[ui_selection_x][ui_selection_y] = COLOR_HIGHLIGHT + "> " + ui_selection_options[ui_selection_x][ui_selection_y] + COLOR_DEFAULT
+  
+  
+  
+  #if ui_selection_options[ui_selection_y][ui_selection_x]==
+  #selection_indicator = ">"
+  
+  
+  #just_num = 2
+  num_x = len(options)
+  num_y = len(max(options, key = len))
+  
+  for x in range(num_x):
+    just_num = list_longest_entry(multi_replace_list(list_none_filter(options[x]), COLORS)) + 2
+    ui_selection_options.append([])
+    for y in range(num_y):
+      entry = None
+      if y < len(options[x]):
+        entry = " " + options[x][y] + " "
+        entry = fill_empty_space(entry, just_num - len(multi_replace(entry, COLORS)), " ")
+        if x == ui_selection_x and y == ui_selection_y:
+          #entry = COLOR_UI_HIGHLIGHT + ">".ljust(just_num) + entry + COLOR_DEFAULT
+          entry = COLOR_UI_HIGHLIGHT + entry + COLOR_DEFAULT
+        #else:
+        #  entry = "".ljust(just_num) + entry
+      ui_selection_options[x].append(entry)
+        #ui_selection_options[x].append("TEST")
+      #else:
+        #ui_selection_options[x].append(None)
+  """
+  for column_num, column in enumerate(ui_selection_options):
+    for row_num in range(longest_row_num):
+      if row_num > len(column):
+        if column_num == ui_selection_x and row_num == ui_selection_y:
+          ui_selection_options[column_num][row_num] = COLOR_HIGHLIGHT + ">".ljust(just_num) + ui_selection_options[column_num][row_num] + COLOR_DEFAULT
+        else:
+          ui_selection_options[column_num][row_num] = "".ljust(just_num) + ui_selection_options[column_num][row_num]
+      else:
+        ui_selection_options[column_num][row_num] = None
+  """
+  return WindowContent(WINDOW_LOWER, ui_combine_blocks(ui_selection_options))
+
+def handle_input():
+  global quit_game
+  if mode == MODE_CUTSCENE:
+    press_to_continue()
+  else:
+    key = get_keypress()
+    """
+    # PRE QUIT PROMPT
+    if ui_pre_quit_prompt:
+      if(key == "1"):
+        ui_pre_quit_prompt = False
+        ui_restart_prompt = True
+      elif(key == "2"):
+        ui_pre_quit_prompt = False
+        ui_quit_prompt = True
+      elif(key == "escape"):
+        ui_pre_quit_prompt = False
+    # QUIT PROMPT
+    elif ui_quit_prompt:
+      if(key.lower() == "y"):
+        quit_game = True
+      elif(key.lower() == "n"):
+        ui_quit_prompt = False
+    # RESTART PROMPT
+    elif ui_restart_prompt:
+      if(key.lower() == "y"):
+        initialize()
+        change_mode(mode)
+        ui_restart_prompt = False
+      elif(key.lower() == "n"):
+        ui_restart_prompt = False
+    """
+    # MAIN MENU
+    if mode == MODE_MAIN_MENU: 
+      if(key == "escape"):
+        #ui_quit_prompt = True
+        quit_game = True
+      elif(key.lower() == "w"):
+        ui_selection_y_prev()
+      elif(key.lower() == "s"):
+        ui_selection_y_next()
+      elif(key.lower() == "a"):
+        ui_selection_x_prev()
+      elif(key.lower() == "d"):
+        ui_selection_x_next()
+
+def center_window_main_menu():
+  lines = []
+  lines.append('')
+  lines.append('ƒƒ.g8"""bgdƒƒƒƒƒdbƒƒƒƒƒƒ`7MN.ƒƒƒ`7MF\'MMP""MM""YMMƒ`7MMF\'ƒƒƒ`7MF\'.M"""bgdƒ')
+  lines.append('.dP\'ƒƒƒƒƒ`Mƒƒƒƒ;MM:ƒƒƒƒƒƒƒMMN.ƒƒƒƒMƒƒP\'ƒƒƒMMƒƒƒ`7ƒƒƒMMƒƒƒƒƒƒƒMƒ,MIƒƒƒƒ"Yƒ')
+  lines.append('dM\'ƒƒƒƒƒƒƒ`ƒƒƒ,V^MM.ƒƒƒƒƒƒMƒYMbƒƒƒMƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒMƒ`MMb.ƒƒƒƒƒ')
+  lines.append('MMƒƒƒƒƒƒƒƒƒƒƒ,Mƒƒ`MMƒƒƒƒƒƒMƒƒ`MN.ƒMƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒMƒƒƒ`YMMNq.ƒ')
+  lines.append('MM.ƒƒƒƒƒƒƒƒƒƒAbmmmqMAƒƒƒƒƒMƒƒƒ`MM.MƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒMƒ.ƒƒƒƒƒ`MMƒ')
+  lines.append('`Mb.ƒƒƒƒƒ,\'ƒA\'ƒƒƒƒƒVMLƒƒƒƒMƒƒƒƒƒYMMƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒYM.ƒƒƒƒƒ,MƒMbƒƒƒƒƒdMƒ')
+  lines.append('ƒƒ`"bmmmd\'.AMA.ƒƒƒ.AMMA..JML.ƒƒƒƒYMƒƒƒƒƒ.JMML.ƒƒƒƒƒƒƒ`bmmmmd"\'ƒP"Ybmmd"ƒƒ')
+  lines.append('')
+  lines.append('ƒƒƒƒƒƒdbƒƒƒƒƒƒ`7MM"""YMMƒMMP""MM""YMMƒ`7MM"""YMMƒƒ`7MM"""Mq.ƒƒ`7MN.ƒƒƒ`7MF\'`7MMF\'')
+  lines.append('ƒƒƒƒƒ;MM:ƒƒƒƒƒƒƒMMƒƒƒƒ`7ƒP\'ƒƒƒMMƒƒƒ`7ƒƒƒMMƒƒƒƒ`7ƒƒƒƒMMƒƒƒ`MM.ƒƒƒMMN.ƒƒƒƒMƒƒƒƒMMƒƒ')
+  lines.append('ƒƒƒƒ,V^MM.ƒƒƒƒƒƒMMƒƒƒdƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒdƒƒƒƒƒƒMMƒƒƒ,M9ƒƒƒƒMƒYMbƒƒƒMƒƒƒƒMMƒƒ')
+  lines.append('ƒƒƒ,Mƒƒ`MMƒƒƒƒƒƒMMmmMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMmmMMƒƒƒƒƒƒMMmmdM9ƒƒƒƒƒMƒƒ`MN.ƒMƒƒƒƒMMƒƒ')
+  lines.append('ƒƒƒAbmmmqMAƒƒƒƒƒMMƒƒƒYƒƒ,ƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒYƒƒ,ƒƒƒMMƒƒYM.ƒƒƒƒƒMƒƒƒ`MM.MƒƒƒƒMMƒƒ')
+  lines.append('ƒƒA\'ƒƒƒƒƒVMLƒƒƒƒMMƒƒƒƒƒ,MƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒ,MƒƒƒMMƒƒƒ`Mb.ƒƒƒMƒƒƒƒƒYMMƒƒƒƒMMƒƒ')
+  lines.append('.AMA.ƒƒƒ.AMMA..JMMmmmmMMMƒƒƒ.JMML.ƒƒƒƒ.JMMmmmmMMMƒ.JMML.ƒ.JMM..JML.ƒƒƒƒYMƒƒ.JMML.')
+  lines.append('')
+  return WindowContent(WINDOW_CENTER, lines, COLOR_TITLE_SCREEN, FILL_PATTERNS['title_screen'], None, True, True)
+
+def main_window_debug():
+  lines = []
+  justnum = 15
+  lines.append('RED: '.ljust(justnum) + COLORS['red'] + ' FG ' + COLORS['bright_red'] + ' BRIGHT ' + COLORS['bg_red'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_red'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('GREEN: '.ljust(justnum) + COLORS['green'] + ' FG ' + COLORS['bright_green'] + ' BRIGHT ' + COLORS['bg_green'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_green'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('YELLOW: '.ljust(justnum) + COLORS['yellow'] + ' FG ' + COLORS['bright_yellow'] + ' BRIGHT ' + COLORS['bg_yellow'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_yellow'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('BLUE: '.ljust(justnum) + COLORS['blue'] + ' FG ' + COLORS['bright_blue'] + ' BRIGHT ' + COLORS['bg_blue'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_blue'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('MAGENTA: '.ljust(justnum) + COLORS['magenta'] + ' FG ' + COLORS['bright_magenta'] + ' BRIGHT ' + COLORS['bg_magenta'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_magenta'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('CYAN: '.ljust(justnum) + COLORS['cyan'] + ' FG ' + COLORS['bright_cyan'] + ' BRIGHT ' + COLORS['bg_cyan'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_cyan'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('WHITE: '.ljust(justnum) + COLORS['white'] + ' FG ' + COLORS['bright_white'] + ' BRIGHT ' + COLORS['bg_white'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_white'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append('BLACK: '.ljust(justnum)  + '    ' + COLORS['bright_black'] + ' BRIGHT ' + '    ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_black'] + ' BRIGHT ' + COLOR_DEFAULT)
+  lines.append("")
+  lines.append('LAST INPUT: '.ljust(justnum) + '"' + str(debug_input_char)  + '" (' + str(debug_input_char_ord) + ')')
+  lines.append('')
+  lines.append('MUSIC STATUS: '.ljust(justnum) + str(music_enable) + ":" + str(music_type) + ":" + str(settings['music_volume']))
+  lines.append('MUSIC TITLE: '.ljust(justnum) + str(music_title))
+  return MainWindowContent(lines)
+
+def main_window_help():
+  lines = []
+  lines.append('MUSIC BY:')
+  lines.append('Lory Werths')
+  lines.append('www.mandolingals.tripod.com')
+  lines.append('')
+  lines.append('CONTROLS:')
+  lines.append('[UP]'.ljust(6) + ' SCROLL UP')
+  lines.append('[DOWN]'.ljust(6) + ' SCROLL DOWN')
+  return MainWindowContent(lines)
+
+def main_window_cutscene():
+  lines = load_cutscene(active_cutscene)
+  return MainWindowContent(lines)
+
+def main_window_game():
+  lines = []
+  lines.extend(show_active_status())
+  lines.append("")
+  lines.extend(load_room(active_room))
+  return MainWindowContent(lines)
+
+def map_portal_check(portal_check_dict = {'selected_room': '1', 'current_coords': {'x': 0, 'y': 0}, 'checked_rooms': {}}):
+  selected_room_root = portal_check_dict['selected_room']
+  current_coords_root = portal_check_dict['current_coords']
+  portal_check_dict['checked_rooms'][selected_room_root] = portal_check_dict['current_coords']
+  for portal in rooms[selected_room_root]['portal']:
+    if portal['disabled'] == False:
+      next_room = portals[portal['link']]['link2']
+      next_dir = portals[portal['link']]['dir']
+      next_portal_pos = portals[portal['link']]['pos2']
+      if next_room == selected_room_root:
+        next_room = portals[portal['link']]['link1']
+        next_dir = direction_reverse[next_dir]
+        next_portal_pos = portals[portal['link']]['pos1']
+      if not next_room in portal_check_dict['checked_rooms'] and rooms[next_room]['visited'][next_portal_pos]:
+        next_coords = {'x': current_coords_root['x'] + direction_to_coord[next_dir]['x'], 'y': current_coords_root['y'] + direction_to_coord[next_dir]['y']}
+        portal_check_dict['selected_room'] = next_room
+        portal_check_dict['current_coords'] = next_coords
+        portal_check_dict = map_portal_check(portal_check_dict)
+  return portal_check_dict
+
+def main_window_map():
+  global ui_selection_options
+  global ui_selection_y
+  global ui_selection_x
+  ui_selection_options_update = []
+  lines = []
+  map_tile_empty_top = "ƒƒƒ"
+  map_tile_empty_low = "ƒƒƒ"
+  map_tile_visited_top = COLOR_MAP_INACTIVE + "┌─┐" + COLOR_DEFAULT
+  map_tile_visited_low = COLOR_MAP_INACTIVE + "└─┘" + COLOR_DEFAULT
+  map_tile_selected_top = COLOR_MAP_SELECTED + "╔═╗" + COLOR_DEFAULT
+  map_tile_selected_low = COLOR_MAP_SELECTED + "╚═╝" + COLOR_DEFAULT
+  map_tile_active_top = COLOR_MAP_SELECTED + "┌|┐" + COLOR_DEFAULT
+  map_tile_active_low = COLOR_MAP_SELECTED + "└─┘" + COLOR_DEFAULT
+  map_tile_active_selected_top = COLOR_MAP_SELECTED + "╔|╗" + COLOR_DEFAULT
+  map_tile_active_selected_low = COLOR_MAP_SELECTED + "╚═╝" + COLOR_DEFAULT
+  known_rooms = map_portal_check({'selected_room': active_room, 'current_coords': {'x': 0, 'y': 0}, 'checked_rooms': {}})['checked_rooms']
+  #known_rooms_sorted = sorted(known_rooms.items(), key=lambda room: (room[1]['y'], room[1]['x']))
+  zero_x = min(coord['x'] for coord in known_rooms.values())
+  zero_y = min(coord['y'] for coord in known_rooms.values())
+  for room in known_rooms.values():
+    room['x'] += abs(zero_x)
+    room['y'] += abs(zero_y)
+  max_x = max(coord['x'] for coord in known_rooms.values())+1
+  max_y = max(coord['y'] for coord in known_rooms.values())+1
+  y = 0
+  x = 0
+  while y < max_y:
+    ui_selection_options_update.append([])
+    map_line_top = ""
+    map_line_low = ""
+    while x < max_x:
+      if x > 0:
+        map_line_top += " "
+        map_line_low += " "
+      if {'x': x, 'y': y} in known_rooms.values():
+        found_rooms = dict_key_by_value(known_rooms, {'x': x, 'y': y})
+        found_room = found_rooms[0]
+        ui_selection_options_update[y].append(found_room)
+        if len(found_rooms) > 1:
+          add_debug_log("Multiple rooms with same coordinates " + "(ID: " + str(found_rooms) + ")", True)
+        selected_room = active_room
+        if ui_selection_options:
+          selected_room = ui_selection_options[ui_selection_y][ui_selection_x]
+        elif found_room == selected_room:
+          ui_selection_x = x
+          ui_selection_y = y
+        if found_room == active_room:
+          if found_room == selected_room:
+            map_line_top += map_tile_active_selected_top
+            map_line_low += map_tile_active_selected_low
+          else:
+            map_line_top += map_tile_active_top
+            map_line_low += map_tile_active_low
+        elif found_room == selected_room:
+          map_line_top += map_tile_selected_top
+          map_line_low += map_tile_selected_low
+        else:
+          map_line_top += map_tile_visited_top
+          map_line_low += map_tile_visited_low
+      else:
+        ui_selection_options_update[y].append(None)
+        map_line_top += map_tile_empty_top
+        map_line_low += map_tile_empty_low
+      x += 1
+    lines.append(map_line_top)
+    lines.append(map_line_low)
+    x = 0
+    y += 1
+  ui_selection_options = ui_selection_options_update
+  if settings['debug_mode']:
+    lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y][ui_selection_x]))
+  return MainWindowContent(lines, None, True, True, FILL_PATTERNS['dots1'])
+  
+def load_cutscene(cutscene_id):
+  lines = []
+  if(settings['debug_mode']):
+    lines.append("DEBUG: Running cutscene " + str(cutscene_id))
+  cutscene = cutscenes[cutscene_id]
+  for line in cutscene['on_enter']:
+    execute_action(line)
+  for line in cutscene['text']:
+    lines.append(line)
+  for line in cutscene['on_exit']:
+    queue_action(line)
+  return lines
+
+def enter_room(room_id, logging = False):
+  global active_room
+  active_room = room_id
+  room = rooms[room_id]
+  for line in room['on_enter']:
+    if not line['disabled'] and (line['position'] == "" or line['position'] == current_position):
+      execute_action(line['content'])
+  if mode != MODE_GAME:
+    change_mode(MODE_GAME)
+  if logging:
+    log_string = "You enter the " + rooms[active_room]['noun']
+    add_log(log_string)
+
+def load_room(room_id):
+  lines = []
+  if(settings['debug_mode']):
+    lines.append("DEBUG: You are in room " + str(room_id))
+  room = rooms[room_id]
+  lines.append(room['location'])
+  lines.extend(sense_sight(room_id))
+  lines.extend(sense_sound(room_id))
+  lines.extend(sense_smell(room_id))
+  lines.append("")
+  lines.append("You are positioned at the " + format_position_text(current_position) + " of the " + room['noun'] + ".")
+  lines.extend(sense_sight(room_id, True))
+  lines.extend(sense_sound(room_id, True))
+  lines.extend(sense_smell(room_id, True))
+  return lines
+
+def show_active_status():
+  lines = []
+  for line in statuses:
+    if (statuses[line]['active']):
+      lines.append(format_status(statuses[line]['text']))
+  return lines
+
+def sense_scan(sense, sense_text, room_id, position_mode = False):
+  lines = []
+  room = rooms[room_id]
+  for line in room[sense]:
+    if not line['disabled']:
+      content = format_color_tags(line['content'])
+      if not position_mode and (line['position'] == "" or (line['position'][0] == "-" and line['position'][1:] != current_position)):
+        lines.append(sense_text + content)
+      elif (position_mode and line['position'] == current_position):
+        lines.append(sense_text + content)
+  return lines
+
+def sense_sight(room_id, position_mode = False):
+  lines = []
+  sense_text = "You look around: "
+  if position_mode:
+    sense_text = "You inspect your immediate surroundings: "
+  room = rooms[room_id]
+  if not statuses['blind']['active']:
+    lines.extend(sense_scan("sight", sense_text, room_id, position_mode))
+  if not lines:
+    lines.append(sense_text + "You see nothing.")
+  return lines
+
+def sense_sound(room_id, position_mode = False):
+  lines = []
+  sense_text = "You focus on your sense of hearing: "
+  if position_mode:
+    sense_text = "You focus on the sounds in you immediate proximity: "
+  if not statuses['deaf']['active']:
+    lines.extend(sense_scan("sound", sense_text, room_id, position_mode))
+  if statuses['blind']['active'] and not lines:
+    lines.append(sense_text + "You don't hear anything.")
+  return lines
+  
+def sense_smell(room_id, position_mode = False):
+  lines = []
+  sense_text = "You focus on your sense of smell: "
+  if position_mode:
+    sense_text = "You focus on the smells in you immediate proximity: "
+  if not statuses['anosmic']['active']:
+    lines.extend(sense_scan("smell", sense_text, room_id, position_mode))
+  if statuses['blind']['active'] and not lines:
+    lines.append(sense_text + "You don't smell anything.")
+  return lines
+
+def change_position(position, logging = False):
+  global current_position
+  current_position = position
+  rooms[active_room]['visited']["room"] = True
+  rooms[active_room]['visited'][current_position] = True
+  if logging:
+    log_string = "You move to the " + direction_abr[position]
+    if position != "c":
+      log_string += " side"
+    log_string += " of the " + rooms[active_room]['noun']
+    add_log(log_string)
+
+def examine(link):
+  interactable = interactables[link]
+  disable_event_interactable(link)
+  if interactable['enable']:
+    enable_event_all(interactable['enable'])
+  if interactable['disable']:
+    disable_event_all(interactable['disable'])
+  if interactable['type'] == "item":
+    add_to_inventory(interactable['link'])
+    add_log("You pick up: " + interactable['text'])
+  if interactable['type'] == "portal":
+    enable_event_portal(interactable['link'])
+    add_log("You have discovered: " + interactable['text'])
+  for line in interactable['on_interact']:
+    execute_action(line)
+
+def add_to_inventory(item):
+  global inventory_list
+  inventory_list.append(item)
+
+def enter_portal(link):
+  portal = portals[link]
+  target_room = None
+  target_pos = None
+  if portals[link]['link1'] == active_room:
+    target_room = portals[link]['link2']
+    target_pos = portals[link]['pos2']
+    add_log(portals[link]['text1to2'])
+  else:
+    target_room = portals[link]['link1']
+    target_pos = portals[link]['pos1']
+    add_log(portals[link]['text2to1'])
+  enter_room(target_room)
+  change_position(target_pos)
+  for line in portal['on_interact']:
+    execute_action(line)
 
 def ui_lower():
   global quit_game
@@ -917,544 +1677,17 @@ def ui_lower():
       if(key == "escape"):
         change_mode(previous_mode)
 
-def dict_key_by_value(target_dict, target_value):
-  return [k for k, v in target_dict.items() if v == target_value]
-
-def move_north():
-  global current_position
-  pos = direction_to_coord[current_position]
-  if pos['y'] > -1:
-    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x'], 'y': pos['y']-1})[0], True)
-    
-def move_south():
-  global current_position
-  pos = direction_to_coord[current_position]
-  if pos['y'] < 1:
-    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x'], 'y': pos['y']+1})[0], True)
-    
-def move_west():
-  global current_position
-  pos = direction_to_coord[current_position]
-  if pos['x'] > -1:
-    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x']-1, 'y': pos['y']})[0], True)
-
-def move_east():
-  global current_position
-  pos = direction_to_coord[current_position]
-  if pos['x'] < 1:
-    change_position(dict_key_by_value(direction_to_coord, {'x': pos['x']+1, 'y': pos['y']})[0], True)
-
-def ui_selection_y_prev():
-  global ui_selection_y
-  global ui_selection_x
-  if ui_selection_y > 0:
-    ui_selection_y -= 1
-    while ui_selection_x > 0 and ui_selection_options[ui_selection_y][ui_selection_x] is None:
-      ui_selection_x -= 1
-    while ui_selection_x < len(ui_selection_options[ui_selection_y]) and ui_selection_options[ui_selection_y][ui_selection_x] is None:
-      ui_selection_x += 1
-
-def ui_selection_y_next():
-  global ui_selection_y
-  global ui_selection_x
-  if ui_selection_y < len(ui_selection_options)-1:
-    ui_selection_y += 1
-    while ui_selection_x > 0 and ui_selection_options[ui_selection_y][ui_selection_x] is None:
-      ui_selection_x -= 1
-    while ui_selection_x < len(ui_selection_options[ui_selection_y]) and ui_selection_options[ui_selection_y][ui_selection_x] is None:
-      ui_selection_x += 1
-
-def ui_selection_x_prev():
-  global ui_selection_y
-  global ui_selection_x
-  if ui_selection_x > 0:
-    ui_selection_x -= 1
-    while ui_selection_y > 0 and ui_selection_options[ui_selection_y][ui_selection_x] is None:
-      ui_selection_y -= 1
-    while ui_selection_y < len(ui_selection_options) and ui_selection_options[ui_selection_y][ui_selection_x] is None:
-      ui_selection_y += 1
-
-def ui_selection_x_next():
-  global ui_selection_y
-  global ui_selection_x
-  if ui_selection_x < len(ui_selection_options[ui_selection_y])-1:
-    ui_selection_x += 1
-    while ui_selection_y > 0 and ui_selection_options[ui_selection_y][ui_selection_x] is None:
-      ui_selection_y -= 1
-    while ui_selection_y < len(ui_selection_options) and ui_selection_options[ui_selection_y][ui_selection_x] is None:
-      ui_selection_y += 1
-
-def make_scrollbar(scrollbar_window_height, scroll_pos, scroll_max):
-  scrollbar_style_line = "│"
-  scrollbar_style_body_top = COLORS['bg_bright_yellow'] + " " + COLOR_DEFAULT
-  scrollbar_style_body_mid = COLORS['bg_bright_yellow'] + " " + COLOR_DEFAULT
-  scrollbar_style_body_low = COLORS['bg_bright_yellow'] + " " + COLOR_DEFAULT
-  lines = []
-  scrollbar_pos = 0
-  scrollbar_size = 1
-  if scroll_pos > 0 and scroll_max > 0:
-    scrollbar_pos = int(scrollbar_window_height - (scrollbar_window_height * scroll_pos/scroll_max))+1
-    if scrollbar_pos - scrollbar_size <= 1 and scroll_pos != scroll_max:
-      scrollbar_pos = scrollbar_size + 1
-  num = 0
-  scrollbar_body_pos = 1
-  while num < scrollbar_window_height:
-    scrollbar = scrollbar_style_line
-    if scrollbar_pos != 0:
-      scrollbar_pos = min(scrollbar_pos, scrollbar_window_height - scrollbar_size)
-      scrollbar_pos = max(scrollbar_pos, scrollbar_size + 1 )
-      if num + 1 in range(scrollbar_pos-scrollbar_size, scrollbar_pos + scrollbar_size + 1):
-        if scrollbar_body_pos == 1:
-          scrollbar = scrollbar_style_body_top
-        elif scrollbar_body_pos == scrollbar_size + 1 + scrollbar_size:
-          scrollbar = scrollbar_style_body_low
-        else:
-          scrollbar = scrollbar_style_body_mid
-        scrollbar_body_pos += 1
-    lines.append(scrollbar)
-    num += 1
-  return lines
-
-def ui_log(target_list):
-  global ui_log_scroll_pos
-  target_list_len = len(target_list)
-  max_scroll_num = max(0, target_list_len-ui_size_log_num_lines)
-  ui_log_scroll_pos = max(0, ui_log_scroll_pos)
-  ui_log_scroll_pos = min(max_scroll_num, ui_log_scroll_pos)
-  ui_log_start_pos = -abs(ui_size_log_num_lines + ui_log_scroll_pos)
-  ui_log_end_pos = -abs(ui_log_scroll_pos)
-  if ui_log_end_pos == 0:
-    ui_log_end_pos = None
-  target_list_shortened = target_list[ui_log_start_pos:ui_log_end_pos]
-  scrollbar = make_scrollbar(ui_size_log_num_lines, ui_log_scroll_pos, max_scroll_num)
-  num = len(target_list_shortened)
-  while num < ui_size_log_num_lines:
-    print_line(scrollbar[num-1] + "")
-    num += 1
-  for num, line in enumerate(target_list_shortened):
-    print_line(scrollbar[num] + " " + line)
-  print_seperator_line()
-
-def add_log(item):
-  global log_list
-  log_list.append(item)
-
-def add_debug_log(item, error = False):
-  global debug_log_list
-  if error:
-    item = "ERROR: " + item
-  debug_log_list.append(item)
-  if settings['debug_error_log_to_file'] and error:
-    with open('error_log.txt', 'a') as file:
-      file.write(datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
-  elif settings['debug_log_to_file']:
-    with open('debug_log.txt', 'a') as file:
-      file.write(datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
-
-def queue_action(action):
-  queue_list.append(action)
-
-def execute_action(action):
-  if action['type'] == 'enter_room':
-    enter_room(action['link'])
-  elif action['type'] == 'change_position':
-    change_position(action['link'])
-  elif action['type'] == 'activate_status':
-    activate_status(action['link'])
-  elif action['type'] == 'change_mode':
-    change_mode(action['link'])
-  add_debug_log("Action: " + action['type'] + " -> " + action['link'])
-
-def run_queued_actions():
-  while queue_list:
-    action = queue_list.pop(0)
-    execute_action(action)
-
-def enable_event(link, category, disable = False):
-  num = 0
-  for room in rooms.values():
-    for line in room[category]:
-        if line['link'] == link:
-          line['disabled'] = disable
-          num += 1
-  if num > 0:
-    disable_text = "enabled"
-    if disable:
-      disable_text = "disabled"
-    add_debug_log("Change event (" + str(num) + "): " + category + ":" + link + " -> " + disable_text)
-
-def disable_event(link, category):
-  enable_event(link, category, True)
-
-def enable_event_interactable(link, disable = False):
-  enable_event(link, "interactable", disable)
-
-def disable_event_interactable(link):
-  enable_event_interactable(link, True)
-  
-def enable_event_sight(link, disable = False):
-  enable_event(link, "sight", disable)
-
-def disable_event_sight(link):
-  enable_event_sight(link, True)
-  
-def enable_event_smell(link, disable = False):
-  enable_event(link, "smell", disable)
-
-def disable_event_smell(link):
-  enable_event_smell(link, True)
-  
-def enable_event_sound(link, disable = False):
-  enable_event(link, "sound", disable)
-
-def disable_event_sound(link):
-  enable_event_sound(link, True)
-
-def enable_event_portal(link, disable = False):
-  enable_event(link, "portal", disable)
-
-def disable_event_portal(link):
-  enable_event_portal(link, True)
-
-def enable_event_all(link):
-  enable_event_sight(link)
-  enable_event_smell(link)
-  enable_event_sound(link)
-
-def disable_event_all(link):
-  disable_event_sight(link)
-  disable_event_smell(link)
-  disable_event_sound(link)
-
-def activate_status(status, activate = True):
-  global statuses
-  if status in statuses:
-    if statuses[status]['active'] != activate:
-      statuses[status]['active'] = activate
-      if activate:
-        add_log(statuses[status]['activation_text'])
-      else:
-        add_log(statuses[status]['deactivation_text'])
-
-def deactivate_status(status):
-  activate_status(status, False)
-
-def main_window_start_menu():
-  lines = []
-  lines.append('')
-  lines.append('ƒƒ.g8"""bgdƒƒƒƒƒdbƒƒƒƒƒƒ`7MN.ƒƒƒ`7MF\'MMP""MM""YMMƒ`7MMF\'ƒƒƒ`7MF\'.M"""bgdƒ')
-  lines.append('.dP\'ƒƒƒƒƒ`Mƒƒƒƒ;MM:ƒƒƒƒƒƒƒMMN.ƒƒƒƒMƒƒP\'ƒƒƒMMƒƒƒ`7ƒƒƒMMƒƒƒƒƒƒƒMƒ,MIƒƒƒƒ"Yƒ')
-  lines.append('dM\'ƒƒƒƒƒƒƒ`ƒƒƒ,V^MM.ƒƒƒƒƒƒMƒYMbƒƒƒMƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒMƒ`MMb.ƒƒƒƒƒ')
-  lines.append('MMƒƒƒƒƒƒƒƒƒƒƒ,Mƒƒ`MMƒƒƒƒƒƒMƒƒ`MN.ƒMƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒMƒƒƒ`YMMNq.ƒ')
-  lines.append('MM.ƒƒƒƒƒƒƒƒƒƒAbmmmqMAƒƒƒƒƒMƒƒƒ`MM.MƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒMƒ.ƒƒƒƒƒ`MMƒ')
-  lines.append('`Mb.ƒƒƒƒƒ,\'ƒA\'ƒƒƒƒƒVMLƒƒƒƒMƒƒƒƒƒYMMƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒYM.ƒƒƒƒƒ,MƒMbƒƒƒƒƒdMƒ')
-  lines.append('ƒƒ`"bmmmd\'.AMA.ƒƒƒ.AMMA..JML.ƒƒƒƒYMƒƒƒƒƒ.JMML.ƒƒƒƒƒƒƒ`bmmmmd"\'ƒP"Ybmmd"ƒƒ')
-  lines.append('')
-  lines.append('ƒƒƒƒƒƒdbƒƒƒƒƒƒ`7MM"""YMMƒMMP""MM""YMMƒ`7MM"""YMMƒƒ`7MM"""Mq.ƒƒ`7MN.ƒƒƒ`7MF\'`7MMF\'')
-  lines.append('ƒƒƒƒƒ;MM:ƒƒƒƒƒƒƒMMƒƒƒƒ`7ƒP\'ƒƒƒMMƒƒƒ`7ƒƒƒMMƒƒƒƒ`7ƒƒƒƒMMƒƒƒ`MM.ƒƒƒMMN.ƒƒƒƒMƒƒƒƒMMƒƒ')
-  lines.append('ƒƒƒƒ,V^MM.ƒƒƒƒƒƒMMƒƒƒdƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒdƒƒƒƒƒƒMMƒƒƒ,M9ƒƒƒƒMƒYMbƒƒƒMƒƒƒƒMMƒƒ')
-  lines.append('ƒƒƒ,Mƒƒ`MMƒƒƒƒƒƒMMmmMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMmmMMƒƒƒƒƒƒMMmmdM9ƒƒƒƒƒMƒƒ`MN.ƒMƒƒƒƒMMƒƒ')
-  lines.append('ƒƒƒAbmmmqMAƒƒƒƒƒMMƒƒƒYƒƒ,ƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒYƒƒ,ƒƒƒMMƒƒYM.ƒƒƒƒƒMƒƒƒ`MM.MƒƒƒƒMMƒƒ')
-  lines.append('ƒƒA\'ƒƒƒƒƒVMLƒƒƒƒMMƒƒƒƒƒ,MƒƒƒƒƒMMƒƒƒƒƒƒƒƒMMƒƒƒƒƒ,MƒƒƒMMƒƒƒ`Mb.ƒƒƒMƒƒƒƒƒYMMƒƒƒƒMMƒƒ')
-  lines.append('.AMA.ƒƒƒ.AMMA..JMMmmmmMMMƒƒƒ.JMML.ƒƒƒƒ.JMMmmmmMMMƒ.JMML.ƒ.JMM..JML.ƒƒƒƒYMƒƒ.JMML.')
-  lines.append('')
-  return MainWindowContent(lines, COLOR_TITLE_SCREEN, True, True, FILL_PATTERNS['title_screen'])
-
-def main_window_debug():
-  lines = []
-  justnum = 15
-  lines.append('RED: '.ljust(justnum) + COLORS['red'] + ' FG ' + COLORS['bright_red'] + ' BRIGHT ' + COLORS['bg_red'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_red'] + ' BRIGHT ' + COLOR_DEFAULT)
-  lines.append('GREEN: '.ljust(justnum) + COLORS['green'] + ' FG ' + COLORS['bright_green'] + ' BRIGHT ' + COLORS['bg_green'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_green'] + ' BRIGHT ' + COLOR_DEFAULT)
-  lines.append('YELLOW: '.ljust(justnum) + COLORS['yellow'] + ' FG ' + COLORS['bright_yellow'] + ' BRIGHT ' + COLORS['bg_yellow'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_yellow'] + ' BRIGHT ' + COLOR_DEFAULT)
-  lines.append('BLUE: '.ljust(justnum) + COLORS['blue'] + ' FG ' + COLORS['bright_blue'] + ' BRIGHT ' + COLORS['bg_blue'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_blue'] + ' BRIGHT ' + COLOR_DEFAULT)
-  lines.append('MAGENTA: '.ljust(justnum) + COLORS['magenta'] + ' FG ' + COLORS['bright_magenta'] + ' BRIGHT ' + COLORS['bg_magenta'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_magenta'] + ' BRIGHT ' + COLOR_DEFAULT)
-  lines.append('CYAN: '.ljust(justnum) + COLORS['cyan'] + ' FG ' + COLORS['bright_cyan'] + ' BRIGHT ' + COLORS['bg_cyan'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_cyan'] + ' BRIGHT ' + COLOR_DEFAULT)
-  lines.append('WHITE: '.ljust(justnum) + COLORS['white'] + ' FG ' + COLORS['bright_white'] + ' BRIGHT ' + COLORS['bg_white'] + ' BG ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_white'] + ' BRIGHT ' + COLOR_DEFAULT)
-  lines.append('BLACK: '.ljust(justnum)  + '    ' + COLORS['bright_black'] + ' BRIGHT ' + '    ' + COLOR_DEFAULT + ' ' + COLORS['bg_bright_black'] + ' BRIGHT ' + COLOR_DEFAULT)
-  lines.append("")
-  lines.append('LAST INPUT: '.ljust(justnum) + '"' + str(debug_input_char)  + '" (' + str(debug_input_char_ord) + ')')
-  lines.append('')
-  lines.append('MUSIC STATUS: '.ljust(justnum) + str(music_enable) + ":" + str(music_type) + ":" + str(settings['music_volume']))
-  lines.append('MUSIC TITLE: '.ljust(justnum) + str(music_title))
-  return MainWindowContent(lines)
-
-def main_window_help():
-  lines = []
-  lines.append('MUSIC BY:')
-  lines.append('Lory Werths')
-  lines.append('www.mandolingals.tripod.com')
-  lines.append('')
-  lines.append('CONTROLS:')
-  lines.append('[UP]'.ljust(6) + ' SCROLL UP')
-  lines.append('[DOWN]'.ljust(6) + ' SCROLL DOWN')
-  return MainWindowContent(lines)
-
-def main_window_cutscene():
-  lines = load_cutscene(active_cutscene)
-  return MainWindowContent(lines)
-
-def main_window_game():
-  lines = []
-  lines.extend(show_active_status())
-  lines.append("")
-  lines.extend(load_room(active_room))
-  return MainWindowContent(lines)
-
-def map_portal_check(portal_check_dict = {'selected_room': '1', 'current_coords': {'x': 0, 'y': 0}, 'checked_rooms': {}}):
-  selected_room_root = portal_check_dict['selected_room']
-  current_coords_root = portal_check_dict['current_coords']
-  portal_check_dict['checked_rooms'][selected_room_root] = portal_check_dict['current_coords']
-  for portal in rooms[selected_room_root]['portal']:
-    if portal['disabled'] == False:
-      next_room = portals[portal['link']]['link2']
-      next_dir = portals[portal['link']]['dir']
-      next_portal_pos = portals[portal['link']]['pos2']
-      if next_room == selected_room_root:
-        next_room = portals[portal['link']]['link1']
-        next_dir = direction_reverse[next_dir]
-        next_portal_pos = portals[portal['link']]['pos1']
-      if not next_room in portal_check_dict['checked_rooms'] and rooms[next_room]['visited'][next_portal_pos]:
-        next_coords = {'x': current_coords_root['x'] + direction_to_coord[next_dir]['x'], 'y': current_coords_root['y'] + direction_to_coord[next_dir]['y']}
-        portal_check_dict['selected_room'] = next_room
-        portal_check_dict['current_coords'] = next_coords
-        portal_check_dict = map_portal_check(portal_check_dict)
-  return portal_check_dict
-
-def main_window_map():
-  global ui_selection_options
-  global ui_selection_y
-  global ui_selection_x
-  ui_selection_options_update = []
-  lines = []
-  map_tile_empty_top = "ƒƒƒ"
-  map_tile_empty_low = "ƒƒƒ"
-  map_tile_visited_top = COLOR_MAP_INACTIVE + "┌─┐" + COLOR_DEFAULT
-  map_tile_visited_low = COLOR_MAP_INACTIVE + "└─┘" + COLOR_DEFAULT
-  map_tile_selected_top = COLOR_MAP_SELECTED + "╔═╗" + COLOR_DEFAULT
-  map_tile_selected_low = COLOR_MAP_SELECTED + "╚═╝" + COLOR_DEFAULT
-  map_tile_active_top = COLOR_MAP_SELECTED + "┌|┐" + COLOR_DEFAULT
-  map_tile_active_low = COLOR_MAP_SELECTED + "└─┘" + COLOR_DEFAULT
-  map_tile_active_selected_top = COLOR_MAP_SELECTED + "╔|╗" + COLOR_DEFAULT
-  map_tile_active_selected_low = COLOR_MAP_SELECTED + "╚═╝" + COLOR_DEFAULT
-  known_rooms = map_portal_check({'selected_room': active_room, 'current_coords': {'x': 0, 'y': 0}, 'checked_rooms': {}})['checked_rooms']
-  #known_rooms_sorted = sorted(known_rooms.items(), key=lambda room: (room[1]['y'], room[1]['x']))
-  zero_x = min(coord['x'] for coord in known_rooms.values())
-  zero_y = min(coord['y'] for coord in known_rooms.values())
-  for room in known_rooms.values():
-    room['x'] += abs(zero_x)
-    room['y'] += abs(zero_y)
-  max_x = max(coord['x'] for coord in known_rooms.values())+1
-  max_y = max(coord['y'] for coord in known_rooms.values())+1
-  y = 0
-  x = 0
-  while y < max_y:
-    ui_selection_options_update.append([])
-    map_line_top = ""
-    map_line_low = ""
-    while x < max_x:
-      if x > 0:
-        map_line_top += " "
-        map_line_low += " "
-      if {'x': x, 'y': y} in known_rooms.values():
-        found_rooms = dict_key_by_value(known_rooms, {'x': x, 'y': y})
-        found_room = found_rooms[0]
-        ui_selection_options_update[y].append(found_room)
-        if len(found_rooms) > 1:
-          add_debug_log("Multiple rooms with same coordinates " + "(ID: " + str(found_rooms) + ")", True)
-        selected_room = active_room
-        if ui_selection_options:
-          selected_room = ui_selection_options[ui_selection_y][ui_selection_x]
-        elif found_room == selected_room:
-          ui_selection_x = x
-          ui_selection_y = y
-        if found_room == active_room:
-          if found_room == selected_room:
-            map_line_top += map_tile_active_selected_top
-            map_line_low += map_tile_active_selected_low
-          else:
-            map_line_top += map_tile_active_top
-            map_line_low += map_tile_active_low
-        elif found_room == selected_room:
-          map_line_top += map_tile_selected_top
-          map_line_low += map_tile_selected_low
-        else:
-          map_line_top += map_tile_visited_top
-          map_line_low += map_tile_visited_low
-      else:
-        ui_selection_options_update[y].append(None)
-        map_line_top += map_tile_empty_top
-        map_line_low += map_tile_empty_low
-      x += 1
-    lines.append(map_line_top)
-    lines.append(map_line_low)
-    x = 0
-    y += 1
-  ui_selection_options = ui_selection_options_update
-  if settings['debug_mode']:
-    lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y][ui_selection_x]))
-  #lines.append("DEBUG: " + str(known_rooms_sorted))
-  #lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y]))
-  #lines.append("DEBUG: " + str(ui_selection_options))
-  #lines.append("DEBUG: Y=" + str(ui_selection_y) + " X=" + str(ui_selection_x))
-  #lines.append("DEBUG: " + str(ui_selection_options[ui_selection_y][ui_selection_x]))
-  #lines.append(str(ui_selection_options_update))
-  return MainWindowContent(lines, None, True, True, FILL_PATTERNS['dots1'])
-  
-def load_cutscene(cutscene_id):
-  lines = []
-  if(settings['debug_mode']):
-    lines.append("DEBUG: Running cutscene " + str(cutscene_id))
-  cutscene = cutscenes[cutscene_id]
-  for line in cutscene['on_enter']:
-    execute_action(line)
-  for line in cutscene['text']:
-    lines.append(line)
-  for line in cutscene['on_exit']:
-    queue_action(line)
-  return lines
-
-def enter_room(room_id, logging = False):
-  global active_room
-  active_room = room_id
-  room = rooms[room_id]
-  for line in room['on_enter']:
-    if not line['disabled'] and (line['position'] == "" or line['position'] == current_position):
-      execute_action(line['content'])
-  if mode != MODE_GAME:
-    change_mode(MODE_GAME)
-  if logging:
-    log_string = "You enter the " + rooms[active_room]['noun']
-    add_log(log_string)
-
-def load_room(room_id):
-  lines = []
-  if(settings['debug_mode']):
-    lines.append("DEBUG: You are in room " + str(room_id))
-  room = rooms[room_id]
-  lines.append(room['location'])
-  lines.extend(sense_sight(room_id))
-  lines.extend(sense_sound(room_id))
-  lines.extend(sense_smell(room_id))
-  lines.append("")
-  lines.append("You are positioned at the " + format_position_text(current_position) + " of the " + room['noun'] + ".")
-  lines.extend(sense_sight(room_id, True))
-  lines.extend(sense_sound(room_id, True))
-  lines.extend(sense_smell(room_id, True))
-  return lines
-
-def show_active_status():
-  lines = []
-  for line in statuses:
-    if (statuses[line]['active']):
-      lines.append(format_status(statuses[line]['text']))
-  return lines
-
-def sense_scan(sense, sense_text, room_id, position_mode = False):
-  lines = []
-  room = rooms[room_id]
-  for line in room[sense]:
-    if not line['disabled']:
-      content = format_color_tags(line['content'])
-      if not position_mode and (line['position'] == "" or (line['position'][0] == "-" and line['position'][1:] != current_position)):
-        lines.append(sense_text + content)
-      elif (position_mode and line['position'] == current_position):
-        lines.append(sense_text + content)
-  return lines
-
-def sense_sight(room_id, position_mode = False):
-  lines = []
-  sense_text = "You look around: "
-  if position_mode:
-    sense_text = "You inspect your immediate surroundings: "
-  room = rooms[room_id]
-  if not statuses['blind']['active']:
-    lines.extend(sense_scan("sight", sense_text, room_id, position_mode))
-  if not lines:
-    lines.append(sense_text + "You see nothing.")
-  return lines
-
-def sense_sound(room_id, position_mode = False):
-  lines = []
-  sense_text = "You focus on your sense of hearing: "
-  if position_mode:
-    sense_text = "You focus on the sounds in you immediate proximity: "
-  if not statuses['deaf']['active']:
-    lines.extend(sense_scan("sound", sense_text, room_id, position_mode))
-  if statuses['blind']['active'] and not lines:
-    lines.append(sense_text + "You don't hear anything.")
-  return lines
-  
-def sense_smell(room_id, position_mode = False):
-  lines = []
-  sense_text = "You focus on your sense of smell: "
-  if position_mode:
-    sense_text = "You focus on the smells in you immediate proximity: "
-  if not statuses['anosmic']['active']:
-    lines.extend(sense_scan("smell", sense_text, room_id, position_mode))
-  if statuses['blind']['active'] and not lines:
-    lines.append(sense_text + "You don't smell anything.")
-  return lines
-
-def change_position(position, logging = False):
-  global current_position
-  current_position = position
-  rooms[active_room]['visited']["room"] = True
-  rooms[active_room]['visited'][current_position] = True
-  if logging:
-    log_string = "You move to the " + direction_abr[position]
-    if position != "c":
-      log_string += " side"
-    log_string += " of the " + rooms[active_room]['noun']
-    add_log(log_string)
-
-def examine(link):
-  interactable = interactables[link]
-  disable_event_interactable(link)
-  if interactable['enable']:
-    enable_event_all(interactable['enable'])
-  if interactable['disable']:
-    disable_event_all(interactable['disable'])
-  if interactable['type'] == "item":
-    add_to_inventory(interactable['link'])
-    add_log("You pick up: " + interactable['text'])
-  if interactable['type'] == "portal":
-    enable_event_portal(interactable['link'])
-    add_log("You have discovered: " + interactable['text'])
-  for line in interactable['on_interact']:
-    execute_action(line)
-
-def add_to_inventory(item):
-  global inventory_list
-  inventory_list.append(item)
-
-def enter_portal(link):
-  portal = portals[link]
-  target_room = None
-  target_pos = None
-  if portals[link]['link1'] == active_room:
-    target_room = portals[link]['link2']
-    target_pos = portals[link]['pos2']
-    add_log(portals[link]['text1to2'])
-  else:
-    target_room = portals[link]['link1']
-    target_pos = portals[link]['pos1']
-    add_log(portals[link]['text2to1'])
-  enter_room(target_room)
-  change_position(target_pos)
-  for line in portal['on_interact']:
-    execute_action(line)
-
 # SETUP
 mode = None
 previous_mode = None
 debug_log_list = ["Starting game"]
 debug_input_char = None
 debug_input_char_ord = None
-ui_size_upper = 3
-ui_size_lower_num_lines = 10
-ui_size_lower = ui_size_lower_num_lines + 3
-ui_size_log_num_lines = 10
-ui_size_log = ui_size_log_num_lines + 1
+#ui_size_upper = 3
+#ui_size_lower_num_lines = 10
+#ui_size_lower = ui_size_lower_num_lines + 3
+#ui_size_log_num_lines = 10
+#ui_size_log = ui_size_log_num_lines + 1
 ui_pre_quit_prompt = False
 ui_quit_prompt = False
 ui_restart_prompt = False
@@ -1462,8 +1695,8 @@ ui_current_menu = None
 ui_selection_options = None
 ui_selection_x = None
 ui_selection_y = None
-default_window_size_x = 50
-default_window_size_y = 200
+default_window_size_x = 200
+default_window_size_y = 50
 window_size_x = default_window_size_x
 window_size_y = default_window_size_y
 loop_count = 0
