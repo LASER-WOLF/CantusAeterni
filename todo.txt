@@ -1,66 +1,79 @@
-# character creator
-# character screen / stats
-# npcs
-# dialogue
-# items
-# inventory
-# save game
-# new sound when changing room
-# animation when changing room
-# animation when changing mode
-# right aligned ui elements in lower window (settings/quit/etc.)
-# portal placement stored in portals and room file (duplicate data)
-# minimap in map screen
-# menu select -> scroll position select
-# sounds / music at the same time not working
-# linux / mac support: maximize window, handle input, hide cursor
-# animations?
-# combat?
+# TODO:
+  # BUG: audio not playing when music is off (sometimes)
+  # BUG: audio volume is same as music volume (sometimes)
+  # character screen / stats
+  # npcs
+  # dialogue
+  # items
+  # inventory
+  # save game
+  # new sound when changing room
+  # animation when changing room
+  # animation when changing mode
+  # right aligned ui elements in lower window (settings/quit/etc.)
+  # portal placement stored in portals and room file (duplicate data)
+  # minimap in map screen
+  # menu select -> scroll position select
+  # animations?
+  # combat?
 
-# move
-# dynamic window sizes (main/bottom)
-# hide empty main screen
-# settings full screen
-# interact
-# listen
-# smell
-# auto-smell
-# auto-listen
-# exit room actions
-# replace exec
-# sight
-# smell
-# sound
-# clear input after keypress
-# debug screen
-# position log
-# reset game
-# mini map
-# debug logging level
-# mode names as constants
-# scrollbar style
-# scrollbar num
-# scrollable log
-# no debug logging when exit map
-# ui horizontal blocks
-# implement minimap?
-# music
-# map: check for rooms on same coords
-# import only part of pygame
-# map
-# map background pattern
-# map selection persistent vertical
-# make system for drawing printing lines
-# change move controls, movement with wasd
-# add back minimap
-# add back movement
-# add back interactions
-# redo code for ui_window_main, upper, lower, dynamic size. size calculated not printed, then all windows printed at same time.
-# use arrows to select on menu
-# divide stuff in bottom ui into functions
-# boot screen
-# ui sounds
-# correct direction selection in map screen
+# DONE:
+  # boot screen
+  # sounds / music at the same time not working
+  # linux / mac support: maximize window, handle input, hide cursor
+  # new menu types for settings options
+  # new tag system <text=0:0:0>
+  # re-enable audio
+  # new structure?
+  # modes (package) - main_menu/debug/help/settings/cutscene/game/map
+  # module: utils
+  # module: config
+  # module: audio
+  # move
+  # dynamic window sizes (main/bottom)
+  # hide empty main screen
+  # settings full screen
+  # interact
+  # listen
+  # smell
+  # auto-smell
+  # auto-listen
+  # exit room actions
+  # replace exec
+  # sight
+  # smell
+  # sound
+  # clear input after keypress
+  # debug screen
+  # position log
+  # reset game
+  # mini map
+  # debug logging level
+  # mode names as constants
+  # scrollbar style
+  # scrollbar num
+  # scrollable log
+  # no debug logging when exit map
+  # ui horizontal blocks
+  # implement minimap?
+  # music
+  # map: check for rooms on same coords
+  # import only part of pygame
+  # map
+  # map background pattern
+  # map selection persistent vertical
+  # make system for drawing printing lines
+  # change move controls, movement with wasd
+  # add back minimap
+  # add back movement
+  # add back interactions
+  # redo code for ui_window_main, upper, lower, dynamic size. size calculated not printed, then all windows printed at same time.
+  # use arrows to select on menu
+  # divide stuff in bottom ui into functions
+  # boot screen
+  # ui sounds
+  # correct direction selection in map screen
 
-https://www.compart.com/en/unicode/
-https://mandolingals.tripod.com/midi/midis.html
+# OTHER:
+  # https://www.compart.com/en/unicode/
+  # https://mandolingals.tripod.com/midi/midis.html
