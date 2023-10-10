@@ -16,6 +16,7 @@ import modes.debug
 import modes.game
 import modes.help
 import modes.main_menu
+import modes.map
 import modes.settings
 import utils
 
@@ -34,6 +35,7 @@ window_mode = None
 font_name = None
 font = None
 font_underline = None
+font_strikethrough = None
 font_width = None
 font_height = None
 offset_x = None
@@ -49,6 +51,7 @@ def initialize():
     screen_height_full = display_info.current_h
     setup_screen()
     setup_font()
+    config.current_animation = config.ANIMATION_BOOT
     if config.settings['debug_mode'] and config.settings['debug_on_start']:
         config.mode = config.MODE_DEBUG
     else:
@@ -78,6 +81,7 @@ def setup_font():
     global font_name
     global font
     global font_underline
+    global font_strikethrough
     global font_width
     global font_height
     global offset_x
@@ -86,6 +90,8 @@ def setup_font():
     font = pygame.font.Font("resources/font/" + config.FONTS[font_name] + '.ttf', 16)
     font_underline = pygame.font.Font("resources/font/" + config.FONTS[font_name] + '.ttf', 16)
     font_underline.set_underline(True)
+    font_strikethrough = pygame.font.Font("resources/font/" + config.FONTS[font_name] + '.ttf', 16)
+    font_strikethrough.set_underline(True)
     font_size = font.size('A')
     font_width = font_size[0]
     font_height = font_size[1]
@@ -96,26 +102,15 @@ def setup_font():
     offset_y = math.floor((font_height * math.modf(size_y_raw)[0]) / 2)
     config.size_y = math.floor(size_y_raw)
 
-class AnimationController:
-    def __init__(self, frame = 0, run = False, stop = False, freeze_content = False):
-        self.frame = frame
-        self.run = run
-        self.stop = stop
-        self.freeze_content = freeze_content
-
 def run():
-    prev_mode = config.mode
-    refresh_content = False
     animation_frame = 0
     animation_fps = None
     animation_control = (False, False)
-    ANIMATION_BOOT = 'boot'
-    ANIMATION_FADE = 'fade'
-    current_animation = ANIMATION_BOOT
+    instant_quit = False
     clock = pygame.time.Clock()
     while config.run_game:
         # REFRESH SCREEN
-        if config.refresh_screen and refresh_content:
+        if config.refresh_screen and config.refresh_content:
             screen.fill(config.PALETTES[config.settings['palette']]['background'])
             # GET SCREEN CONTENT
             screen_content = []
@@ -131,6 +126,8 @@ def run():
                 screen_content = modes.cutscene.run()
             elif config.mode == config.MODE_GAME:
                 screen_content = modes.game.run()
+            elif config.mode == config.MODE_MAP:
+                screen_content = modes.map.run()
             # CHECK LINES
             for num in range(config.size_y):
                 pos_y = offset_y + (num * font_height)
@@ -159,6 +156,8 @@ def run():
                         tag_line_font = None
                         if match_other == 'ul':
                             tag_line_font = font_underline
+                        elif match_other == 'st':
+                            tag_line_font = font_strikethrough
                         else:
                             tag_line_font = font
                         # SET FG COLOR
@@ -172,11 +171,14 @@ def run():
                         # RENDER TAGGED TEXT
                         screen.blit(tag_line_render, (offset_x + ((match_start) * font_width), pos_y))
         # PLAY BOOT ANIMATION
-        if current_animation == ANIMATION_BOOT:
-            animation_frame, animation_control, animation_fps, refresh_content = boot_animation(animation_frame)
-        # PLAY FADE ANIMATION
-        elif current_animation == ANIMATION_FADE:
-            animation_frame, animation_control, animation_fps,refresh_content = fade_animation(animation_frame)
+        if config.current_animation == config.ANIMATION_BOOT:
+            animation_frame, animation_control, animation_fps, config.refresh_content = boot_animation(animation_frame)
+        # PLAY CHANGE MODE ANIMATION
+        elif config.current_animation == config.ANIMATION_CHANGE_MODE:
+            animation_frame, animation_control, animation_fps, config.refresh_content = change_mode_animation(animation_frame)
+        # PLAY CHANGE ROOM ANIMATION
+        elif config.current_animation == config.ANIMATION_CHANGE_ROOM:
+            animation_frame, animation_control, animation_fps, config.refresh_content = change_room_animation(animation_frame)
         # UPDATE DISPLAY
         if config.refresh_screen:
             pygame.display.flip()
@@ -191,13 +193,14 @@ def run():
                 debug_line += 'FPS: ' + str(fps) + '  '
                 debug_rect = (screen_width - (len(debug_line) * font_width) - offset_x, debug_pos_y, screen_width - offset_x, font_height)
                 screen.fill(config.PALETTES[config.settings['palette']]['red'], debug_rect)
-                debug_render_line = font.render(debug_line, False, config.PALETTES[config.settings['palette']]['foreground'])
+                debug_render_line = font.render(debug_line, False, config.PALETTES[config.settings['palette']]['bright_white'])
                 screen.blit(debug_render_line, (screen_width - (len(debug_line) * font_width) - offset_x, debug_pos_y))
                 if not config.refresh_screen:
                     pygame.display.update(debug_rect)
         # CHECK EVENTS      
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                instant_quit = True
                 config.run_game = False
             elif event.type == audio.MUSIC_END and config.settings['enable_music']:
                 audio.music_play()
@@ -216,6 +219,8 @@ def run():
                     modes.cutscene.input(key)
                 elif config.mode == config.MODE_GAME:
                     modes.game.input(key)
+                elif config.mode == config.MODE_MAP:
+                    modes.map.input(key)
         # CHANGE WINDOW MODE / RESOLUTION
         if window_mode != config.settings['window_mode'] or (window_mode == config.WINDOW_MODE_NORMAL and (screen_width != config.settings['screen_width'] or screen_height != config.settings['screen_height'])):
             pygame.display.quit()
@@ -232,19 +237,14 @@ def run():
         # STOP ANIMATION
         if animation_control[1]:
             animation_control = (False, False)
-            current_animation = None
-            refresh_content = True
-        # TRIGGER FADE ANIMATION
-        if prev_mode != config.mode:
-            if prev_mode != config.MODE_BOOT_SCREEN:
-                current_animation = ANIMATION_FADE
-                refresh_content = False
-            prev_mode = config.mode
+            config.current_animation = None
+            config.refresh_content = True
         # WAIT
         clock.tick(TARGET_FRAMERATE)
     # QUIT
     audio.music_stop()
-    quit_animation()
+    if not instant_quit:
+        quit_animation()
     pygame.quit()
 
 def boot_animation(frame):
@@ -253,7 +253,11 @@ def boot_animation(frame):
     ('.', '....BOOTING'),
     ('.', 'BOOTING'),
     ('░', ''),
+    ('░', ''),
     ]
+    color = 'foreground'
+    if frame >= 3:
+        color = 'black'
     if frame <= 1:
         screen.fill(config.PALETTES[config.settings['palette']]['background'])
     if frame == 0:
@@ -264,7 +268,7 @@ def boot_animation(frame):
         line = BOOT_ANIMATION_FRAMES[frame][1]
         for char_num in range(config.size_x - len(line)):
             line += BOOT_ANIMATION_FRAMES[frame][0]
-        render_line = font.render(line, False, config.PALETTES[config.settings['palette']]['foreground'])
+        render_line = font.render(line, False, config.PALETTES[config.settings['palette']][color])
         screen.blit(render_line, (offset_x, pos_y))
     frame += 1
     if frame >= len(BOOT_ANIMATION_FRAMES):
@@ -275,9 +279,9 @@ def boot_animation(frame):
     else:
         return (frame, (True, False), anim_fps, False)
 
-def fade_animation(frame):
+def change_mode_animation(frame):
     anim_fps = 16
-    FADE_ANIMATION_FRAMES = [
+    ANIMATION_FRAMES = [
     '░',
     '▒',
     '░',
@@ -286,11 +290,36 @@ def fade_animation(frame):
         pos_y = offset_y + (line_num * font_height)
         line = ''
         for char_num in range(config.size_x):
-            line += FADE_ANIMATION_FRAMES[frame]
+            line += ANIMATION_FRAMES[frame]
         render_line = font.render(line, False, config.PALETTES[config.settings['palette']]['background'])
         screen.blit(render_line, (offset_x, pos_y))
     frame += 1
-    if frame >= len(FADE_ANIMATION_FRAMES):
+    if frame >= len(ANIMATION_FRAMES):
+        frame = 0
+        return (frame, (True, True), anim_fps, True)
+    elif frame > 1:
+        return (frame, (True, False), anim_fps, True)
+    else:
+        return (frame, (True, False), anim_fps, False)
+
+def change_room_animation(frame):
+    anim_fps = 8
+    ANIMATION_FRAMES = [
+    '░',
+    '▒',
+    '▓',
+    '▒',
+    '░',
+    ]
+    for line_num in range(config.size_y):
+        pos_y = offset_y + (line_num * font_height)
+        line = ''
+        for char_num in range(config.size_x):
+            line += ANIMATION_FRAMES[frame]
+        render_line = font.render(line, False, config.PALETTES[config.settings['palette']]['background'])
+        screen.blit(render_line, (offset_x, pos_y))
+    frame += 1
+    if frame >= len(ANIMATION_FRAMES):
         frame = 0
         return (frame, (True, True), anim_fps, True)
     elif frame > 1:
@@ -300,14 +329,14 @@ def fade_animation(frame):
 
 def quit_animation():
     anim_fps = 160
-    QUIT_ANIMATION_FRAMES = [
+    ANIMATION_FRAMES = [
     ('.', '....................QUITTING'),
     ('▒', ''),
     ('▓', ''),
     ('░', ''),
     ]
     color = 'foreground'
-    for num, frame in enumerate(QUIT_ANIMATION_FRAMES):
+    for num, frame in enumerate(ANIMATION_FRAMES):
         if num == 0:
             if config.settings['enable_sound']:
                 audio.sound_play('ui_back')
@@ -324,9 +353,9 @@ def quit_animation():
             screen.blit(render_line, (offset_x, pos_y))
             pygame.display.flip()
             pygame.time.delay(int(1000 / anim_fps))
-    time.sleep(0.75)
+    pygame.time.delay(750)
 
-if __name__=="__main__":
+if __name__ == "__main__":
         config.initialize()
         initialize()
         audio.initialize()

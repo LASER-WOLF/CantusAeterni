@@ -33,20 +33,17 @@ def restart_game():
 
 def pre_quit_prompt():
     global ui_pre_quit_prompt
-    config.ui_selection_x = 0
-    config.ui_selection_y = 0
+    ui_selection_none()
     ui_pre_quit_prompt = not ui_pre_quit_prompt
 
 def quit_game_prompt():
     global ui_quit_prompt
-    config.ui_selection_x = 0
-    config.ui_selection_y = 0
+    ui_selection_none()
     ui_quit_prompt = not ui_quit_prompt
 
 def restart_game_prompt():
     global ui_restart_prompt
-    config.ui_selection_x = 0
-    config.ui_selection_y = 0
+    ui_selection_none()
     ui_restart_prompt = not ui_restart_prompt
 
 def activate_status(status, activate = True):
@@ -64,6 +61,7 @@ def deactivate_status(status):
 
 def enter_room(room_id, logging = False):
     global active_room
+    ui_selection_none()
     active_room = room_id
     room = rooms[room_id]
     for line in room['on_enter']:
@@ -71,11 +69,14 @@ def enter_room(room_id, logging = False):
             execute_action(line['content'])
     if config.mode != config.MODE_GAME:
         change_mode(config.MODE_GAME)
+    else:
+        config.trigger_animation(config.ANIMATION_CHANGE_ROOM)
     if logging:
         add_log("You enter the " + rooms[active_room]['noun'])
 
 def change_position(position, logging = False):
     global current_position
+    ui_selection_none()
     wait = current_position == position
     action_text = "move to"
     if wait:
@@ -128,14 +129,19 @@ def set_selection_options(target_list):
     result = []
     num_x = len(target_list)
     num_y = len(max(target_list, key = len))
+    max_selection_y = None
     for x in range(num_x):
         result.append([])
         for y in range(num_y):
             entry = None
             if y < len(target_list[x]):
                 entry = target_list[x][y]
+                if config.ui_selection_x == x:
+                    max_selection_y = y
             result[x].append(entry)
     ui_selection_options = result
+    config.ui_selection_y = min(max_selection_y, config.ui_selection_y)
+    config.ui_selection_current = ui_selection_options[config.ui_selection_x][config.ui_selection_y]
 
 def ui_selection_y_prev():
     if config.ui_selection_y > 0:
@@ -215,7 +221,7 @@ def ui_log_or_selection_up():
 
 def ui_log_or_selection_down():
     if config.ui_selection_y == 0 and config.ui_log_scroll_pos > 0:
-        cui_log_scroll_down()
+        ui_log_scroll_down()
     else:
         ui_selection_y_next()
 
@@ -226,14 +232,19 @@ def ui_log_or_selection_right():
     if config.ui_log_scroll_pos == 0:
         ui_selection_x_next()
 
-def change_mode(new_mode):
+def ui_selection_none():
     global ui_selection_options
-    config.previous_mode = config.mode
-    config.mode = new_mode
     ui_selection_options = None
     config.ui_selection_x = 0
     config.ui_selection_y = 0
     config.ui_log_scroll_pos = 0
+    config.ui_selection_current = None
+
+def change_mode(new_mode):
+    config.trigger_animation(config.ANIMATION_CHANGE_MODE)
+    config.previous_mode = config.mode
+    config.mode = new_mode
+    ui_selection_none()
     if config.mode == config.MODE_MAIN_MENU:
         audio.music_change_type(audio.MUSIC_TYPE_MAIN_MENU)
     elif config.mode == config.MODE_CUTSCENE or config.mode == config.MODE_GAME:

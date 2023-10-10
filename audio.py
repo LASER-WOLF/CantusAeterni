@@ -54,6 +54,7 @@ SOUNDS = {
     'ui_confirm': 'resources/sound/ui_confirm.wav',
     'ui_confirm_big': 'resources/sound/ui_confirm_big.wav',
     'ui_back': 'resources/sound/ui_back.wav',
+    'change_room': 'resources/sound/change_room.wav',
 }
 
 # SET VARS
@@ -133,6 +134,9 @@ def sound_ui(sound):
     if config.settings['enable_sound_ui']:
             sound_play(sound)
 
+def sound_fx(sound):
+    sound_play(sound)
+
 def music_status():
     return pygame.mixer.music.get_busy()
 
@@ -147,3 +151,6 @@ def ui_confirm_big():
 
 def ui_back():
     sound_ui('ui_back')
+
+def fx_change_room():
+    sound_fx('change_room')

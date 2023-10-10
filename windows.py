@@ -107,24 +107,45 @@ MINIMAP_TILES = {
     'undiscovered_top_upper_right': utils.add_tag("   ─┐", TAG_COLOR_MAP_INACTIVE),
     'undiscovered_bottom_lower_left': utils.add_tag("└─   ", TAG_COLOR_MAP_INACTIVE),
     'undiscovered_bottom_lower_right': utils.add_tag("   ─┘", TAG_COLOR_MAP_INACTIVE),
+    'selected_undiscovered_top': utils.add_tag("╔═══╗", TAG_COLOR_MAP_INACTIVE),
+    'selected_undiscovered_mid': utils.add_tag("║ - ║", TAG_COLOR_MAP_INACTIVE),
+    'selected_undiscovered_low': utils.add_tag("╚═══╝", TAG_COLOR_MAP_INACTIVE),
     'visited_top': utils.add_tag("┌───┐", TAG_COLOR_MAP_INACTIVE),
     'visited_mid': utils.add_tag("│   │", TAG_COLOR_MAP_INACTIVE),
     'visited_low': utils.add_tag("└───┘", TAG_COLOR_MAP_INACTIVE),
+    'selected_visited_top': utils.add_tag("╔═══╗", TAG_COLOR_MAP_INACTIVE),
+    'selected_visited_mid': utils.add_tag("║   ║", TAG_COLOR_MAP_INACTIVE),
+    'selected_visited_low': utils.add_tag("╚═══╝", TAG_COLOR_MAP_INACTIVE),
     'current_top': utils.add_tag("┌───┐", TAG_COLOR_MAP_SELECTED),
     'current_mid': utils.add_tag("│YOU│", TAG_COLOR_MAP_SELECTED),
     'current_low': utils.add_tag("└───┘", TAG_COLOR_MAP_SELECTED),
+    'selected_current_top': utils.add_tag("╔═══╗", TAG_COLOR_MAP_SELECTED),
+    'selected_current_mid': utils.add_tag("║YOU║", TAG_COLOR_MAP_SELECTED),
+    'selected_current_low': utils.add_tag("╚═══╝", TAG_COLOR_MAP_SELECTED),
     'portal_top': utils.add_tag("┌───┐", TAG_COLOR_PORTAL),
     'portal_mid': utils.add_tag("│ P │", TAG_COLOR_PORTAL),
     'portal_low': utils.add_tag("└───┘", TAG_COLOR_PORTAL),
+    'selected_portal_top': utils.add_tag("╔═══╗", TAG_COLOR_PORTAL),
+    'selected_portal_mid': utils.add_tag("║ P ║", TAG_COLOR_PORTAL),
+    'selected_portal_low': utils.add_tag("╚═══╝", TAG_COLOR_PORTAL),
     'portal_current_top': utils.add_tag("┌───┐", TAG_COLOR_PORTAL),
     'portal_current_mid': utils.add_tag("│", TAG_COLOR_PORTAL) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("│", TAG_COLOR_PORTAL),
     'portal_current_low': utils.add_tag("└───┘", TAG_COLOR_PORTAL),
+    'selected_portal_current_top': utils.add_tag("╔═══╗", TAG_COLOR_PORTAL),
+    'selected_portal_current_mid': utils.add_tag("║", TAG_COLOR_PORTAL) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("║", TAG_COLOR_PORTAL),
+    'selected_portal_current_low': utils.add_tag("╚═══╝", TAG_COLOR_PORTAL),
     'interactable_top': utils.add_tag("┌───┐", TAG_COLOR_INTERACTABLE),
     'interactable_mid': utils.add_tag("│ E │", TAG_COLOR_INTERACTABLE),
     'interactable_low': utils.add_tag("└───┘", TAG_COLOR_INTERACTABLE),
+    'selected_interactable_top': utils.add_tag("╔═══╗", TAG_COLOR_INTERACTABLE),
+    'selected_interactable_mid': utils.add_tag("║ E ║", TAG_COLOR_INTERACTABLE),
+    'selected_interactable_low': utils.add_tag("╚═══╝", TAG_COLOR_INTERACTABLE),
     'interactable_current_top': utils.add_tag("┌───┐", TAG_COLOR_INTERACTABLE),
     'interactable_current_mid': utils.add_tag("│", TAG_COLOR_INTERACTABLE) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("│", TAG_COLOR_INTERACTABLE),
     'interactable_current_low': utils.add_tag("└───┘", TAG_COLOR_INTERACTABLE),
+    'selected_interactable_current_top': utils.add_tag("╔═══╗", TAG_COLOR_INTERACTABLE),
+    'selected_interactable_current_mid': utils.add_tag("║", TAG_COLOR_INTERACTABLE) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("║", TAG_COLOR_INTERACTABLE),
+    'selected_interactable_current_low': utils.add_tag("╚═══╝", TAG_COLOR_INTERACTABLE),
 }
 
 def combine(target_list):
@@ -466,32 +487,67 @@ def block_minimap(room, position = None):
                 tile_low = MINIMAP_TILES['undiscovered_bottom_lower_left']
             elif pos == 'se':
                 tile_low = MINIMAP_TILES['undiscovered_bottom_lower_right']
+            if config.ui_selection_current is not None:
+                if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
+                    tile_top = MINIMAP_TILES['selected_undiscovered_top']
+                    tile_mid = MINIMAP_TILES['selected_undiscovered_mid']
+                    tile_low = MINIMAP_TILES['selected_undiscovered_low']
             if room['visited'][pos]:
                 tile_top = MINIMAP_TILES['visited_top']
                 tile_mid = MINIMAP_TILES['visited_mid']
                 tile_low = MINIMAP_TILES['visited_low']
+                if config.ui_selection_current is not None:
+                    if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
+                        tile_top = MINIMAP_TILES['selected_visited_top']
+                        tile_mid = MINIMAP_TILES['selected_visited_mid']
+                        tile_low = MINIMAP_TILES['selected_visited_low']
                 if pos == position:
                     tile_top = MINIMAP_TILES['current_top']
                     tile_mid = MINIMAP_TILES['current_mid']
                     tile_low = MINIMAP_TILES['current_low']
+                    if config.ui_selection_current is not None:
+                        if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
+                            tile_top = MINIMAP_TILES['selected_current_top']
+                            tile_mid = MINIMAP_TILES['selected_current_mid']
+                            tile_low = MINIMAP_TILES['selected_current_low']
             for portal in room['portal']:
                 if portal['position'] == pos and portal['disabled'] == False and room['visited'][pos]:
                     tile_top = MINIMAP_TILES['portal_top']
                     tile_mid = MINIMAP_TILES['portal_mid']
                     tile_low = MINIMAP_TILES['portal_low']
+                    if config.ui_selection_current is not None:
+                        if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
+                            tile_top = MINIMAP_TILES['selected_portal_top']
+                            tile_mid = MINIMAP_TILES['selected_portal_mid']
+                            tile_low = MINIMAP_TILES['selected_portal_low']
                     if pos == position:
                         tile_top = MINIMAP_TILES['portal_current_top']
                         tile_mid = MINIMAP_TILES['portal_current_mid']
                         tile_low = MINIMAP_TILES['portal_current_low']
+                        if config.ui_selection_current is not None:
+                            if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
+                                tile_top = MINIMAP_TILES['selected_portal_current_top']
+                                tile_mid = MINIMAP_TILES['selected_portal_current_mid']
+                                tile_low = MINIMAP_TILES['selected_portal_current_low']
             for interactable in room['interactable']:
                 if interactable['position'] == pos and interactable['disabled'] == False and room['visited'][pos]:
                     tile_top = MINIMAP_TILES['interactable_top']
                     tile_mid = MINIMAP_TILES['interactable_mid']
                     tile_low = MINIMAP_TILES['interactable_low']
+                    if config.ui_selection_current is not None:
+                        if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
+                            tile_top = MINIMAP_TILES['selected_interactable_top']
+                            tile_mid = MINIMAP_TILES['selected_interactable_mid']
+                            tile_low = MINIMAP_TILES['selected_interactable_low']
                     if pos == position:
                         tile_top = MINIMAP_TILES['interactable_current_top']
                         tile_mid = MINIMAP_TILES['interactable_current_mid']
                         tile_low = MINIMAP_TILES['interactable_current_low']
+                        if config.ui_selection_current is not None:
+                            if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
+                                tile_top = MINIMAP_TILES['selected_interactable_current_top']
+                                tile_mid = MINIMAP_TILES['selected_interactable_current_mid']
+                                tile_low = MINIMAP_TILES['selected_interactable_current_low']
             line_top += tile_top
             line_mid += tile_mid
             line_low += tile_low

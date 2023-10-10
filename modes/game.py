@@ -6,11 +6,17 @@ import utils
 import windows
 
 # SET VARS
+room_id = None
 room = None
 
-def run():
+def set_room():
+    global room_id
     global room
-    room = system.rooms[system.active_room]
+    room_id = system.active_room
+    room = system.rooms[room_id]
+
+def run():
+    set_room()
     system.set_selection_options(selection_options())
     system.run_queued_actions()
     return windows.combine([
@@ -30,6 +36,15 @@ def input(key):
         system.ui_log_or_selection_left()
     elif(key == 'right'):
         system.ui_log_or_selection_right()
+    elif(key == 'escape'):
+        if config.ui_log_scroll_pos > 0:
+            config.ui_log_scroll_pos = 0
+        elif system.ui_pre_quit_prompt:
+            system.pre_quit_prompt()
+        elif system.ui_restart_prompt:
+            system.restart_game_prompt()
+        elif system.ui_quit_prompt:
+            system.quit_game_prompt()
     elif(key == 'return'):
         if selected_option.name == "pre_quit_prompt":
             audio.ui_confirm()
@@ -68,7 +83,7 @@ def input(key):
             audio.ui_confirm()
             examine(selected_option.link)
         elif selected_option.name == "portal":
-            audio.ui_confirm()
+            audio.fx_change_room()
             enter_portal(selected_option.link)
 
 def selection_options():
@@ -107,7 +122,7 @@ def window_center():
     lines = []
     lines.extend(show_active_status())
     lines.append("")
-    lines.extend(load_room(system.active_room))
+    lines.extend(load_room())
     return windows.Content(windows.WINDOW_CENTER, lines)
 
 def window_lower():
@@ -120,7 +135,7 @@ def window_lower():
     else:
         if config.settings['enable_minimap']:
             ui_blocks.append(windows.block_minimap(room, system.current_position))
-        option_titles = ["MOVE TO:", "INTERACT WITH:", "OTHER:", "SYSTEM:"]
+        option_titles = ["MOVE / WAIT:", "INTERACT:", "OTHER:", "SYSTEM:"]
         selection_options_display = windows.format_selection_options_display_add_titles(selection_options_display, option_titles)
     ui_blocks.extend(selection_options_display)
     return windows.Content(windows.WINDOW_LOWER, windows.combine_blocks(ui_blocks))
@@ -132,14 +147,17 @@ def window_log():
 
 def check_move_options():
     result = []
+    result.append(system.SelectionOption("move", 'WAIT AT THE CURRENT POSITION', system.current_position))
     for pos, text in utils.DIRECTION_ABR.items():
-        if system.current_position == pos:
-            text = 'WAIT AT ' + text
-        position_text = text.upper()
-        if pos != "c":
-            position_text += " SIDE"
-        position_text += " OF " + room['noun'].upper()
-        result.append(system.SelectionOption("move", position_text, pos))
+        pos_coord = utils.DIRECTION_TO_COORD[pos]
+        current_pos_coord = utils.DIRECTION_TO_COORD[system.current_position]
+        if system.current_position != pos and abs(pos_coord['x'] - current_pos_coord['x']) <= 1 and abs(pos_coord['y'] - current_pos_coord['y']) <= 1:
+            text = 'MOVE TO THE ' + text
+            position_text = text.upper()
+            if pos != "c":
+                position_text += " SIDE"
+            position_text += " OF " + room['noun'].upper()
+            result.append(system.SelectionOption("move", position_text, pos))
     return result
 
 def check_interact_options():
@@ -208,19 +226,19 @@ def disable_event_all(link):
     disable_event_smell(link)
     disable_event_sound(link)
 
-def load_room(room_id):
+def load_room():
     result = []
     if(config.settings['debug_mode']):
         result.append("DEBUG: You are in room " + str(room_id))
     result.append(room['location'])
-    result.extend(sense_sight(room_id))
-    result.extend(sense_sound(room_id))
-    result.extend(sense_smell(room_id))
+    result.extend(sense_sight())
+    result.extend(sense_sound())
+    result.extend(sense_smell())
     result.append("")
     result.append("You are positioned at the " + windows.format_position_text(system.current_position) + " of the " + room['noun'] + ".")
-    result.extend(sense_sight(room_id, True))
-    result.extend(sense_sound(room_id, True))
-    result.extend(sense_smell(room_id, True))
+    result.extend(sense_sight(True))
+    result.extend(sense_sound(True))
+    result.extend(sense_smell(True))
     return result
 
 def show_active_status():
@@ -230,7 +248,7 @@ def show_active_status():
             result.append(windows.format_status(status['text']))
     return result
 
-def sense_scan(sense, sense_text, room_id, position_mode = False):
+def sense_scan(sense, sense_text, position_mode = False):
     result = []
     for line in room[sense]:
         if not line['disabled']:
@@ -241,63 +259,38 @@ def sense_scan(sense, sense_text, room_id, position_mode = False):
                 result.append(sense_text + content)
     return result
 
-def sense_sight(room_id, position_mode = False):
+def sense_sight(position_mode = False):
     result = []
     sense_text = "You look around: "
     if position_mode:
         sense_text = "You inspect your immediate surroundings: "
     if not system.statuses['blind']['active']:
-        result.extend(sense_scan("sight", sense_text, room_id, position_mode))
+        result.extend(sense_scan("sight", sense_text, position_mode))
     if not result:
         result.append(sense_text + "You see nothing.")
     return result
 
-def sense_sound(room_id, position_mode = False):
+def sense_sound(position_mode = False):
     result = []
     sense_text = "You focus on your sense of hearing: "
     if position_mode:
         sense_text = "You focus on the sounds in you immediate proximity: "
     if not system.statuses['deaf']['active']:
-        result.extend(sense_scan("sound", sense_text, room_id, position_mode))
+        result.extend(sense_scan("sound", sense_text, position_mode))
     if system.statuses['blind']['active'] and not result:
         result.append(sense_text + "You don't hear anything.")
     return result
     
-def sense_smell(room_id, position_mode = False):
+def sense_smell(position_mode = False):
     result = []
     sense_text = "You focus on your sense of smell: "
     if position_mode:
         sense_text = "You focus on the smells in you immediate proximity: "
     if not system.statuses['anosmic']['active']:
-        result.extend(sense_scan("smell", sense_text, room_id, position_mode))
+        result.extend(sense_scan("smell", sense_text, position_mode))
     if system.statuses['blind']['active'] and not result:
         result.append(sense_text + "You don't smell anything.")
     return result
-"""
-def move_north():
-    global current_position
-    pos = DIRECTION_TO_COORD[current_position]
-    if pos['y'] > -1:
-        change_position(utils.dict_key_by_value(DIRECTION_TO_COORD, {'x': pos['x'], 'y': pos['y']-1})[0], True)
-        
-def move_south():
-    global current_position
-    pos = DIRECTION_TO_COORD[current_position]
-    if pos['y'] < 1:
-        change_position(utils.dict_key_by_value(DIRECTION_TO_COORD, {'x': pos['x'], 'y': pos['y']+1})[0], True)
-        
-def move_west():
-    global current_position
-    pos = DIRECTION_TO_COORD[current_position]
-    if pos['x'] > -1:
-        change_position(utils.dict_key_by_value(DIRECTION_TO_COORD, {'x': pos['x']-1, 'y': pos['y']})[0], True)
-
-def move_east():
-    global current_position
-    pos = DIRECTION_TO_COORD[current_position]
-    if pos['x'] < 1:
-        change_position(utils.dict_key_by_value(DIRECTION_TO_COORD, {'x': pos['x']+1, 'y': pos['y']})[0], True)
-"""
 
 def examine(link):
     interactable = system.interactables[link]
@@ -308,7 +301,7 @@ def examine(link):
         disable_event_all(interactable['disable'])
     if interactable['type'] == "item":
         add_to_inventory(interactable['link'])
-        add_log("You pick up: " + interactable['text'])
+        system.add_log("You pick up: " + interactable['text'])
     if interactable['type'] == "portal":
         enable_event_portal(interactable['link'])
         system.add_log("You have discovered: " + interactable['text'])
@@ -319,7 +312,7 @@ def enter_portal(link):
     portal = system.portals[link]
     target_room = None
     target_pos = None
-    if portal['link1'] == system.active_room:
+    if portal['link1'] == room_id:
         target_room = portal['link2']
         target_pos = portal['pos2']
         system.add_log(portal['text1to2'])
@@ -333,5 +326,4 @@ def enter_portal(link):
         system.execute_action(line)
 
 def add_to_inventory(item):
-    global inventory_list
-    inventory_list.append(item)
+    system.inventory_list.append(item)

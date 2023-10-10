@@ -16,10 +16,57 @@ MODE_MAP = "map"
 WINDOW_MODE_NORMAL = 'windowed'
 WINDOW_MODE_FULLSCREEN = 'fullscreen'
 WINDOW_MODE_BORDERLESS = 'borderless'
+ANIMATION_BOOT = 'boot'
+ANIMATION_CHANGE_MODE = 'change_mode'
+ANIMATION_CHANGE_ROOM = 'change_room'
 RESOLUTIONS = [
     (1600, 900),
     (1920, 1080),
 ]
+TAGS = {
+    "black": "01",
+    "red": "02",
+    "green": "03",
+    "yellow": "04",
+    "blue": "05",
+    "magenta": "06",
+    "cyan": "07",
+    "white": "08",
+    "bright_black": "09",
+    "bright_red": "10",
+    "bright_green": "11",
+    "bright_yellow": "12",
+    "bright_blue": "13",
+    "bright_magenta": "14",
+    "bright_cyan": "15",
+    "bright_white": "16",
+    "foreground": "fg",
+    "background": "bg",
+    "underline": "ul",
+    "strikethrough": "st",
+}
+TAGS_REVERSE = {
+    "01": "black",
+    "02": "red",
+    "03": "green",
+    "04": "yellow",
+    "05": "blue",
+    "06": "magenta",
+    "07": "cyan",
+    "08": "white",
+    "09": "bright_black",
+    "10": "bright_red",
+    "11": "bright_green",
+    "12": "bright_yellow",
+    "13": "bright_blue",
+    "14": "bright_magenta",
+    "15": "bright_cyan",
+    "16": "bright_white",
+    "fg": "foreground",
+    "bg": "background",
+    "ul": "underline",
+    "st": "strikethrough",
+}
 FONTS = {
     'DOS/V re. ANK16': 'Px437_DOS-V_re_ANK16',
     'DOS/V re. JPN16': 'Px437_DOS-V_re_JPN16',
@@ -233,62 +280,23 @@ PALETTES = {
         "foreground": (220, 220, 204),
     },
 }
-TAGS = {
-    "black": "01",
-    "red": "02",
-    "green": "03",
-    "yellow": "04",
-    "blue": "05",
-    "magenta": "06",
-    "cyan": "07",
-    "white": "08",
-    "bright_black": "09",
-    "bright_red": "10",
-    "bright_green": "11",
-    "bright_yellow": "12",
-    "bright_blue": "13",
-    "bright_magenta": "14",
-    "bright_cyan": "15",
-    "bright_white": "16",
-    "foreground": "fg",
-    "background": "bg",
-    "underline": "ul",
-}
-TAGS_REVERSE = {
-    "01": "black",
-    "02": "red",
-    "03": "green",
-    "04": "yellow",
-    "05": "blue",
-    "06": "magenta",
-    "07": "cyan",
-    "08": "white",
-    "09": "bright_black",
-    "10": "bright_red",
-    "11": "bright_green",
-    "12": "bright_yellow",
-    "13": "bright_blue",
-    "14": "bright_magenta",
-    "15": "bright_cyan",
-    "16": "bright_white",
-    "fg": "foreground",
-    "bg": "background",
-    "ul": "underline",
-}
 
 # SET VARS
 run_game = True
 refresh_screen = True
+refresh_content = False
 settings = {}
 mode = None
 previous_mode = None
 size_x = 0
 size_y = 0
 debug_log_list = []
+ui_selection_current = None
 ui_selection_x = 0
 ui_selection_y = 0
 ui_log_scroll_pos = 0
 ui_selection_hl = False
+current_animation = None
 
 def initialize():
     import_settings()
@@ -312,3 +320,10 @@ def add_debug_log(item, error = False):
     elif settings['debug_log_to_file']:
         with open('resources/debug_log.txt', 'a') as file:
             file.write(datetime.datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
+
+def trigger_animation(animation_name):
+    global current_animation
+    global refresh_content
+    if current_animation is None:
+        current_animation = animation_name
+        refresh_content = False

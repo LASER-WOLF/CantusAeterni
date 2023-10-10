@@ -1,4 +1,10 @@
 # TODO:
+  # cool flashing ui on selection
+  # mouse support
+  # make cool logo for main title
+  # make cool background for main menu
+  
+
   # BUG: audio not playing when music is off (sometimes)
   # BUG: audio volume is same as music volume (sometimes)
   # character screen / stats
@@ -9,15 +15,17 @@
   # save game
   # new sound when changing room
   # animation when changing room
-  # animation when changing mode
   # right aligned ui elements in lower window (settings/quit/etc.)
   # portal placement stored in portals and room file (duplicate data)
   # minimap in map screen
   # menu select -> scroll position select
-  # animations?
   # combat?
 
 # DONE:
+  # animation when changing mode
+  # animations?
+  # get map to work
+  # get game mode to work
   # boot screen
   # sounds / music at the same time not working
   # linux / mac support: maximize window, handle input, hide cursor

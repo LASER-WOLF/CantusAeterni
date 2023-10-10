@@ -19,3 +19,30 @@
             prev_bg = match_bg
             prev_other = match_other
           '''
+
+
+"""
+def move_north():
+    global current_position
+    pos = DIRECTION_TO_COORD[current_position]
+    if pos['y'] > -1:
+        change_position(utils.dict_key_by_value(DIRECTION_TO_COORD, {'x': pos['x'], 'y': pos['y']-1})[0], True)
+        
+def move_south():
+    global current_position
+    pos = DIRECTION_TO_COORD[current_position]
+    if pos['y'] < 1:
+        change_position(utils.dict_key_by_value(DIRECTION_TO_COORD, {'x': pos['x'], 'y': pos['y']+1})[0], True)
+        
+def move_west():
+    global current_position
+    pos = DIRECTION_TO_COORD[current_position]
+    if pos['x'] > -1:
+        change_position(utils.dict_key_by_value(DIRECTION_TO_COORD, {'x': pos['x']-1, 'y': pos['y']})[0], True)
+
+def move_east():
+    global current_position
+    pos = DIRECTION_TO_COORD[current_position]
+    if pos['x'] < 1:
+        change_position(utils.dict_key_by_value(DIRECTION_TO_COORD, {'x': pos['x']+1, 'y': pos['y']})[0], True)
+"""
