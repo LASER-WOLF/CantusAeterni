@@ -67,6 +67,18 @@ TAGS_REVERSE = {
     "ul": "underline",
     "st": "strikethrough",
 }
+UI_TAGS = {
+    "none": "00",
+    "return": "01",
+    "left": "<-",
+    "right": "->",
+}
+UI_TAGS_REVERSE = {
+    "00": "none",
+    "01": "return",
+    "<-": "left",
+    "->": "right",
+}
 FONTS = {
     'DOS/V re. ANK16': 'Px437_DOS-V_re_ANK16',
     'DOS/V re. JPN16': 'Px437_DOS-V_re_JPN16',

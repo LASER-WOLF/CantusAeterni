@@ -331,7 +331,7 @@ def fill_init(fill):
         fill = fill_list[fill_num]
     return fill, fill_list, fill_num
 
-def format_selection_options_display(target_list, min_size = 20):
+def format_selection_options_display(target_list, min_size = 10, r_align = None):
     pre_line = "> "
     pre_line_empty = " "
     result = []
@@ -351,8 +351,12 @@ def format_selection_options_display(target_list, min_size = 20):
                     entry = utils.add_tag(pre_line + entry, TAG_COLOR_UI_SEL_FG)
                 else:
                     entry = pre_line_empty + entry
-            entry = fill_empty_space(entry, just_num - len(utils.remove_tag(entry)))
-            result[x].append(entry)
+            entry_formatted = entry.ljust(just_num)
+            if r_align is not None:
+                if x >= r_align:
+                    entry_formatted = entry.rjust(just_num)
+            entry_formatted = utils.add_ui_tag(entry_formatted, x, y, config.UI_TAGS['return'])
+            result[x].append(entry_formatted)
     return result
     
 def format_selection_options_display_modifiable(target_list, min_size_name = 60, min_size_value = 20, name_link_padding = 20):
@@ -377,14 +381,16 @@ def format_selection_options_display_modifiable(target_list, min_size_name = 60,
                 entry = fill_empty_space(entry_name, just_num_name - len(utils.remove_tag(entry_name)))
                 if entry_link is not None:
                     entry_link = fill_empty_space(entry_link, just_num_link - len(utils.remove_tag(entry_link)), " ")
-                    sel_ind_l = ""
-                    sel_ind_r = ""
-                    sel_ind_l = "<  "
-                    sel_ind_r = "  >"
+                    entry = utils.add_ui_tag(entry, x, y)
+                    entry_link = utils.add_ui_tag(entry_link, x, y)
+                    sel_ind_l = utils.add_ui_tag('< ', x, y, config.UI_TAGS['left'])
+                    sel_ind_r = utils.add_ui_tag(' >', x, y, config.UI_TAGS['right'])
                     if x == config.ui_selection_x and y == config.ui_selection_y:
                         entry_link = utils.add_tag(entry_link, other=config.TAGS['underline'])
-                    entry_link = sel_ind_l.ljust(2) + entry_link + sel_ind_r.rjust(2)
+                    entry_link = sel_ind_l + entry_link + sel_ind_r
                     entry += entry_link
+                else:
+                    entry = utils.add_ui_tag(entry, x, y, config.UI_TAGS['return'])
             entry = fill_empty_space(entry, (just_num_name + just_num_link + 4) - len(utils.remove_tag(entry)))
             result[x].append(entry)
     return result
@@ -408,6 +414,7 @@ def format_selection_options_display_bg(target_list, centered = False, min_size 
                 else:
                     entry = padding_fill + entry + padding_fill
                     entry = fill_empty_space(entry, just_num - len(utils.remove_tag(entry)), centered = centered)
+            entry = utils.add_ui_tag(entry, x, y, config.UI_TAGS['return'])
             result[x].append(entry)
     return result
 
@@ -448,19 +455,32 @@ def window_upper():
 def window_lower_empty():
     return Content(WINDOW_LOWER, min_height = 0)
 
-def combine_blocks(blocks, margin_size = 4):
+def combine_blocks(blocks, margin_size = 4, r_align = None):
     margin = fill_empty_space("", margin_size)
     lines = []
     height = utils.list_longest_entry_length([utils.remove_tag_list(utils.list_none_filter(single_block)) for single_block in utils.list_none_filter(blocks)])
-    for block_num, block in enumerate(blocks):
+    block_length = []
+    for block in blocks:
         just_num = utils.list_longest_entry_length(utils.remove_tag_list(utils.list_none_filter(block)))
+        block_length.append(just_num)
+    if r_align is not None:
+        l_length = sum(block_length[:r_align:])
+        r_length = sum(block_length[r_align::])
+        fill_length = (config.size_x - (l_length + r_length)) - (margin_size * len(blocks))
+    line_align = False
+    for block_num, block in enumerate(blocks):
+        fill_space = 0
+        if r_align is not None:
+            if block_num == r_align:
+                fill_space = fill_length
+                line_align = True
         for line_num in range(height):
             line = ""
             if line_num < len(block):
                 if block[line_num]:
                     line = block[line_num]
             if line_num < height:
-                line = fill_empty_space(line, just_num - len(utils.remove_tag(line)))
+                line = fill_empty_space(line, block_length[block_num] + fill_space - len(utils.remove_tag(line)), r_align = line_align)
                 if block_num == 0:
                     lines.append(line)
                 else:
@@ -637,10 +657,18 @@ def format_position_text(abr):
     return position_string
 
 def press_to_continue_text(target_key = "enter"):
-    return "PRESS [" + target_key.upper() + "] TO CONTINUE"
+    text ='PRESS [' + target_key.upper() + ']'
+    if config.settings['enable_mouse']:
+        text += ' OR [MOUSE LEFT]'
+    text += ' TO CONTINUE'
+    return text
 
 def press_to_go_back_text(target_key = "esc"):
-    return "PRESS [" + target_key.upper() + "] TO GO BACK"
+    text ='PRESS [' + target_key.upper() + ']'
+    if config.settings['enable_mouse']:
+        text += ' OR [MOUSE RIGHT]'
+    text += ' TO GO BACK'
+    return text
 
 def line_set_color_multi(target_list, target_color):
     result = []
@@ -651,9 +679,9 @@ def line_set_color_multi(target_list, target_color):
 def line_set_color(target_line, target_color):
     return utils.add_tag(target_line, target_color)
 
-def fill_empty_space(line, length, char = " ", centered = False):
+def fill_empty_space(line, length, char = " ", centered = False, r_align = False):
     for n in range(length):
-        if centered and n < length / 2:
+        if r_align or (centered and n < length / 2):
             line = char + line
         else:
             line += char

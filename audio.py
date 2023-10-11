@@ -54,7 +54,8 @@ SOUNDS = {
     'ui_confirm': 'resources/sound/ui_confirm.wav',
     'ui_confirm_big': 'resources/sound/ui_confirm_big.wav',
     'ui_back': 'resources/sound/ui_back.wav',
-    'change_room': 'resources/sound/change_room.wav',
+    'change_room': 'resources/sound/fx_change_room.wav',
+    'move': 'resources/sound/fx_move.wav',
 }
 
 # SET VARS
@@ -154,3 +155,6 @@ def ui_back():
 
 def fx_change_room():
     sound_fx('change_room')
+
+def fx_move():
+    sound_fx('move')

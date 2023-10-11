@@ -1,10 +1,8 @@
 # TODO:
-  # cool flashing ui on selection
-  # mouse support
-  # make cool logo for main title
-  # make cool background for main menu
-  
-
+  # Add mouse support to map mode
+  # BUG: selection menu options to new mode real quick with mouse in game mode
+  # flashing ui animation on selection
+  # cool logo and background for main menu
   # BUG: audio not playing when music is off (sometimes)
   # BUG: audio volume is same as music volume (sometimes)
   # character screen / stats
@@ -13,15 +11,16 @@
   # items
   # inventory
   # save game
-  # new sound when changing room
-  # animation when changing room
-  # right aligned ui elements in lower window (settings/quit/etc.)
   # portal placement stored in portals and room file (duplicate data)
   # minimap in map screen
-  # menu select -> scroll position select
   # combat?
 
 # DONE:
+  # mouse support
+  # new sound when changing room
+  # animation when changing room
+  # right aligned ui elements in lower window (settings/quit/etc.)
+  # menu select -> scroll position select
   # animation when changing mode
   # animations?
   # get map to work

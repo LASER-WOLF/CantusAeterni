@@ -45,12 +45,14 @@ def initialize():
     global screen_width_full
     global screen_height_full
     os.environ['SDL_VIDEO_CENTERED'] = '1'
+    # PYGAME SETUP
     pygame.init()
     display_info = pygame.display.Info()
     screen_width_full = display_info.current_w
     screen_height_full = display_info.current_h
     setup_screen()
     setup_font()
+    # MODE AND ANIMATION SETUP
     config.current_animation = config.ANIMATION_BOOT
     if config.settings['debug_mode'] and config.settings['debug_on_start']:
         config.mode = config.MODE_DEBUG
@@ -76,6 +78,28 @@ def setup_screen():
             screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption(MAIN_TITLE)
     pygame.display.set_icon(ICON)
+    setup_cursor()
+
+def setup_cursor():
+    custom_cursor = (
+    "      xxx       ",
+    "      x.x       ",
+    "      x.x       ",
+    "      x.x       ",
+    "      x.x       ",
+    "      x.x       ",
+    "xxxxxxx.xxxxxxx ",
+    "x.............x ",
+    "xxxxxxx.xxxxxxx ",
+    "      x.x       ",
+    "      x.x       ",
+    "      x.x       ",
+    "      x.x       ",
+    "      x.x       ",
+    "      xxx       ",
+    "                ")
+    cursor = pygame.cursors.compile(custom_cursor, black='x', white='.', xor='o')
+    pygame.mouse.set_cursor((16, 16), (8, 8), *cursor)
 
 def setup_font():
     global font_name
@@ -107,13 +131,22 @@ def run():
     animation_fps = None
     animation_control = (False, False)
     instant_quit = False
+    mouse_time_inactive = 0
+    ui_options = []
     clock = pygame.time.Clock()
     while config.run_game:
+        # HIDE / SHOW MOUSE CURSOR
+        if mouse_time_inactive == 0 and config.settings['enable_mouse']:
+            pygame.mouse.set_visible(True)
+        elif mouse_time_inactive > 2000 or not config.settings['enable_mouse']:
+            pygame.mouse.set_visible(False)
+        mouse_time_inactive += clock.get_time()
         # REFRESH SCREEN
         if config.refresh_screen and config.refresh_content:
             screen.fill(config.PALETTES[config.settings['palette']]['background'])
             # GET SCREEN CONTENT
             screen_content = []
+            ui_options = []
             if config.mode == config.MODE_MAIN_MENU:
                 screen_content = modes.main_menu.run()
             elif config.mode == config.MODE_DEBUG:
@@ -143,14 +176,30 @@ def run():
                     clean_line = utils.remove_tag(line)
                     render_line = font.render(clean_line, False, config.PALETTES[config.settings['palette']]['foreground'])
                     screen.blit(render_line, (offset_x, pos_y))
-                    # TAGS
-                    tag_search = re.finditer('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>', line)
-                    for num, match in enumerate(tag_search):
+                    # FIND UI TAGS
+                    tag_search = re.finditer('<ui=(.{2}):(.{2}):(.{2})>(.*?)</ui>', utils.remove_text_tag(line))
+                    for tag_num, match in enumerate(tag_search):
+                        match_x = match.group(1)
+                        match_y = match.group(2)
+                        match_action = match.group(3)
+                        match_text = match.group(4)
+                        start_adj = 18 * tag_num
+                        match_start = match.start() - start_adj
+                        ui_option_x = offset_x + ((match_start) * font_width)
+                        ui_option_y = pos_y
+                        ui_option_size_x = font_width * len(match_text)
+                        ui_option_size_y = font_height
+                        ui_option_rect = pygame.Rect(ui_option_x, ui_option_y, ui_option_size_x, ui_option_size_y)
+                        ui_option = (ui_option_rect,(int(match_x), int(match_y), match_action))
+                        ui_options.append(ui_option)
+                    # FIND TEXT TAGS
+                    tag_search = re.finditer('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>',  utils.remove_ui_tag(line))
+                    for tag_num, match in enumerate(tag_search):
                         match_fg = match.group(1)
                         match_bg = match.group(2)
                         match_other = match.group(3)
                         match_text = match.group(4)
-                        start_adj = 22 * num
+                        start_adj = 22 * tag_num
                         match_start = match.start() - start_adj
                         # SET OTHER
                         tag_line_font = None
@@ -189,8 +238,8 @@ def run():
                 fps = int(clock.get_fps())
                 debug_line = '  '
                 if config.settings['debug_info_screen'] == 'full':
-                    debug_line += 'RESOLUTION: ' + str(screen_width) + 'x' + str(screen_height) + ' | SIZE: ' + str(config.size_x) + 'x' + str(config.size_y) + ' | OFFSET: ' + 'X=' + str(offset_x) + ' Y=' + str(offset_y) + ' | FONT: ' + font_name + ' (' + str(font_width) + 'x' + str(font_height) + ') | '
-                debug_line += 'FPS: ' + str(fps) + '  '
+                    debug_line += 'RESOLUTION: ' + str(screen_width) + 'x' + str(screen_height) + ' | SIZE: ' + str(config.size_x) + 'x' + str(config.size_y) + ' | OFFSET: ' + 'X=' + str(offset_x) + ' Y=' + str(offset_y) + ' | FONT: ' + font_name + ' (' + str(font_width) + 'x' + str(font_height) + ') | MOUSE: ' + str(pygame.mouse.get_pos()[0]).zfill(4) + 'x' + str(pygame.mouse.get_pos()[1]).zfill(4) + ' | '
+                debug_line += 'FPS: ' + str(fps).zfill(2) + '  '
                 debug_rect = (screen_width - (len(debug_line) * font_width) - offset_x, debug_pos_y, screen_width - offset_x, font_height)
                 screen.fill(config.PALETTES[config.settings['palette']]['red'], debug_rect)
                 debug_render_line = font.render(debug_line, False, config.PALETTES[config.settings['palette']]['bright_white'])
@@ -204,23 +253,54 @@ def run():
                 config.run_game = False
             elif event.type == audio.MUSIC_END and config.settings['enable_music']:
                 audio.music_play()
-            elif event.type == pygame.KEYDOWN and not animation_control[0]:
-                config.refresh_screen = True
-                key = pygame.key.name(event.key)
-                if config.mode == config.MODE_MAIN_MENU:
-                    modes.main_menu.input(key)
-                elif config.mode == config.MODE_DEBUG:
-                    modes.debug.input(key)
-                elif config.mode == config.MODE_SETTINGS:
-                    modes.settings.input(key)
-                elif config.mode == config.MODE_HELP:
-                    modes.help.input(key)
-                elif config.mode == config.MODE_CUTSCENE:
-                    modes.cutscene.input(key)
-                elif config.mode == config.MODE_GAME:
-                    modes.game.input(key)
-                elif config.mode == config.MODE_MAP:
-                    modes.map.input(key)
+            # MOUSE / KEYBOARD INPUT
+            if not animation_control[0]:
+                key = None
+                if config.settings['enable_mouse'] and (event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONDOWN):
+                    mouse_time_inactive = 0
+                    mouse_action = None
+                    for option in ui_options:
+                        if option[0].collidepoint(pygame.mouse.get_pos()):
+                            sel_x = option[1][0]
+                            sel_y = option[1][1]
+                            if event.type == pygame.MOUSEMOTION and (config.ui_selection_x != sel_x or config.ui_selection_y != sel_y):
+                                config.ui_selection_x = option[1][0]
+                                config.ui_selection_y = option[1][1]
+                                audio.ui_sel()
+                                config.refresh_screen = True
+                            elif event.type == pygame.MOUSEBUTTONDOWN:
+                                mouse_button = event.button
+                                if mouse_button == 1:
+                                    mouse_action = option[1][2]
+                                    if mouse_action == '00':
+                                        key = None
+                                    elif mouse_action == '01':
+                                        key = 'return'
+                                    elif mouse_action == '<-':
+                                        key = 'left'
+                                    elif mouse_action == '->':
+                                        key = 'right'
+                    if event.type == pygame.MOUSEBUTTONDOWN and mouse_action is None:
+                        mouse_button = event.button
+                        key = 'mouse' + str(mouse_button)
+                elif event.type == pygame.KEYDOWN:
+                    key = pygame.key.name(event.key)
+                if key is not None:
+                    config.refresh_screen = True
+                    if config.mode == config.MODE_MAIN_MENU:
+                        modes.main_menu.input(key)
+                    elif config.mode == config.MODE_DEBUG:
+                        modes.debug.input(key)
+                    elif config.mode == config.MODE_SETTINGS:
+                        modes.settings.input(key)
+                    elif config.mode == config.MODE_HELP:
+                        modes.help.input(key)
+                    elif config.mode == config.MODE_CUTSCENE:
+                        modes.cutscene.input(key)
+                    elif config.mode == config.MODE_GAME:
+                        modes.game.input(key)
+                    elif config.mode == config.MODE_MAP:
+                        modes.map.input(key)
         # CHANGE WINDOW MODE / RESOLUTION
         if window_mode != config.settings['window_mode'] or (window_mode == config.WINDOW_MODE_NORMAL and (screen_width != config.settings['screen_width'] or screen_height != config.settings['screen_height'])):
             pygame.display.quit()
@@ -322,7 +402,7 @@ def change_room_animation(frame):
     if frame >= len(ANIMATION_FRAMES):
         frame = 0
         return (frame, (True, True), anim_fps, True)
-    elif frame > 1:
+    elif frame > 2:
         return (frame, (True, False), anim_fps, True)
     else:
         return (frame, (True, False), anim_fps, False)

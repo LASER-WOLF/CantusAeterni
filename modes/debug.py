@@ -25,7 +25,7 @@ def input(key):
         system.ui_log_or_selection_up()
     elif(key == 'down'):
         system.ui_log_or_selection_down()
-    elif(key == 'escape' or (key == 'return' and selected_option.name == "back")):
+    elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back")):
         audio.ui_back()
         system.change_mode(config.previous_mode)
     elif(key == 'return'):

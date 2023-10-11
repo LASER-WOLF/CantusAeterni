@@ -57,7 +57,7 @@ def input(key):
         system.ui_selection_x_prev()
     elif(key == 'right'):
         system.ui_selection_x_next()
-    elif(key == 'escape'):
+    elif(key == 'escape' or key == 'mouse3'):
         audio.ui_back()
         system.change_mode(config.previous_mode)
 

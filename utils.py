@@ -14,11 +14,23 @@ def export_json(name, content):
     with open(name + ".json", "w") as outfile:
             json.dump(content, outfile, indent = 2)
 
+def add_ui_tag(string, x = 0, y = 0, action = "00"):
+    return "<ui=" + str(x).zfill(2) + ":" + str(y).zfill(2) + ":" + str(action) + ">" + string + "</ui>"
+
 def add_tag(string, fg = "fg", bg = "bg", other = "00"):
     return "<text=" + str(fg) + ":" + str(bg) + ":" + str(other) + ">" + string + "</text>"
 
 def remove_tag(target_line):
+    target_line = remove_text_tag(target_line)
+    target_line = remove_ui_tag(target_line)
+    return target_line
+
+def remove_text_tag(target_line):
     target_line = re.sub('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>', r"\4", target_line)
+    return target_line
+
+def remove_ui_tag(target_line):
+    target_line = re.sub('<ui=(.{2}):(.{2}):(.{2})>(.*?)</ui>', r"\4", target_line)
     return target_line
 
 def remove_tag_list(target_list):

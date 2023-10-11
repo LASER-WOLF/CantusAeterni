@@ -16,7 +16,7 @@ def run():
     ])
 
 def input(key):
-    if key == 'return':
+    if key == 'return' or key == 'mouse1':
         audio.ui_confirm()
         for line in cutscene['on_exit']:
             system.queue_action(line)

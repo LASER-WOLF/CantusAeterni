@@ -17,7 +17,7 @@ def input(key):
         system.ui_selection_y_prev()
     elif(key == 'down'):
         system.ui_selection_y_next()
-    elif(key == 'escape' or (key == 'return' and selected_option.name == "back")):
+    elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back")):
         audio.ui_back()
         config.export_settings()
         system.change_mode(config.previous_mode)
@@ -42,6 +42,8 @@ def input(key):
             config.settings['enable_sound'] = system.ui_selection_option_change_toggle(config.settings['enable_sound'])
         elif selected_option.name == "enable_sound_ui":
             config.settings['enable_sound_ui'] = system.ui_selection_option_change_toggle(config.settings['enable_sound_ui'])
+        elif selected_option.name == "enable_mouse":
+            config.settings['enable_mouse'] = system.ui_selection_option_change_toggle(config.settings['enable_mouse'])
     elif(selected_option.s_type == "scale"):
         if selected_option.name == "master_volume":
             if key == "left":
@@ -94,8 +96,6 @@ def input(key):
                 config.settings['debug_info_screen'] = system.ui_selection_option_change_multi_prev(config.settings['debug_info_screen'], selected_option.s_options)
             elif key == "right":
                 config.settings['debug_info_screen'] = system.ui_selection_option_change_multi_next(config.settings['debug_info_screen'], selected_option.s_options)
-                
-    #update_settings()
 
 def selection_options():
     result = [[]]
@@ -104,6 +104,7 @@ def selection_options():
         result[0].append(system.SelectionOption("resolution", "SCREEN, RESOLUTION (WINDOWED):", str(config.settings['screen_width']) + "x" + str(config.settings['screen_height']), "multi", config.RESOLUTIONS))
     result[0].append(system.SelectionOption("font", "SCREEN, FONT:", str(config.settings['font']).upper(), "multi", list(config.FONTS.keys())))
     result[0].append(system.SelectionOption("palette", "SCREEN, COLOR PALETTE:", str(config.settings['palette']).upper(), "multi", list(config.PALETTES.keys())))
+    result[0].append(system.SelectionOption("enable_mouse", "SYSTEM, ENABLE MOUSE:", str(config.settings['enable_mouse']).upper(), "toggle"))
     result[0].append(system.SelectionOption("enable_minimap", "OTHER, ENABLE MINIMAP:", str(config.settings['enable_minimap']).upper(), "toggle"))
     result[0].append(system.SelectionOption("enable_music", "AUDIO, ENABLE MUSIC:", str(config.settings['enable_music']).upper(), "toggle"))
     result[0].append(system.SelectionOption("enable_sound", "AUDIO, ENABLE SOUND:", str(config.settings['enable_sound']).upper(), "toggle"))

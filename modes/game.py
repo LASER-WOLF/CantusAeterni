@@ -36,29 +36,39 @@ def input(key):
         system.ui_log_or_selection_left()
     elif(key == 'right'):
         system.ui_log_or_selection_right()
-    elif(key == 'escape'):
+    elif(key == 'escape' or key == 'mouse3'):
         if config.ui_log_scroll_pos > 0:
             config.ui_log_scroll_pos = 0
         elif system.ui_pre_quit_prompt:
+            audio.ui_back()
             system.pre_quit_prompt()
         elif system.ui_restart_prompt:
+            audio.ui_back()
             system.restart_game_prompt()
         elif system.ui_quit_prompt:
+            audio.ui_back()
             system.quit_game_prompt()
     elif(key == 'return'):
         if selected_option.name == "pre_quit_prompt":
-            audio.ui_confirm()
+            if system.ui_pre_quit_prompt:
+                audio.ui_back()
+            else:
+                audio.ui_confirm()
             system.pre_quit_prompt()
         elif selected_option.name == "restart_game_prompt":
-            audio.ui_confirm()
+            if system.ui_pre_quit_prompt:
+                system.pre_quit_prompt()
+                audio.ui_confirm()
+            else:
+                audio.ui_back()
             system.restart_game_prompt()
-            if system.ui_pre_quit_prompt:
-                system.pre_quit_prompt()
         elif selected_option.name == "quit_game_prompt":
-            audio.ui_confirm()
-            system.quit_game_prompt()
             if system.ui_pre_quit_prompt:
                 system.pre_quit_prompt()
+                audio.ui_confirm()
+            else:
+                audio.ui_back()
+            system.quit_game_prompt()
         elif selected_option.name == "restart_game":
             audio.ui_back()
             system.restart_game()
@@ -77,7 +87,7 @@ def input(key):
             audio.ui_confirm()
             system.change_mode(config.MODE_MAP)
         elif selected_option.name == "move":
-            audio.ui_confirm()
+            audio.fx_move()
             system.change_position(selected_option.link, True)
         elif selected_option.name == "examine":
             audio.ui_confirm()
@@ -127,7 +137,7 @@ def window_center():
 
 def window_lower():
     ui_blocks = []
-    selection_options_display = windows.format_selection_options_display(system.ui_selection_options)
+    selection_options_display = windows.format_selection_options_display(system.ui_selection_options, r_align = 2)
     if system.ui_pre_quit_prompt:
         selection_options_display[0].insert(0, 'SELECT ACTION:')
     elif system.ui_quit_prompt or system.ui_restart_prompt:
@@ -138,7 +148,7 @@ def window_lower():
         option_titles = ["MOVE / WAIT:", "INTERACT:", "OTHER:", "SYSTEM:"]
         selection_options_display = windows.format_selection_options_display_add_titles(selection_options_display, option_titles)
     ui_blocks.extend(selection_options_display)
-    return windows.Content(windows.WINDOW_LOWER, windows.combine_blocks(ui_blocks))
+    return windows.Content(windows.WINDOW_LOWER, windows.combine_blocks(ui_blocks, r_align = 3))
 
 def window_log():
     lines = []

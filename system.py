@@ -140,7 +140,13 @@ def set_selection_options(target_list):
                     max_selection_y = y
             result[x].append(entry)
     ui_selection_options = result
-    config.ui_selection_y = min(max_selection_y, config.ui_selection_y)
+    if max_selection_y is None:
+        if config.ui_selection_x > 0:
+            ui_selection_x_prev()
+        else:
+            ui_selection_x_next()
+    else:
+        config.ui_selection_y = min(max_selection_y, config.ui_selection_y)
     config.ui_selection_current = ui_selection_options[config.ui_selection_x][config.ui_selection_y]
 
 def ui_selection_y_prev():
