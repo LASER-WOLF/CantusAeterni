@@ -126,17 +126,17 @@ def map_content():
                 selected_room = system.ui_selection_options[config.ui_selection_x][config.ui_selection_y]
                 if found_room == system.active_room:
                     if found_room == selected_room:
-                        map_line_top += MAP_TILES['active_selected_top']
-                        map_line_low += MAP_TILES['active_selected_low']
+                        map_line_top += utils.add_ui_tag(MAP_TILES['active_selected_top'], x, y)
+                        map_line_low += utils.add_ui_tag(MAP_TILES['active_selected_low'], x, y)
                     else:
-                        map_line_top += MAP_TILES['active_top']
-                        map_line_low += MAP_TILES['active_low']
+                        map_line_top += utils.add_ui_tag(MAP_TILES['active_top'], x, y)
+                        map_line_low += utils.add_ui_tag(MAP_TILES['active_low'], x, y)
                 elif found_room == selected_room:
-                    map_line_top += MAP_TILES['selected_top']
-                    map_line_low += MAP_TILES['selected_low']
+                    map_line_top += utils.add_ui_tag(MAP_TILES['selected_top'], x, y)
+                    map_line_low += utils.add_ui_tag(MAP_TILES['selected_low'], x, y)
                 else:
-                    map_line_top += MAP_TILES['visited_top']
-                    map_line_low += MAP_TILES['visited_low']
+                    map_line_top += utils.add_ui_tag(MAP_TILES['visited_top'], x, y)
+                    map_line_low += utils.add_ui_tag(MAP_TILES['visited_low'], x, y)
             else:
                 map_line_top += MAP_TILES['empty_top']
                 map_line_low += MAP_TILES['empty_low']

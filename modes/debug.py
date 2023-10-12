@@ -26,9 +26,12 @@ def input(key):
     elif(key == 'down'):
         system.ui_log_or_selection_down()
     elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back")):
+        if key == 'return' and selected_option.name == 'back':
+            config.trigger_animation(config.ANIMATION_UI_SELECTION)
         audio.ui_back()
         system.change_mode(config.previous_mode)
     elif(key == 'return'):
+        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         if selected_option.name == "music_next":
             audio.music_stop()
 

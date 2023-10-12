@@ -1475,3 +1475,417 @@
 11.10.2023 - 16:27:50 | Initializing new game
 11.10.2023 - 16:27:52 | Action: enter_room -> 1
 11.10.2023 - 16:27:52 | Action: change_position -> e
+11.10.2023 - 16:38:40 | Starting game
+11.10.2023 - 16:39:49 | Initializing new game
+11.10.2023 - 16:39:50 | Action: enter_room -> 1
+11.10.2023 - 16:39:50 | Action: change_position -> e
+11.10.2023 - 16:39:57 | Change event (1): interactable:1 -> disabled
+11.10.2023 - 16:39:57 | Change event (2): sight:2 -> enabled
+11.10.2023 - 16:39:57 | Change event (2): sight:1 -> disabled
+11.10.2023 - 16:39:57 | Change event (2): portal:1 -> enabled
+11.10.2023 - 16:39:57 | Action: activate_status -> slime
+11.10.2023 - 16:49:13 | Starting game
+11.10.2023 - 16:49:28 | Initializing new game
+11.10.2023 - 16:49:40 | Action: enter_room -> 1
+11.10.2023 - 16:49:40 | Action: change_position -> e
+11.10.2023 - 16:49:44 | Change event (1): interactable:1 -> disabled
+11.10.2023 - 16:49:44 | Change event (2): sight:2 -> enabled
+11.10.2023 - 16:49:44 | Change event (2): sight:1 -> disabled
+11.10.2023 - 16:49:44 | Change event (2): portal:1 -> enabled
+11.10.2023 - 16:49:45 | Action: activate_status -> slime
+11.10.2023 - 16:55:29 | Starting game
+11.10.2023 - 16:55:37 | Initializing new game
+11.10.2023 - 16:55:41 | Action: enter_room -> 1
+11.10.2023 - 16:55:41 | Action: change_position -> e
+11.10.2023 - 16:55:47 | Change event (1): interactable:1 -> disabled
+11.10.2023 - 16:55:47 | Change event (2): sight:2 -> enabled
+11.10.2023 - 16:55:47 | Change event (2): sight:1 -> disabled
+11.10.2023 - 16:55:47 | Change event (2): portal:1 -> enabled
+11.10.2023 - 16:55:49 | Action: activate_status -> slime
+11.10.2023 - 16:56:08 | Action: activate_status -> slime
+11.10.2023 - 16:56:24 | Action: activate_status -> slime
+11.10.2023 - 16:56:25 | Action: activate_status -> slime
+11.10.2023 - 16:56:29 | Change event (1): interactable:2 -> disabled
+11.10.2023 - 16:56:29 | Change event (2): sight:3 -> disabled
+11.10.2023 - 16:56:51 | Change event (1): interactable:3 -> disabled
+11.10.2023 - 16:56:51 | Change event (2): sight:5 -> enabled
+11.10.2023 - 16:56:51 | Change event (2): sight:4 -> disabled
+11.10.2023 - 16:56:51 | Change event (2): portal:2 -> enabled
+11.10.2023 - 19:45:15 | Starting game
+11.10.2023 - 19:45:30 | Initializing new game
+11.10.2023 - 19:45:31 | Action: enter_room -> 1
+11.10.2023 - 19:45:31 | Action: change_position -> e
+11.10.2023 - 19:45:36 | Change event (1): interactable:1 -> disabled
+11.10.2023 - 19:45:36 | Change event (2): sight:2 -> enabled
+11.10.2023 - 19:45:36 | Change event (2): sight:1 -> disabled
+11.10.2023 - 19:45:36 | Change event (2): portal:1 -> enabled
+11.10.2023 - 19:45:37 | Action: activate_status -> slime
+11.10.2023 - 19:45:40 | Action: activate_status -> slime
+11.10.2023 - 19:46:37 | Starting game
+11.10.2023 - 19:46:40 | Initializing new game
+11.10.2023 - 19:46:41 | Action: enter_room -> 1
+11.10.2023 - 19:46:41 | Action: change_position -> e
+11.10.2023 - 20:38:24 | Starting game
+11.10.2023 - 20:42:52 | Initializing new game
+11.10.2023 - 20:43:04 | Action: enter_room -> 1
+11.10.2023 - 20:43:04 | Action: change_position -> e
+11.10.2023 - 20:43:40 | Starting game
+11.10.2023 - 20:43:41 | Initializing new game
+11.10.2023 - 20:43:43 | Action: enter_room -> 1
+11.10.2023 - 20:43:43 | Action: change_position -> e
+11.10.2023 - 20:44:07 | Change event (1): interactable:1 -> disabled
+11.10.2023 - 20:44:07 | Change event (2): sight:2 -> enabled
+11.10.2023 - 20:44:07 | Change event (2): sight:1 -> disabled
+11.10.2023 - 20:44:07 | Change event (2): portal:1 -> enabled
+11.10.2023 - 20:44:13 | Action: activate_status -> slime
+11.10.2023 - 20:44:15 | Action: activate_status -> slime
+11.10.2023 - 20:44:18 | Action: activate_status -> slime
+11.10.2023 - 20:44:20 | Action: activate_status -> slime
+11.10.2023 - 20:44:25 | Change event (1): interactable:3 -> disabled
+11.10.2023 - 20:44:25 | Change event (2): sight:5 -> enabled
+11.10.2023 - 20:44:25 | Change event (2): sight:4 -> disabled
+11.10.2023 - 20:44:25 | Change event (2): portal:2 -> enabled
+11.10.2023 - 20:45:03 | Initializing new game
+11.10.2023 - 20:45:06 | Action: enter_room -> 1
+11.10.2023 - 20:45:06 | Action: change_position -> e
+11.10.2023 - 20:47:33 | Starting game
+12.10.2023 - 11:02:04 | Starting game
+12.10.2023 - 11:02:14 | Initializing new game
+12.10.2023 - 11:02:15 | Action: enter_room -> 1
+12.10.2023 - 11:02:15 | Action: change_position -> e
+12.10.2023 - 11:02:23 | Change event (1): interactable:1 -> disabled
+12.10.2023 - 11:02:23 | Change event (2): sight:2 -> enabled
+12.10.2023 - 11:02:23 | Change event (2): sight:1 -> disabled
+12.10.2023 - 11:02:23 | Change event (2): portal:1 -> enabled
+12.10.2023 - 11:02:24 | Action: activate_status -> slime
+12.10.2023 - 11:08:08 | Starting game
+12.10.2023 - 11:08:10 | Initializing new game
+12.10.2023 - 11:08:11 | Action: enter_room -> 1
+12.10.2023 - 11:08:11 | Action: change_position -> e
+12.10.2023 - 11:08:13 | Change event (1): interactable:1 -> disabled
+12.10.2023 - 11:08:13 | Change event (2): sight:2 -> enabled
+12.10.2023 - 11:08:13 | Change event (2): sight:1 -> disabled
+12.10.2023 - 11:08:13 | Change event (2): portal:1 -> enabled
+12.10.2023 - 11:08:14 | Action: activate_status -> slime
+12.10.2023 - 11:08:15 | Action: activate_status -> slime
+12.10.2023 - 11:08:19 | Change event (1): interactable:3 -> disabled
+12.10.2023 - 11:08:19 | Change event (2): sight:5 -> enabled
+12.10.2023 - 11:08:19 | Change event (2): sight:4 -> disabled
+12.10.2023 - 11:08:19 | Change event (2): portal:2 -> enabled
+12.10.2023 - 18:42:30 | Starting game
+12.10.2023 - 18:44:07 | Starting game
+12.10.2023 - 18:44:54 | Starting game
+12.10.2023 - 18:46:13 | Starting game
+12.10.2023 - 18:47:13 | Starting game
+12.10.2023 - 18:47:41 | Starting game
+12.10.2023 - 18:55:24 | Starting game
+12.10.2023 - 18:56:01 | Starting game
+12.10.2023 - 18:56:51 | Starting game
+12.10.2023 - 18:57:39 | Starting game
+12.10.2023 - 19:08:49 | Starting game
+12.10.2023 - 19:14:00 | Starting game
+12.10.2023 - 19:14:12 | Starting game
+12.10.2023 - 19:32:55 | Starting game
+12.10.2023 - 21:49:55 | Starting game
+12.10.2023 - 21:55:45 | Starting game
+12.10.2023 - 21:55:57 | Starting game
+12.10.2023 - 21:57:22 | Starting game
+12.10.2023 - 21:57:42 | Starting game
+12.10.2023 - 21:57:48 | Starting game
+12.10.2023 - 21:57:56 | Starting game
+12.10.2023 - 21:58:29 | Starting game
+12.10.2023 - 21:58:56 | Starting game
+12.10.2023 - 22:00:06 | Starting game
+12.10.2023 - 22:02:22 | Starting game
+12.10.2023 - 22:02:38 | Starting game
+12.10.2023 - 22:03:57 | Starting game
+12.10.2023 - 22:04:47 | Starting game
+12.10.2023 - 22:04:56 | Starting game
+12.10.2023 - 22:05:41 | Starting game
+12.10.2023 - 22:16:50 | Starting game
+12.10.2023 - 22:19:16 | Starting game
+12.10.2023 - 22:19:36 | Starting game
+12.10.2023 - 22:19:58 | Starting game
+12.10.2023 - 22:20:10 | Starting game
+12.10.2023 - 22:20:25 | Starting game
+12.10.2023 - 22:20:40 | Starting game
+12.10.2023 - 22:29:53 | Starting game
+12.10.2023 - 22:48:16 | Starting game
+12.10.2023 - 22:49:32 | Starting game
+12.10.2023 - 22:51:28 | Starting game
+12.10.2023 - 23:07:23 | Starting game
+12.10.2023 - 23:08:36 | Starting game
+12.10.2023 - 23:09:08 | Starting game
+12.10.2023 - 23:10:04 | Starting game
+12.10.2023 - 23:10:55 | Starting game
+12.10.2023 - 23:12:09 | Starting game
+12.10.2023 - 23:13:56 | Starting game
+12.10.2023 - 23:14:54 | Starting game
+12.10.2023 - 23:17:10 | Starting game
+12.10.2023 - 23:17:58 | Starting game
+12.10.2023 - 23:18:08 | Starting game
+12.10.2023 - 23:18:16 | Starting game
+12.10.2023 - 23:18:36 | Starting game
+12.10.2023 - 23:19:04 | Starting game
+12.10.2023 - 23:21:12 | Starting game
+12.10.2023 - 23:21:43 | Starting game
+12.10.2023 - 23:22:14 | Starting game
+12.10.2023 - 23:23:06 | Starting game
+12.10.2023 - 23:23:39 | Starting game
+12.10.2023 - 23:24:29 | Starting game
+12.10.2023 - 23:24:55 | Starting game
+12.10.2023 - 23:45:05 | Starting game
+12.10.2023 - 23:48:06 | Starting game
+12.10.2023 - 23:48:57 | Starting game
+12.10.2023 - 23:51:14 | Starting game
+12.10.2023 - 23:51:47 | Starting game
+12.10.2023 - 23:52:17 | Starting game
+12.10.2023 - 23:52:34 | Starting game
+12.10.2023 - 23:53:04 | Starting game
+12.10.2023 - 23:53:54 | Starting game
+12.10.2023 - 23:54:29 | Starting game
+12.10.2023 - 23:55:22 | Starting game
+12.10.2023 - 23:56:05 | Starting game
+12.10.2023 - 23:56:44 | Starting game
+12.10.2023 - 23:57:07 | Starting game
+13.10.2023 - 00:01:21 | Starting game
+13.10.2023 - 00:03:57 | Starting game
+13.10.2023 - 00:10:19 | Starting game
+13.10.2023 - 00:11:49 | Starting game
+13.10.2023 - 00:12:19 | Starting game
+13.10.2023 - 00:15:20 | Starting game
+13.10.2023 - 00:21:57 | Starting game
+13.10.2023 - 00:22:36 | Starting game
+13.10.2023 - 00:24:13 | Starting game
+13.10.2023 - 00:26:20 | Starting game
+13.10.2023 - 00:26:41 | Starting game
+13.10.2023 - 00:27:16 | Starting game
+13.10.2023 - 00:28:00 | Starting game
+13.10.2023 - 00:28:46 | Starting game
+13.10.2023 - 00:29:16 | Starting game
+13.10.2023 - 00:29:28 | Starting game
+13.10.2023 - 00:29:41 | Starting game
+13.10.2023 - 00:30:25 | Starting game
+13.10.2023 - 00:32:42 | Starting game
+13.10.2023 - 00:33:00 | Starting game
+13.10.2023 - 00:36:15 | Starting game
+13.10.2023 - 00:37:02 | Starting game
+13.10.2023 - 00:37:44 | Starting game
+13.10.2023 - 00:38:16 | Starting game
+13.10.2023 - 00:39:18 | Starting game
+13.10.2023 - 00:41:50 | Starting game
+13.10.2023 - 00:45:41 | Starting game
+13.10.2023 - 00:46:12 | Starting game
+13.10.2023 - 00:47:12 | Initializing new game
+13.10.2023 - 00:47:14 | Action: enter_room -> 1
+13.10.2023 - 00:47:14 | Action: change_position -> e
+13.10.2023 - 00:47:20 | Initializing new game
+13.10.2023 - 00:47:22 | Action: enter_room -> 1
+13.10.2023 - 00:47:22 | Action: change_position -> e
+13.10.2023 - 00:48:41 | Starting game
+13.10.2023 - 00:48:42 | Initializing new game
+13.10.2023 - 00:48:44 | Action: enter_room -> 1
+13.10.2023 - 00:48:44 | Action: change_position -> e
+13.10.2023 - 00:48:49 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 00:48:49 | Change event (2): sight:2 -> enabled
+13.10.2023 - 00:48:49 | Change event (2): sight:1 -> disabled
+13.10.2023 - 00:48:49 | Change event (2): portal:1 -> enabled
+13.10.2023 - 00:48:51 | Action: activate_status -> slime
+13.10.2023 - 00:48:53 | Action: activate_status -> slime
+13.10.2023 - 00:48:55 | Action: activate_status -> slime
+13.10.2023 - 00:48:57 | Action: activate_status -> slime
+13.10.2023 - 00:48:59 | Action: activate_status -> slime
+13.10.2023 - 00:49:09 | Action: activate_status -> slime
+13.10.2023 - 00:49:51 | Action: activate_status -> slime
+13.10.2023 - 00:49:54 | Action: activate_status -> slime
+13.10.2023 - 00:50:30 | Starting game
+13.10.2023 - 00:51:15 | Starting game
+13.10.2023 - 00:51:17 | Initializing new game
+13.10.2023 - 00:51:18 | Action: enter_room -> 1
+13.10.2023 - 00:51:18 | Action: change_position -> e
+13.10.2023 - 00:51:46 | Starting game
+13.10.2023 - 00:51:47 | Initializing new game
+13.10.2023 - 00:51:49 | Action: enter_room -> 1
+13.10.2023 - 00:51:49 | Action: change_position -> e
+13.10.2023 - 00:52:20 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 00:52:20 | Change event (2): sight:2 -> enabled
+13.10.2023 - 00:52:20 | Change event (2): sight:1 -> disabled
+13.10.2023 - 00:52:20 | Change event (2): portal:1 -> enabled
+13.10.2023 - 00:53:07 | Starting game
+13.10.2023 - 00:53:09 | Initializing new game
+13.10.2023 - 00:53:10 | Action: enter_room -> 1
+13.10.2023 - 00:53:10 | Action: change_position -> e
+13.10.2023 - 00:55:44 | Starting game
+13.10.2023 - 00:56:40 | Initializing new game
+13.10.2023 - 00:56:42 | Action: enter_room -> 1
+13.10.2023 - 00:56:42 | Action: change_position -> e
+13.10.2023 - 00:58:07 | Starting game
+13.10.2023 - 00:59:04 | Initializing new game
+13.10.2023 - 00:59:05 | Action: enter_room -> 1
+13.10.2023 - 00:59:05 | Action: change_position -> e
+13.10.2023 - 00:59:20 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 00:59:20 | Change event (2): sight:2 -> enabled
+13.10.2023 - 00:59:20 | Change event (2): sight:1 -> disabled
+13.10.2023 - 00:59:20 | Change event (2): portal:1 -> enabled
+13.10.2023 - 00:59:21 | Action: activate_status -> slime
+13.10.2023 - 00:59:23 | Action: activate_status -> slime
+13.10.2023 - 00:59:25 | Action: activate_status -> slime
+13.10.2023 - 01:00:16 | Starting game
+13.10.2023 - 01:00:17 | Initializing new game
+13.10.2023 - 01:00:19 | Action: enter_room -> 1
+13.10.2023 - 01:00:19 | Action: change_position -> e
+13.10.2023 - 01:00:26 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 01:00:26 | Change event (2): sight:2 -> enabled
+13.10.2023 - 01:00:26 | Change event (2): sight:1 -> disabled
+13.10.2023 - 01:00:26 | Change event (2): portal:1 -> enabled
+13.10.2023 - 01:00:27 | Action: activate_status -> slime
+13.10.2023 - 01:00:29 | Action: activate_status -> slime
+13.10.2023 - 01:00:40 | Action: activate_status -> slime
+13.10.2023 - 01:00:46 | Action: activate_status -> slime
+13.10.2023 - 01:00:53 | Action: activate_status -> slime
+13.10.2023 - 01:01:08 | Action: activate_status -> slime
+13.10.2023 - 01:01:20 | Change event (1): interactable:3 -> disabled
+13.10.2023 - 01:01:20 | Change event (2): sight:5 -> enabled
+13.10.2023 - 01:01:20 | Change event (2): sight:4 -> disabled
+13.10.2023 - 01:01:20 | Change event (2): portal:2 -> enabled
+13.10.2023 - 01:01:48 | Starting game
+13.10.2023 - 01:01:52 | Initializing new game
+13.10.2023 - 01:01:54 | Action: enter_room -> 1
+13.10.2023 - 01:01:54 | Action: change_position -> e
+13.10.2023 - 01:01:57 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 01:01:57 | Change event (2): sight:2 -> enabled
+13.10.2023 - 01:01:57 | Change event (2): sight:1 -> disabled
+13.10.2023 - 01:01:57 | Change event (2): portal:1 -> enabled
+13.10.2023 - 01:01:58 | Action: activate_status -> slime
+13.10.2023 - 01:02:26 | Action: activate_status -> slime
+13.10.2023 - 01:02:40 | Action: activate_status -> slime
+13.10.2023 - 01:09:17 | Starting game
+13.10.2023 - 01:12:24 | Starting game
+13.10.2023 - 01:13:21 | Starting game
+13.10.2023 - 01:13:45 | Initializing new game
+13.10.2023 - 01:13:47 | Action: enter_room -> 1
+13.10.2023 - 01:13:47 | Action: change_position -> e
+13.10.2023 - 01:13:54 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 01:13:54 | Change event (2): sight:2 -> enabled
+13.10.2023 - 01:13:54 | Change event (2): sight:1 -> disabled
+13.10.2023 - 01:13:54 | Change event (2): portal:1 -> enabled
+13.10.2023 - 01:13:55 | Action: activate_status -> slime
+13.10.2023 - 01:15:12 | Starting game
+13.10.2023 - 01:15:48 | Initializing new game
+13.10.2023 - 01:15:50 | Action: enter_room -> 1
+13.10.2023 - 01:15:50 | Action: change_position -> e
+13.10.2023 - 01:16:55 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 01:16:55 | Change event (2): sight:2 -> enabled
+13.10.2023 - 01:16:55 | Change event (2): sight:1 -> disabled
+13.10.2023 - 01:16:55 | Change event (2): portal:1 -> enabled
+13.10.2023 - 01:16:57 | Action: activate_status -> slime
+13.10.2023 - 01:17:27 | Action: activate_status -> slime
+13.10.2023 - 01:18:14 | Starting game
+13.10.2023 - 01:18:15 | Initializing new game
+13.10.2023 - 01:18:16 | Action: enter_room -> 1
+13.10.2023 - 01:18:16 | Action: change_position -> e
+13.10.2023 - 01:20:34 | Starting game
+13.10.2023 - 01:20:35 | Initializing new game
+13.10.2023 - 01:20:36 | Action: enter_room -> 1
+13.10.2023 - 01:20:36 | Action: change_position -> e
+13.10.2023 - 01:21:35 | Starting game
+13.10.2023 - 01:21:36 | Initializing new game
+13.10.2023 - 01:21:38 | Action: enter_room -> 1
+13.10.2023 - 01:21:38 | Action: change_position -> e
+13.10.2023 - 01:23:12 | Starting game
+13.10.2023 - 01:23:13 | Initializing new game
+13.10.2023 - 01:23:15 | Action: enter_room -> 1
+13.10.2023 - 01:23:15 | Action: change_position -> e
+13.10.2023 - 01:23:44 | Starting game
+13.10.2023 - 01:23:45 | Initializing new game
+13.10.2023 - 01:23:46 | Action: enter_room -> 1
+13.10.2023 - 01:23:46 | Action: change_position -> e
+13.10.2023 - 01:23:52 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 01:23:52 | Change event (2): sight:2 -> enabled
+13.10.2023 - 01:23:52 | Change event (2): sight:1 -> disabled
+13.10.2023 - 01:23:52 | Change event (2): portal:1 -> enabled
+13.10.2023 - 01:23:53 | Action: activate_status -> slime
+13.10.2023 - 01:23:56 | Action: activate_status -> slime
+13.10.2023 - 01:23:58 | Action: activate_status -> slime
+13.10.2023 - 01:24:00 | Action: activate_status -> slime
+13.10.2023 - 01:24:06 | Action: activate_status -> slime
+13.10.2023 - 01:25:01 | Action: activate_status -> slime
+13.10.2023 - 01:27:27 | Starting game
+13.10.2023 - 01:27:47 | Initializing new game
+13.10.2023 - 01:28:13 | Action: enter_room -> 1
+13.10.2023 - 01:28:13 | Action: change_position -> e
+13.10.2023 - 01:28:22 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 01:28:22 | Change event (2): sight:2 -> enabled
+13.10.2023 - 01:28:22 | Change event (2): sight:1 -> disabled
+13.10.2023 - 01:28:22 | Change event (2): portal:1 -> enabled
+13.10.2023 - 01:28:25 | Action: activate_status -> slime
+13.10.2023 - 01:28:27 | Action: activate_status -> slime
+13.10.2023 - 01:28:29 | Action: activate_status -> slime
+13.10.2023 - 01:28:31 | Action: activate_status -> slime
+13.10.2023 - 01:28:37 | Change event (1): interactable:3 -> disabled
+13.10.2023 - 01:28:37 | Change event (2): sight:5 -> enabled
+13.10.2023 - 01:28:37 | Change event (2): sight:4 -> disabled
+13.10.2023 - 01:28:37 | Change event (2): portal:2 -> enabled
+13.10.2023 - 01:29:45 | Action: activate_status -> slime
+13.10.2023 - 01:30:44 | Action: activate_status -> slime
+13.10.2023 - 01:31:05 | Initializing new game
+13.10.2023 - 01:31:10 | Action: enter_room -> 1
+13.10.2023 - 01:31:10 | Action: change_position -> e
+13.10.2023 - 01:31:54 | Starting game
+13.10.2023 - 01:31:55 | Initializing new game
+13.10.2023 - 01:31:57 | Action: enter_room -> 1
+13.10.2023 - 01:31:57 | Action: change_position -> e
+13.10.2023 - 01:34:24 | Starting game
+13.10.2023 - 01:34:25 | Initializing new game
+13.10.2023 - 01:34:27 | Action: enter_room -> 1
+13.10.2023 - 01:34:27 | Action: change_position -> e
+13.10.2023 - 01:34:34 | Initializing new game
+13.10.2023 - 01:34:40 | Action: enter_room -> 1
+13.10.2023 - 01:34:40 | Action: change_position -> e
+13.10.2023 - 01:35:20 | Starting game
+13.10.2023 - 01:35:22 | Initializing new game
+13.10.2023 - 01:35:26 | Action: enter_room -> 1
+13.10.2023 - 01:35:26 | Action: change_position -> e
+13.10.2023 - 01:35:32 | Initializing new game
+13.10.2023 - 01:35:39 | Action: enter_room -> 1
+13.10.2023 - 01:35:39 | Action: change_position -> e
+13.10.2023 - 01:36:03 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 01:36:03 | Change event (2): sight:2 -> enabled
+13.10.2023 - 01:36:03 | Change event (2): sight:1 -> disabled
+13.10.2023 - 01:36:03 | Change event (2): portal:1 -> enabled
+13.10.2023 - 01:36:04 | Action: activate_status -> slime
+13.10.2023 - 01:36:07 | Action: activate_status -> slime
+13.10.2023 - 01:36:10 | Action: activate_status -> slime
+13.10.2023 - 01:36:13 | Action: activate_status -> slime
+13.10.2023 - 01:36:16 | Action: activate_status -> slime
+13.10.2023 - 01:36:18 | Action: activate_status -> slime
+13.10.2023 - 01:36:20 | Action: activate_status -> slime
+13.10.2023 - 01:36:22 | Action: activate_status -> slime
+13.10.2023 - 01:36:24 | Action: activate_status -> slime
+13.10.2023 - 01:36:58 | Action: activate_status -> slime
+13.10.2023 - 01:37:14 | Action: activate_status -> slime
+13.10.2023 - 01:37:17 | Action: activate_status -> slime
+13.10.2023 - 01:37:19 | Action: activate_status -> slime
+13.10.2023 - 01:37:47 | Action: activate_status -> slime
+13.10.2023 - 01:38:00 | Starting game
+13.10.2023 - 01:38:29 | Initializing new game
+13.10.2023 - 01:38:34 | Action: enter_room -> 1
+13.10.2023 - 01:38:34 | Action: change_position -> e
+13.10.2023 - 01:38:49 | Change event (1): interactable:2 -> disabled
+13.10.2023 - 01:38:49 | Change event (2): sight:3 -> disabled
+13.10.2023 - 01:38:54 | Change event (1): interactable:1 -> disabled
+13.10.2023 - 01:38:54 | Change event (2): sight:2 -> enabled
+13.10.2023 - 01:38:54 | Change event (2): sight:1 -> disabled
+13.10.2023 - 01:38:54 | Change event (2): portal:1 -> enabled
+13.10.2023 - 01:38:56 | Action: activate_status -> slime
+13.10.2023 - 01:39:18 | Action: activate_status -> slime
+13.10.2023 - 01:39:23 | Change event (1): interactable:3 -> disabled
+13.10.2023 - 01:39:23 | Change event (2): sight:5 -> enabled
+13.10.2023 - 01:39:23 | Change event (2): sight:4 -> disabled
+13.10.2023 - 01:39:23 | Change event (2): portal:2 -> enabled
+13.10.2023 - 01:41:08 | Initializing new game
+13.10.2023 - 01:41:11 | Action: enter_room -> 1
+13.10.2023 - 01:41:11 | Action: change_position -> e
+13.10.2023 - 01:41:23 | Initializing new game
+13.10.2023 - 01:41:26 | Action: enter_room -> 1
+13.10.2023 - 01:41:26 | Action: change_position -> e

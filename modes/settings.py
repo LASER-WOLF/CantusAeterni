@@ -18,84 +18,111 @@ def input(key):
     elif(key == 'down'):
         system.ui_selection_y_next()
     elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back")):
+        if key == 'return' and selected_option.name == 'back':
+            config.trigger_animation(config.ANIMATION_UI_SELECTION)
         audio.ui_back()
         config.export_settings()
         system.change_mode(config.previous_mode)
     elif(selected_option.s_type == "toggle" and (key == "return" or key == "left" or key == "right")):
         if selected_option.name == "debug_mode":
             config.settings['debug_mode'] = system.ui_selection_option_change_toggle(config.settings['debug_mode'])
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "debug_on_start":
             config.settings['debug_on_start'] = system.ui_selection_option_change_toggle(config.settings['debug_on_start'])
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "debug_log_to_file":
             config.settings['debug_log_to_file'] = system.ui_selection_option_change_toggle(config.settings['debug_log_to_file'])
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "debug_error_log_to_file":
             config.settings['debug_error_log_to_file'] = system.ui_selection_option_change_toggle(config.settings['debug_error_log_to_file'])
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "enable_minimap":
             config.settings['enable_minimap'] = system.ui_selection_option_change_toggle(config.settings['enable_minimap'])
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "enable_music":
             config.settings['enable_music'] = system.ui_selection_option_change_toggle(config.settings['enable_music'])
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             if config.settings['enable_music']:
                 audio.music_play()
             else:
                 audio.music_stop()
         elif selected_option.name == "enable_sound":
             config.settings['enable_sound'] = system.ui_selection_option_change_toggle(config.settings['enable_sound'])
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "enable_sound_ui":
             config.settings['enable_sound_ui'] = system.ui_selection_option_change_toggle(config.settings['enable_sound_ui'])
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "enable_mouse":
             config.settings['enable_mouse'] = system.ui_selection_option_change_toggle(config.settings['enable_mouse'])
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
     elif(selected_option.s_type == "scale"):
         if selected_option.name == "master_volume":
             if key == "left":
                 config.settings['master_volume'] = round((system.ui_selection_option_change_scale_dec(config.settings['master_volume'] * 10, selected_option.s_options) / 10), 1)
                 audio.change_master_volume(config.settings['master_volume'])
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif key == "right":
                 config.settings['master_volume'] = round((system.ui_selection_option_change_scale_inc(config.settings['master_volume'] * 10, selected_option.s_options) / 10), 1)
                 audio.change_master_volume(config.settings['master_volume'])
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "music_volume":
             if key == "left":
                 config.settings['music_volume'] = round((system.ui_selection_option_change_scale_dec(config.settings['music_volume'] * 10, selected_option.s_options) / 10), 1)
                 audio.change_music_volume(config.settings['music_volume'])
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif key == "right":
                 config.settings['music_volume'] = round((system.ui_selection_option_change_scale_inc(config.settings['music_volume'] * 10, selected_option.s_options) / 10), 1)
                 audio.change_music_volume(config.settings['music_volume'])
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "sound_volume":
             if key == "left":
                 config.settings['sound_volume'] = round((system.ui_selection_option_change_scale_dec(config.settings['sound_volume'] * 10, selected_option.s_options) / 10), 1)
                 audio.change_sound_volume(config.settings['sound_volume'])
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif key == "right":
                 config.settings['sound_volume'] = round((system.ui_selection_option_change_scale_inc(config.settings['sound_volume'] * 10, selected_option.s_options) / 10), 1)
                 audio.change_sound_volume(config.settings['sound_volume'])
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
     elif(selected_option.s_type == "multi"):
         if selected_option.name == "window_mode":
             if key == "left":
                 config.settings['window_mode'] = system.ui_selection_option_change_multi_prev(config.settings['window_mode'], selected_option.s_options)
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif key == "right":
                 config.settings['window_mode'] = system.ui_selection_option_change_multi_next(config.settings['window_mode'], selected_option.s_options)
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "font":
             if key == "left":
                 config.settings['font'] = system.ui_selection_option_change_multi_prev(config.settings['font'], selected_option.s_options)
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif key == "right":
                 config.settings['font'] = system.ui_selection_option_change_multi_next(config.settings['font'], selected_option.s_options)
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "palette":
             if key == "left":
                 config.settings['palette'] = system.ui_selection_option_change_multi_prev(config.settings['palette'], selected_option.s_options)
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif key == "right":
                 config.settings['palette'] = system.ui_selection_option_change_multi_next(config.settings['palette'], selected_option.s_options)
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "resolution":
             if key == "left":
                 resolution = system.ui_selection_option_change_multi_prev((config.settings['screen_width'], config.settings['screen_height']), selected_option.s_options)
                 config.settings['screen_width'] = resolution[0]
                 config.settings['screen_height'] = resolution[1]
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif key == "right":
                 resolution = system.ui_selection_option_change_multi_next((config.settings['screen_width'], config.settings['screen_height']), selected_option.s_options)
                 config.settings['screen_width'] = resolution[0]
                 config.settings['screen_height'] = resolution[1]
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
         elif selected_option.name == "debug_info_screen":
             if key == "left":
                 config.settings['debug_info_screen'] = system.ui_selection_option_change_multi_prev(config.settings['debug_info_screen'], selected_option.s_options)
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif key == "right":
                 config.settings['debug_info_screen'] = system.ui_selection_option_change_multi_next(config.settings['debug_info_screen'], selected_option.s_options)
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
 
 def selection_options():
     result = [[]]

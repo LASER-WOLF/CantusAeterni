@@ -19,6 +19,10 @@ WINDOW_MODE_BORDERLESS = 'borderless'
 ANIMATION_BOOT = 'boot'
 ANIMATION_CHANGE_MODE = 'change_mode'
 ANIMATION_CHANGE_ROOM = 'change_room'
+ANIMATION_UI_SELECTION_SHORTEST = 'ui_sel_shortest'
+ANIMATION_UI_SELECTION_SHORT = 'ui_sel_short'
+ANIMATION_UI_SELECTION = 'ui_sel'
+ANIMATION_UI_SELECTION_LONG = 'ui_sel_long'
 RESOLUTIONS = [
     (1600, 900),
     (1920, 1080),
@@ -308,7 +312,7 @@ ui_selection_x = 0
 ui_selection_y = 0
 ui_log_scroll_pos = 0
 ui_selection_hl = False
-current_animation = None
+animation_queue = []
 
 def initialize():
     import_settings()
@@ -333,9 +337,8 @@ def add_debug_log(item, error = False):
         with open('resources/debug_log.txt', 'a') as file:
             file.write(datetime.datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
 
-def trigger_animation(animation_name):
-    global current_animation
-    global refresh_content
-    if current_animation is None:
-        current_animation = animation_name
-        refresh_content = False
+def trigger_animation(animation_name, animation_settings = None):
+    global animation_queue
+    if animation_settings is None:
+        animation_settings = (ui_selection_x, ui_selection_y)
+    animation_queue.append((animation_name, animation_settings))

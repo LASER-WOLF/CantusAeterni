@@ -21,18 +21,23 @@ def input(key):
     elif(key == 'return'):
         if selected_option.name == "start":
             audio.ui_confirm_big()
+            config.trigger_animation(config.ANIMATION_UI_SELECTION)
             system.initialize_new_game()
         elif selected_option.name == "settings":
             audio.ui_confirm()
+            config.trigger_animation(config.ANIMATION_UI_SELECTION)
             system.change_mode(config.MODE_SETTINGS)
         elif selected_option.name == "debug":
             audio.ui_confirm()
+            config.trigger_animation(config.ANIMATION_UI_SELECTION)
             system.change_mode(config.MODE_DEBUG)
         elif selected_option.name == "help":
             audio.ui_confirm()
+            config.trigger_animation(config.ANIMATION_UI_SELECTION)
             system.change_mode(config.MODE_HELP)
         elif selected_option.name == "quit_game_prompt":
             audio.ui_confirm()
+            config.trigger_animation(config.ANIMATION_UI_SELECTION)
             system.quit_game_prompt()
         elif selected_option.name == "quit_game":
             system.quit_game()

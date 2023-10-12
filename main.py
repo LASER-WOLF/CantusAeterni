@@ -52,8 +52,7 @@ def initialize():
     screen_height_full = display_info.current_h
     setup_screen()
     setup_font()
-    # MODE AND ANIMATION SETUP
-    config.current_animation = config.ANIMATION_BOOT
+    config.trigger_animation(config.ANIMATION_BOOT)
     if config.settings['debug_mode'] and config.settings['debug_on_start']:
         config.mode = config.MODE_DEBUG
     else:
@@ -127,6 +126,7 @@ def setup_font():
     config.size_y = math.floor(size_y_raw)
 
 def run():
+    current_animation = None
     animation_frame = 0
     animation_fps = None
     animation_control = (False, False)
@@ -141,6 +141,10 @@ def run():
         elif mouse_time_inactive > 2000 or not config.settings['enable_mouse']:
             pygame.mouse.set_visible(False)
         mouse_time_inactive += clock.get_time()
+        # CHECK ANIMATION QUEUE
+        if config.animation_queue and current_animation is None:
+            current_animation = config.animation_queue.pop(0)
+            config.refresh_content = False
         # REFRESH SCREEN
         if config.refresh_screen and config.refresh_content:
             screen.fill(config.PALETTES[config.settings['palette']]['background'])
@@ -190,7 +194,7 @@ def run():
                         ui_option_size_x = font_width * len(match_text)
                         ui_option_size_y = font_height
                         ui_option_rect = pygame.Rect(ui_option_x, ui_option_y, ui_option_size_x, ui_option_size_y)
-                        ui_option = (ui_option_rect,(int(match_x), int(match_y), match_action))
+                        ui_option = (match_text, ui_option_rect,(int(match_x), int(match_y)), match_action)
                         ui_options.append(ui_option)
                     # FIND TEXT TAGS
                     tag_search = re.finditer('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>',  utils.remove_ui_tag(line))
@@ -219,14 +223,23 @@ def run():
                             tag_line_render = tag_line_bg
                         # RENDER TAGGED TEXT
                         screen.blit(tag_line_render, (offset_x + ((match_start) * font_width), pos_y))
+        # PLAY UI ANIMATION
+        if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION_SHORTEST:
+            animation_frame, animation_control, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 1)
+        if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION_SHORT:
+            animation_frame, animation_control, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 3)
+        if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION:
+            animation_frame, animation_control, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1])
+        if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION_LONG:
+            animation_frame, animation_control, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 7)
         # PLAY BOOT ANIMATION
-        if config.current_animation == config.ANIMATION_BOOT:
+        elif current_animation is not None and current_animation[0] == config.ANIMATION_BOOT:
             animation_frame, animation_control, animation_fps, config.refresh_content = boot_animation(animation_frame)
         # PLAY CHANGE MODE ANIMATION
-        elif config.current_animation == config.ANIMATION_CHANGE_MODE:
+        elif current_animation is not None and current_animation[0] == config.ANIMATION_CHANGE_MODE:
             animation_frame, animation_control, animation_fps, config.refresh_content = change_mode_animation(animation_frame)
         # PLAY CHANGE ROOM ANIMATION
-        elif config.current_animation == config.ANIMATION_CHANGE_ROOM:
+        elif current_animation is not None and current_animation[0] == config.ANIMATION_CHANGE_ROOM:
             animation_frame, animation_control, animation_fps, config.refresh_content = change_room_animation(animation_frame)
         # UPDATE DISPLAY
         if config.refresh_screen:
@@ -260,18 +273,18 @@ def run():
                     mouse_time_inactive = 0
                     mouse_action = None
                     for option in ui_options:
-                        if option[0].collidepoint(pygame.mouse.get_pos()):
-                            sel_x = option[1][0]
-                            sel_y = option[1][1]
+                        if option[1].collidepoint(pygame.mouse.get_pos()):
+                            sel_x = option[2][0]
+                            sel_y = option[2][1]
                             if event.type == pygame.MOUSEMOTION and (config.ui_selection_x != sel_x or config.ui_selection_y != sel_y):
-                                config.ui_selection_x = option[1][0]
-                                config.ui_selection_y = option[1][1]
+                                config.ui_selection_x = sel_x
+                                config.ui_selection_y = sel_y
                                 audio.ui_sel()
                                 config.refresh_screen = True
                             elif event.type == pygame.MOUSEBUTTONDOWN:
                                 mouse_button = event.button
                                 if mouse_button == 1:
-                                    mouse_action = option[1][2]
+                                    mouse_action = option[3]
                                     if mouse_action == '00':
                                         key = None
                                     elif mouse_action == '01':
@@ -317,7 +330,7 @@ def run():
         # STOP ANIMATION
         if animation_control[1]:
             animation_control = (False, False)
-            config.current_animation = None
+            current_animation = None
             config.refresh_content = True
         # WAIT
         clock.tick(TARGET_FRAMERATE)
@@ -326,6 +339,37 @@ def run():
     if not instant_quit:
         quit_animation()
     pygame.quit()
+
+def ui_animation(frame, ui_options, ui_sel, length = 7):
+    anim_fps = 8
+    ANIMATION_FRAMES = []
+    for num in range(length):
+        ANIMATION_FRAMES.append('T')
+    ui_text = None
+    ui_rect = None
+    for option in ui_options:
+        sel_x = option[2][0]
+        sel_y = option[2][1]
+        if ui_sel[0] == sel_x and ui_sel[1] == sel_y:
+            ui_text = option[0]
+            ui_rect = option[1]
+            anim_line = ''
+            color = 'bright_white'
+            if frame == 1 or frame == 3 or frame == 5:
+                color = 'background'
+            if ANIMATION_FRAMES[frame] == 'T':
+                anim_line = ui_text
+            else:
+                for char_num in range (int(ui_rect.width / font_width)):
+                    anim_line += ANIMATION_FRAMES[frame]
+            anim_render_line = font.render(anim_line, False, config.PALETTES[config.settings['palette']][color])
+            screen.blit(anim_render_line, ui_rect)
+    frame += 1
+    if frame >= len(ANIMATION_FRAMES):
+        frame = 0
+        return (frame, (True, True), anim_fps, True)
+    else:
+        return (frame, (True, False), anim_fps, False)
 
 def boot_animation(frame):
     anim_fps = 8

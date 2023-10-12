@@ -473,14 +473,15 @@ def combine_blocks(blocks, margin_size = 4, r_align = None):
         if r_align is not None:
             if block_num == r_align:
                 fill_space = fill_length
-                line_align = True
+                #line_align = True
         for line_num in range(height):
             line = ""
             if line_num < len(block):
                 if block[line_num]:
                     line = block[line_num]
             if line_num < height:
-                line = fill_empty_space(line, block_length[block_num] + fill_space - len(utils.remove_tag(line)), r_align = line_align)
+                #line = fill_empty_space(line, block_length[block_num] + fill_space - len(utils.remove_tag(line)), r_align = line_align)
+                line = fill_empty_space(line, block_length[block_num] + fill_space - len(utils.remove_tag(line)))
                 if block_num == 0:
                     lines.append(line)
                 else:
@@ -659,16 +660,16 @@ def format_position_text(abr):
 def press_to_continue_text(target_key = "enter"):
     text ='PRESS [' + target_key.upper() + ']'
     if config.settings['enable_mouse']:
-        text += ' OR [MOUSE LEFT]'
+        text += ' OR [LEFT MOUSE]'
     text += ' TO CONTINUE'
-    return text
+    return utils.add_ui_tag(text, 0, 0)
 
 def press_to_go_back_text(target_key = "esc"):
     text ='PRESS [' + target_key.upper() + ']'
     if config.settings['enable_mouse']:
-        text += ' OR [MOUSE RIGHT]'
+        text += ' OR [RIGHT MOUSE]'
     text += ' TO GO BACK'
-    return text
+    return utils.add_ui_tag(text, 0, 0)
 
 def line_set_color_multi(target_list, target_color):
     result = []

@@ -1,5 +1,5 @@
 # TODO:
-  # Add mouse support to map mode
+  # Animation queue system
   # BUG: selection menu options to new mode real quick with mouse in game mode
   # flashing ui animation on selection
   # cool logo and background for main menu
@@ -16,6 +16,7 @@
   # combat?
 
 # DONE:
+  # Add mouse support to map mode
   # mouse support
   # new sound when changing room
   # animation when changing room
