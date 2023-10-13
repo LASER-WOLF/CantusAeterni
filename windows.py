@@ -43,7 +43,8 @@ TAG_COLOR_INTERACTABLE = config.TAGS['bright_green']
 TAG_COLOR_PORTAL = config.TAGS['bright_cyan']
 TAG_COLOR_DIRECTION = config.TAGS['bright_blue']
 TAG_COLOR_STATUS = config.TAGS['bright_magenta']
-TAG_COLOR_SCROLLBAR_BG = config.TAGS['bright_white']
+TAG_COLOR_HIGHLIGHT = config.TAGS['bright_white']
+TAG_COLOR_SCROLLBAR_BG = TAG_COLOR_HIGHLIGHT
 TAG_COLOR_MAP_INACTIVE = TAG_COLOR_DARK
 TAG_COLOR_MAP_SELECTED = TAG_COLOR_FG
 
@@ -123,10 +124,10 @@ MINIMAP_TILES = {
     'selected_current_mid': utils.add_tag("║YOU║", TAG_COLOR_MAP_SELECTED),
     'selected_current_low': utils.add_tag("╚═══╝", TAG_COLOR_MAP_SELECTED),
     'portal_top': utils.add_tag("┌───┐", TAG_COLOR_PORTAL),
-    'portal_mid': utils.add_tag("│ P │", TAG_COLOR_PORTAL),
+    'portal_mid': utils.add_tag("││→││", TAG_COLOR_PORTAL),
     'portal_low': utils.add_tag("└───┘", TAG_COLOR_PORTAL),
     'selected_portal_top': utils.add_tag("╔═══╗", TAG_COLOR_PORTAL),
-    'selected_portal_mid': utils.add_tag("║ P ║", TAG_COLOR_PORTAL),
+    'selected_portal_mid': utils.add_tag("║│→│║", TAG_COLOR_PORTAL),
     'selected_portal_low': utils.add_tag("╚═══╝", TAG_COLOR_PORTAL),
     'portal_current_top': utils.add_tag("┌───┐", TAG_COLOR_PORTAL),
     'portal_current_mid': utils.add_tag("│", TAG_COLOR_PORTAL) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("│", TAG_COLOR_PORTAL),
@@ -135,10 +136,10 @@ MINIMAP_TILES = {
     'selected_portal_current_mid': utils.add_tag("║", TAG_COLOR_PORTAL) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("║", TAG_COLOR_PORTAL),
     'selected_portal_current_low': utils.add_tag("╚═══╝", TAG_COLOR_PORTAL),
     'interactable_top': utils.add_tag("┌───┐", TAG_COLOR_INTERACTABLE),
-    'interactable_mid': utils.add_tag("│ E │", TAG_COLOR_INTERACTABLE),
+    'interactable_mid': utils.add_tag("│???│", TAG_COLOR_INTERACTABLE),
     'interactable_low': utils.add_tag("└───┘", TAG_COLOR_INTERACTABLE),
     'selected_interactable_top': utils.add_tag("╔═══╗", TAG_COLOR_INTERACTABLE),
-    'selected_interactable_mid': utils.add_tag("║ E ║", TAG_COLOR_INTERACTABLE),
+    'selected_interactable_mid': utils.add_tag("║???║", TAG_COLOR_INTERACTABLE),
     'selected_interactable_low': utils.add_tag("╚═══╝", TAG_COLOR_INTERACTABLE),
     'interactable_current_top': utils.add_tag("┌───┐", TAG_COLOR_INTERACTABLE),
     'interactable_current_mid': utils.add_tag("│", TAG_COLOR_INTERACTABLE) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("│", TAG_COLOR_INTERACTABLE),
@@ -293,7 +294,7 @@ def make_line(line, line_color = None, fill = None, fill_color = None, align = "
             num += 1
     # LINE COLOR
     if line_color:
-        line_set_color(line_formatted, line_color)
+        line_formatted = line_set_color(line_formatted, line_color)
     # FORMAT FILL
     fill_formatted = None
     if fill:
@@ -331,15 +332,18 @@ def fill_init(fill):
         fill = fill_list[fill_num]
     return fill, fill_list, fill_num
 
-def format_selection_options_display(target_list, min_size = 10, r_align = None):
+def format_selection_options_display(target_list, min_size_list = None, min_size = 10):
     pre_line = "> "
     pre_line_empty = " "
     result = []
     for x, option_list in enumerate(target_list):
-        just_num = min_size
+        this_min_size = min_size
+        if min_size_list is not None and len(min_size_list) > x:
+            this_min_size = min_size_list[x]
+        just_num = this_min_size
         if utils.list_none_filter(option_list):
             just_num = utils.list_longest_entry_length(utils.remove_tag_list([item.display_name for item in utils.list_none_filter(option_list)])) + 2
-        just_num = max(min_size, just_num)
+        just_num = max(this_min_size, just_num)
         result.append([])
         for y, option_entry in enumerate(option_list):
             entry = ""
@@ -348,15 +352,13 @@ def format_selection_options_display(target_list, min_size = 10, r_align = None)
             if option_entry:
                 entry = option_entry.display_name
                 if x == config.ui_selection_x and y == config.ui_selection_y and config.ui_log_scroll_pos == 0:
+                    entry = utils.add_ui_tag(entry, x, y, config.UI_TAGS['return'])
                     entry = utils.add_tag(pre_line + entry, TAG_COLOR_UI_SEL_FG)
                 else:
+                    entry = utils.add_ui_tag(entry, x, y, config.UI_TAGS['return'])
                     entry = pre_line_empty + entry
-            entry_formatted = entry.ljust(just_num)
-            if r_align is not None:
-                if x >= r_align:
-                    entry_formatted = entry.rjust(just_num)
-            entry_formatted = utils.add_ui_tag(entry_formatted, x, y, config.UI_TAGS['return'])
-            result[x].append(entry_formatted)
+            entry = fill_empty_space(entry, just_num - len(utils.remove_tag(entry)))
+            result[x].append(entry)
     return result
     
 def format_selection_options_display_modifiable(target_list, min_size_name = 60, min_size_value = 20, name_link_padding = 20):
@@ -480,7 +482,6 @@ def combine_blocks(blocks, margin_size = 4, r_align = None):
                 if block[line_num]:
                     line = block[line_num]
             if line_num < height:
-                #line = fill_empty_space(line, block_length[block_num] + fill_space - len(utils.remove_tag(line)), r_align = line_align)
                 line = fill_empty_space(line, block_length[block_num] + fill_space - len(utils.remove_tag(line)))
                 if block_num == 0:
                     lines.append(line)
@@ -488,9 +489,10 @@ def combine_blocks(blocks, margin_size = 4, r_align = None):
                     lines[line_num] += margin + line
     return lines
 
-def block_minimap(room, position = None):
+def block_minimap(room, position = None, ui_tags = None):
     lines = []
-    lines.append("MEMORY (LOCAL):".ljust(15))
+    if config.mode == config.MODE_GAME:
+        lines.append("MEMORY (LOCAL):".ljust(15))
     for y in range(3):
         line_top = ""
         line_mid = ""
@@ -508,7 +510,7 @@ def block_minimap(room, position = None):
                 tile_low = MINIMAP_TILES['undiscovered_bottom_lower_left']
             elif pos == 'se':
                 tile_low = MINIMAP_TILES['undiscovered_bottom_lower_right']
-            if config.ui_selection_current is not None:
+            if config.mode == config.MODE_GAME and config.ui_selection_current is not None:
                 if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
                     tile_top = MINIMAP_TILES['selected_undiscovered_top']
                     tile_mid = MINIMAP_TILES['selected_undiscovered_mid']
@@ -517,7 +519,7 @@ def block_minimap(room, position = None):
                 tile_top = MINIMAP_TILES['visited_top']
                 tile_mid = MINIMAP_TILES['visited_mid']
                 tile_low = MINIMAP_TILES['visited_low']
-                if config.ui_selection_current is not None:
+                if config.mode == config.MODE_GAME and config.ui_selection_current is not None:
                     if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
                         tile_top = MINIMAP_TILES['selected_visited_top']
                         tile_mid = MINIMAP_TILES['selected_visited_mid']
@@ -526,7 +528,7 @@ def block_minimap(room, position = None):
                     tile_top = MINIMAP_TILES['current_top']
                     tile_mid = MINIMAP_TILES['current_mid']
                     tile_low = MINIMAP_TILES['current_low']
-                    if config.ui_selection_current is not None:
+                    if config.mode == config.MODE_GAME and config.ui_selection_current is not None:
                         if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
                             tile_top = MINIMAP_TILES['selected_current_top']
                             tile_mid = MINIMAP_TILES['selected_current_mid']
@@ -536,7 +538,7 @@ def block_minimap(room, position = None):
                     tile_top = MINIMAP_TILES['portal_top']
                     tile_mid = MINIMAP_TILES['portal_mid']
                     tile_low = MINIMAP_TILES['portal_low']
-                    if config.ui_selection_current is not None:
+                    if config.mode == config.MODE_GAME and config.ui_selection_current is not None:
                         if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
                             tile_top = MINIMAP_TILES['selected_portal_top']
                             tile_mid = MINIMAP_TILES['selected_portal_mid']
@@ -545,7 +547,7 @@ def block_minimap(room, position = None):
                         tile_top = MINIMAP_TILES['portal_current_top']
                         tile_mid = MINIMAP_TILES['portal_current_mid']
                         tile_low = MINIMAP_TILES['portal_current_low']
-                        if config.ui_selection_current is not None:
+                        if config.mode == config.MODE_GAME and config.ui_selection_current is not None:
                             if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
                                 tile_top = MINIMAP_TILES['selected_portal_current_top']
                                 tile_mid = MINIMAP_TILES['selected_portal_current_mid']
@@ -555,7 +557,7 @@ def block_minimap(room, position = None):
                     tile_top = MINIMAP_TILES['interactable_top']
                     tile_mid = MINIMAP_TILES['interactable_mid']
                     tile_low = MINIMAP_TILES['interactable_low']
-                    if config.ui_selection_current is not None:
+                    if config.mode == config.MODE_GAME and config.ui_selection_current is not None:
                         if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
                             tile_top = MINIMAP_TILES['selected_interactable_top']
                             tile_mid = MINIMAP_TILES['selected_interactable_mid']
@@ -564,14 +566,20 @@ def block_minimap(room, position = None):
                         tile_top = MINIMAP_TILES['interactable_current_top']
                         tile_mid = MINIMAP_TILES['interactable_current_mid']
                         tile_low = MINIMAP_TILES['interactable_current_low']
-                        if config.ui_selection_current is not None:
+                        if config.mode == config.MODE_GAME and config.ui_selection_current is not None:
                             if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
                                 tile_top = MINIMAP_TILES['selected_interactable_current_top']
                                 tile_mid = MINIMAP_TILES['selected_interactable_current_mid']
                                 tile_low = MINIMAP_TILES['selected_interactable_current_low']
+            if ui_tags is not None and pos in ui_tags:
+                tile_top = utils.add_ui_tag(tile_top, 0, ui_tags[pos], config.UI_TAGS['return'])
+                tile_mid = utils.add_ui_tag(tile_mid, 0, ui_tags[pos], config.UI_TAGS['return'])
+                tile_low = utils.add_ui_tag(tile_low, 0, ui_tags[pos], config.UI_TAGS['return'])
             line_top += tile_top
             line_mid += tile_mid
             line_low += tile_low
+            
+
         lines.append(line_top)
         lines.append(line_mid)
         lines.append(line_low)
@@ -625,7 +633,10 @@ def log_content(target_list, max_num_lines = 10):
         result.append(scrollbar[num-1] + "")
         num += 1
     for num, line in enumerate(target_list_shortened):
-        result.append(scrollbar[num] + " " + line)
+        log_line = line
+        if num + 1 == len(target_list_shortened) and not ui_log_end_pos:
+            log_line = utils.add_tag(log_line, fg = TAG_COLOR_HIGHLIGHT)
+        result.append(scrollbar[num] + " " + log_line)
     return result
 
 def format_status(text):
@@ -680,9 +691,9 @@ def line_set_color_multi(target_list, target_color):
 def line_set_color(target_line, target_color):
     return utils.add_tag(target_line, target_color)
 
-def fill_empty_space(line, length, char = " ", centered = False, r_align = False):
+def fill_empty_space(line, length, char = " ", centered = False):
     for n in range(length):
-        if r_align or (centered and n < length / 2):
+        if centered and n < length / 2:
             line = char + line
         else:
             line += char

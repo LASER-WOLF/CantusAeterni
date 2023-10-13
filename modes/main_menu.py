@@ -13,34 +13,41 @@ def run():
     ])
 
 def input(key):
-    selected_option = system.get_selected_option()
-    if(key == 'up'):
-        system.ui_selection_y_prev()
-    elif(key == 'down'):
-        system.ui_selection_y_next()
-    elif(key == 'return'):
-        if selected_option.name == "start":
-            audio.ui_confirm_big()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.initialize_new_game()
-        elif selected_option.name == "settings":
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.change_mode(config.MODE_SETTINGS)
-        elif selected_option.name == "debug":
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.change_mode(config.MODE_DEBUG)
-        elif selected_option.name == "help":
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.change_mode(config.MODE_HELP)
-        elif selected_option.name == "quit_game_prompt":
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.quit_game_prompt()
-        elif selected_option.name == "quit_game":
-            system.quit_game()
+    selected_option = config.ui_selection_current
+    if selected_option is not None:
+        if(key == 'up'):
+            system.ui_selection_y_prev()
+        elif(key == 'down'):
+            system.ui_selection_y_next()
+        elif(key == 'escape' or key == 'mouse3'):
+            if system.ui_quit_prompt:
+                audio.ui_back()
+                system.quit_game_prompt()
+                config.trigger_animation(config.ANIMATION_FADE)
+        elif(key == 'return'):
+            if selected_option.name == "start":
+                audio.ui_confirm_big()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                system.initialize_new_game()
+            elif selected_option.name == "settings":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                system.change_mode(config.MODE_SETTINGS)
+            elif selected_option.name == "debug":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                system.change_mode(config.MODE_DEBUG)
+            elif selected_option.name == "help":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                system.change_mode(config.MODE_HELP)
+            elif selected_option.name == "quit_game_prompt":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_FADE)
+                system.quit_game_prompt()
+            elif selected_option.name == "quit_game":
+                system.quit_game()
 
 def selection_options():
     result = []

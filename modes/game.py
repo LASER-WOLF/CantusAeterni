@@ -27,85 +27,88 @@ def run():
     ])
 
 def input(key):
-    selected_option = system.get_selected_option()
-    if(key == 'up'):
-        system.ui_log_or_selection_up()
-    elif(key == 'down'):
-        system.ui_log_or_selection_down()
-    elif(key == 'left'):
-        system.ui_log_or_selection_left()
-    elif(key == 'right'):
-        system.ui_log_or_selection_right()
-    elif(key == 'escape' or key == 'mouse3'):
-        if config.ui_log_scroll_pos > 0:
-            config.ui_log_scroll_pos = 0
-        elif system.ui_pre_quit_prompt:
-            audio.ui_back()
-            system.pre_quit_prompt()
-        elif system.ui_restart_prompt:
-            audio.ui_back()
-            system.restart_game_prompt()
-        elif system.ui_quit_prompt:
-            audio.ui_back()
-            system.quit_game_prompt()
-    elif(key == 'return'):
-        if selected_option.name == "pre_quit_prompt":
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            if system.ui_pre_quit_prompt:
+    selected_option = config.ui_selection_current
+    if selected_option is not None:
+        if(key == 'up'):
+            system.ui_log_or_selection_up()
+        elif(key == 'down'):
+            system.ui_log_or_selection_down()
+        elif(key == 'left'):
+            system.ui_log_or_selection_left()
+        elif(key == 'right'):
+            system.ui_log_or_selection_right()
+        elif(key == 'escape' or key == 'mouse3'):
+            if config.ui_log_scroll_pos > 0:
+                config.ui_log_scroll_pos = 0
+            elif system.ui_pre_quit_prompt:
                 audio.ui_back()
-            else:
-                audio.ui_confirm()
-            system.pre_quit_prompt()
-        elif selected_option.name == "restart_game_prompt":
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            if system.ui_pre_quit_prompt:
                 system.pre_quit_prompt()
-                audio.ui_confirm()
-            else:
+            elif system.ui_restart_prompt:
                 audio.ui_back()
-            system.restart_game_prompt()
-        elif selected_option.name == "quit_game_prompt":
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            if system.ui_pre_quit_prompt:
+                system.restart_game_prompt()
+            elif system.ui_quit_prompt:
+                audio.ui_back()
+                system.quit_game_prompt()
+        elif(key == 'return' and config.ui_log_scroll_pos == 0):
+            if selected_option.name == "pre_quit_prompt":
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                if system.ui_pre_quit_prompt:
+                    audio.ui_back()
+                else:
+                    audio.ui_confirm()
                 system.pre_quit_prompt()
-                audio.ui_confirm()
-            else:
+            elif selected_option.name == "restart_game_prompt":
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                if system.ui_pre_quit_prompt:
+                    system.pre_quit_prompt()
+                    audio.ui_confirm()
+                else:
+                    audio.ui_back()
+                system.restart_game_prompt()
+            elif selected_option.name == "quit_game_prompt":
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                if system.ui_pre_quit_prompt:
+                    system.pre_quit_prompt()
+                    audio.ui_confirm()
+                else:
+                    audio.ui_back()
+                system.quit_game_prompt()
+            elif selected_option.name == "restart_game":
                 audio.ui_back()
-            system.quit_game_prompt()
-        elif selected_option.name == "restart_game":
-            audio.ui_back()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.restart_game()
-        elif selected_option.name == "quit_game":
-            system.quit_game()
-        elif selected_option.name == "help":
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.change_mode(config.MODE_HELP)
-        elif selected_option.name == "settings":
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.change_mode(config.MODE_SETTINGS)
-        elif selected_option.name == "debug":
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.change_mode(config.MODE_DEBUG)
-        elif selected_option.name == "map":
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            system.change_mode(config.MODE_MAP)
-        elif selected_option.name == "move":
-            audio.fx_move()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORT)
-            system.change_position(selected_option.link, True)
-        elif selected_option.name == "examine":
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORT)
-            examine(selected_option.link)
-        elif selected_option.name == "portal":
-            audio.fx_change_room()
-            config.trigger_animation(config.ANIMATION_UI_SELECTION_LONG)
-            enter_portal(selected_option.link)
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                system.restart_game()
+            elif selected_option.name == "quit_game":
+                system.quit_game()
+            elif selected_option.name == "help":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                system.change_mode(config.MODE_HELP)
+            elif selected_option.name == "settings":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                system.change_mode(config.MODE_SETTINGS)
+            elif selected_option.name == "debug":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                system.change_mode(config.MODE_DEBUG)
+            elif selected_option.name == "map":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                system.change_mode(config.MODE_MAP)
+            elif selected_option.name == "move":
+                audio.fx_move()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORT)
+                config.trigger_animation(config.ANIMATION_FADE)
+                system.change_position(selected_option.link, True)
+            elif selected_option.name == "examine":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORT)
+                config.trigger_animation(config.ANIMATION_FADE)
+                examine(selected_option.link)
+            elif selected_option.name == "portal":
+                audio.fx_change_room()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_LONG)
+                enter_portal(selected_option.link)
 
 def selection_options():
     result = []
@@ -148,15 +151,14 @@ def window_center():
 
 def window_lower():
     ui_blocks = []
-    #selection_options_display = windows.format_selection_options_display(system.ui_selection_options, r_align = 2)
-    selection_options_display = windows.format_selection_options_display(system.ui_selection_options)
+    selection_options_display = windows.format_selection_options_display(system.ui_selection_options, [50])
     if system.ui_pre_quit_prompt:
         selection_options_display[0].insert(0, 'SELECT ACTION:')
     elif system.ui_quit_prompt or system.ui_restart_prompt:
         selection_options_display[0].insert(0, 'ARE YOU SURE?')
     else:
         if config.settings['enable_minimap']:
-            ui_blocks.append(windows.block_minimap(room, system.current_position))
+            ui_blocks.append(windows.block_minimap(room, system.current_position, check_move_options(True)))
         option_titles = ["MOVE / WAIT:", "INTERACT:", "OTHER:", "SYSTEM:"]
         selection_options_display = windows.format_selection_options_display_add_titles(selection_options_display, option_titles)
     ui_blocks.extend(selection_options_display)
@@ -167,9 +169,12 @@ def window_log():
     lines.extend(windows.log_content(system.log_list))
     return windows.Content(windows.WINDOW_LOG, lines)
 
-def check_move_options():
+def check_move_options(minimap_mode = False):
     result = []
+    result_minimap = {}
     result.append(system.SelectionOption("move", 'WAIT AT THE CURRENT POSITION', system.current_position))
+    result_minimap[system.current_position] = 0
+    num = 1
     for pos, text in utils.DIRECTION_ABR.items():
         pos_coord = utils.DIRECTION_TO_COORD[pos]
         current_pos_coord = utils.DIRECTION_TO_COORD[system.current_position]
@@ -180,7 +185,12 @@ def check_move_options():
                 position_text += " SIDE"
             position_text += " OF " + room['noun'].upper()
             result.append(system.SelectionOption("move", position_text, pos))
-    return result
+            result_minimap[pos] = num
+            num += 1
+    if minimap_mode:
+        return result_minimap
+    else:
+        return result
 
 def check_interact_options():
     result = []
@@ -189,7 +199,7 @@ def check_interact_options():
             result.append(system.SelectionOption("examine", "(EXAMINE) " + entry['content'].upper(), entry['link']))
     for entry in room['portal']:
         if entry['position'] == system.current_position and not entry['disabled']:
-            result.append(system.SelectionOption("portal", "(EXIT) " + entry['content'].upper(), entry['link']))
+            result.append(system.SelectionOption("portal", "(TRAVEL) " + entry['content'].upper(), entry['link']))
     return result
 
 def enable_event(link, category, disable = False):

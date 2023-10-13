@@ -113,12 +113,6 @@ def add_log(item):
     global log_list
     log_list.append(item)
 
-def get_selected_option():
-    selected_option = None
-    if ui_selection_options:
-        selected_option = ui_selection_options[config.ui_selection_x][config.ui_selection_y]
-    return selected_option
-
 def press_to_continue(key, target_key = "enter"):
     while key != target_key:
         key = get_keypress()
@@ -247,10 +241,10 @@ def ui_selection_none():
     config.ui_selection_current = None
 
 def change_mode(new_mode):
-    config.trigger_animation(config.ANIMATION_CHANGE_MODE)
+    ui_selection_none()
+    config.trigger_animation(config.ANIMATION_FADE)
     config.previous_mode = config.mode
     config.mode = new_mode
-    ui_selection_none()
     if config.mode == config.MODE_MAIN_MENU:
         audio.music_change_type(audio.MUSIC_TYPE_MAIN_MENU)
     elif config.mode == config.MODE_CUTSCENE or config.mode == config.MODE_GAME:

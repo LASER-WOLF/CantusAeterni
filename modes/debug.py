@@ -20,20 +20,24 @@ def run():
 def input(key):
     global debug_input_char
     debug_input_char = key
-    selected_option = system.get_selected_option()
-    if(key == 'up'):
-        system.ui_log_or_selection_up()
-    elif(key == 'down'):
-        system.ui_log_or_selection_down()
-    elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back")):
-        if key == 'return' and selected_option.name == 'back':
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-        audio.ui_back()
-        system.change_mode(config.previous_mode)
-    elif(key == 'return'):
-        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
-        if selected_option.name == "music_next":
-            audio.music_stop()
+    selected_option = config.ui_selection_current
+    if selected_option is not None:
+        if(key == 'up'):
+            system.ui_log_or_selection_up()
+        elif(key == 'down'):
+            system.ui_log_or_selection_down()
+        elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back"  and config.ui_log_scroll_pos == 0)):
+            if config.ui_log_scroll_pos > 0:
+                config.ui_log_scroll_pos = 0
+            else:
+                if key == 'return' and selected_option.name == 'back':
+                    config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                audio.ui_back()
+                system.change_mode(config.previous_mode)
+        elif(key == 'return' and config.ui_log_scroll_pos == 0):
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
+            if selected_option.name == "music_next":
+                audio.music_stop()
 
 def selection_options():
     result = [[]]

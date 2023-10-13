@@ -1,21 +1,20 @@
 # TODO:
-  # Animation queue system
-  # BUG: selection menu options to new mode real quick with mouse in game mode
-  # flashing ui animation on selection
-  # cool logo and background for main menu
-  # BUG: audio not playing when music is off (sometimes)
-  # BUG: audio volume is same as music volume (sometimes)
-  # character screen / stats
-  # npcs
-  # dialogue
   # items
   # inventory
-  # save game
-  # portal placement stored in portals and room file (duplicate data)
-  # minimap in map screen
+  # npcs
+  # dialogue
+  # character screen / stats
+  # save / load game
   # combat?
+  # portal placement stored in portals and room file (duplicate data)
+  # BUG (FIXED?): audio not playing when music is off and audio volume is same as music volume (sometimes)
+  # cool logo and background for main menu
 
 # DONE:
+  # minimap in map screen
+  # flashing ui animation on selection
+  # Animation queue system
+  # BUG: selection menu options to new mode real quick with mouse in game mode
   # Add mouse support to map mode
   # mouse support
   # new sound when changing room

@@ -48,18 +48,19 @@ def run():
     ])
 
 def input(key):
-    selected_option = system.get_selected_option()
-    if(key == 'up'):
-        system.ui_selection_y_prev()
-    elif(key == 'down'):
-        system.ui_selection_y_next()
-    elif(key == 'left'):
-        system.ui_selection_x_prev()
-    elif(key == 'right'):
-        system.ui_selection_x_next()
-    elif(key == 'escape' or key == 'mouse3'):
-        audio.ui_back()
-        system.change_mode(config.previous_mode)
+    selected_option = config.ui_selection_current
+    if selected_option is not None:
+        if(key == 'up'):
+            system.ui_selection_y_prev()
+        elif(key == 'down'):
+            system.ui_selection_y_next()
+        elif(key == 'left'):
+            system.ui_selection_x_prev()
+        elif(key == 'right'):
+            system.ui_selection_x_next()
+        elif(key == 'escape' or key == 'mouse3'):
+            audio.ui_back()
+            system.change_mode(config.previous_mode)
 
 def selection_options():
     result = []
@@ -82,8 +83,12 @@ def selection_options():
 def window_center():
     lines = []
     lines.extend(map_content())
+    lines.append('')
+    lines.append('')
+    lines.append('')
     if config.settings['debug_mode']:
         lines.append("DEBUG: " + str(system.ui_selection_options[config.ui_selection_x][config.ui_selection_y]))
+    lines.extend(windows.block_minimap(system.rooms[config.ui_selection_current], system.current_position))
     return windows.Content(windows.WINDOW_CENTER, lines, None, windows.FILL_PATTERNS['dots1'],None, True, True)
 
 def window_lower():

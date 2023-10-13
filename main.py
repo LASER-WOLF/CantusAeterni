@@ -130,9 +130,12 @@ def run():
     animation_frame = 0
     animation_fps = None
     animation_control = (False, False)
+    animation_control_playing = False
+    animation_control_stopping = False
     instant_quit = False
     mouse_time_inactive = 0
     ui_options = []
+    get_input = False
     clock = pygame.time.Clock()
     while config.run_game:
         # HIDE / SHOW MOUSE CURSOR
@@ -145,8 +148,13 @@ def run():
         if config.animation_queue and current_animation is None:
             current_animation = config.animation_queue.pop(0)
             config.refresh_content = False
+            animation_control_playing = True
+            get_input = False
         # REFRESH SCREEN
         if config.refresh_screen and config.refresh_content:
+            # RE-ENABLE USER INPUT (AFTER ANIMATION)
+            if current_animation is None:
+                get_input = True
             screen.fill(config.PALETTES[config.settings['palette']]['background'])
             # GET SCREEN CONTENT
             screen_content = []
@@ -225,22 +233,22 @@ def run():
                         screen.blit(tag_line_render, (offset_x + ((match_start) * font_width), pos_y))
         # PLAY UI ANIMATION
         if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION_SHORTEST:
-            animation_frame, animation_control, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 1)
+            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 1)
         if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION_SHORT:
-            animation_frame, animation_control, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 3)
+            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 3)
         if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION:
-            animation_frame, animation_control, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1])
+            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1])
         if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION_LONG:
-            animation_frame, animation_control, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 7)
+            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 7)
         # PLAY BOOT ANIMATION
         elif current_animation is not None and current_animation[0] == config.ANIMATION_BOOT:
-            animation_frame, animation_control, animation_fps, config.refresh_content = boot_animation(animation_frame)
-        # PLAY CHANGE MODE ANIMATION
-        elif current_animation is not None and current_animation[0] == config.ANIMATION_CHANGE_MODE:
-            animation_frame, animation_control, animation_fps, config.refresh_content = change_mode_animation(animation_frame)
+            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = boot_animation(animation_frame)
+        # PLAY FADE ANIMATION
+        elif current_animation is not None and current_animation[0] == config.ANIMATION_FADE:
+            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = fade_animation(animation_frame)
         # PLAY CHANGE ROOM ANIMATION
         elif current_animation is not None and current_animation[0] == config.ANIMATION_CHANGE_ROOM:
-            animation_frame, animation_control, animation_fps, config.refresh_content = change_room_animation(animation_frame)
+            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = change_room_animation(animation_frame)
         # UPDATE DISPLAY
         if config.refresh_screen:
             pygame.display.flip()
@@ -260,6 +268,7 @@ def run():
                 if not config.refresh_screen:
                     pygame.display.update(debug_rect)
         # CHECK EVENTS      
+        got_input = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 instant_quit = True
@@ -267,7 +276,7 @@ def run():
             elif event.type == audio.MUSIC_END and config.settings['enable_music']:
                 audio.music_play()
             # MOUSE / KEYBOARD INPUT
-            if not animation_control[0]:
+            if get_input and not got_input:
                 key = None
                 if config.settings['enable_mouse'] and (event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONDOWN):
                     mouse_time_inactive = 0
@@ -276,10 +285,10 @@ def run():
                         if option[1].collidepoint(pygame.mouse.get_pos()):
                             sel_x = option[2][0]
                             sel_y = option[2][1]
-                            if event.type == pygame.MOUSEMOTION and (config.ui_selection_x != sel_x or config.ui_selection_y != sel_y):
+                            if config.ui_selection_x != sel_x or config.ui_selection_y != sel_y:
+                                audio.ui_sel()
                                 config.ui_selection_x = sel_x
                                 config.ui_selection_y = sel_y
-                                audio.ui_sel()
                                 config.refresh_screen = True
                             elif event.type == pygame.MOUSEBUTTONDOWN:
                                 mouse_button = event.button
@@ -300,6 +309,7 @@ def run():
                     key = pygame.key.name(event.key)
                 if key is not None:
                     config.refresh_screen = True
+                    got_input = True
                     if config.mode == config.MODE_MAIN_MENU:
                         modes.main_menu.input(key)
                     elif config.mode == config.MODE_DEBUG:
@@ -324,12 +334,12 @@ def run():
         elif font_name != config.settings['font']:
             setup_font()
         # CHECK IF ANIMATION NEEDS NEW FRAME
-        if animation_control[0]:
+        if animation_control_playing:
             pygame.time.delay(int(1000 / animation_fps))
             config.refresh_screen = True
         # STOP ANIMATION
-        if animation_control[1]:
-            animation_control = (False, False)
+        if animation_control_stopping:
+            animation_control_playing = animation_control_stopping = False
             current_animation = None
             config.refresh_content = True
         # WAIT
@@ -340,7 +350,7 @@ def run():
         quit_animation()
     pygame.quit()
 
-def ui_animation(frame, ui_options, ui_sel, length = 7):
+def ui_animation(frame, ui_options, ui_sel, length = 5):
     anim_fps = 8
     ANIMATION_FRAMES = []
     for num in range(length):
@@ -367,9 +377,9 @@ def ui_animation(frame, ui_options, ui_sel, length = 7):
     frame += 1
     if frame >= len(ANIMATION_FRAMES):
         frame = 0
-        return (frame, (True, True), anim_fps, True)
+        return (frame, True, anim_fps, True)
     else:
-        return (frame, (True, False), anim_fps, False)
+        return (frame, False, anim_fps, False)
 
 def boot_animation(frame):
     anim_fps = 8
@@ -397,13 +407,13 @@ def boot_animation(frame):
     frame += 1
     if frame >= len(BOOT_ANIMATION_FRAMES):
         frame = 0
-        return (frame, (True, True), anim_fps, True)
+        return (frame, True, anim_fps, True)
     elif frame > 0:
-        return (frame, (True, False), anim_fps, True)
+        return (frame, False, anim_fps, True)
     else:
-        return (frame, (True, False), anim_fps, False)
+        return (frame, False, anim_fps, False)
 
-def change_mode_animation(frame):
+def fade_animation(frame):
     anim_fps = 16
     ANIMATION_FRAMES = [
     '░',
@@ -420,11 +430,11 @@ def change_mode_animation(frame):
     frame += 1
     if frame >= len(ANIMATION_FRAMES):
         frame = 0
-        return (frame, (True, True), anim_fps, True)
+        return (frame, True, anim_fps, True)
     elif frame > 1:
-        return (frame, (True, False), anim_fps, True)
+        return (frame, False, anim_fps, True)
     else:
-        return (frame, (True, False), anim_fps, False)
+        return (frame, False, anim_fps, False)
 
 def change_room_animation(frame):
     anim_fps = 8
@@ -445,11 +455,11 @@ def change_room_animation(frame):
     frame += 1
     if frame >= len(ANIMATION_FRAMES):
         frame = 0
-        return (frame, (True, True), anim_fps, True)
+        return (frame, True, anim_fps, True)
     elif frame > 2:
-        return (frame, (True, False), anim_fps, True)
+        return (frame, False, anim_fps, True)
     else:
-        return (frame, (True, False), anim_fps, False)
+        return (frame, False, anim_fps, False)
 
 def quit_animation():
     anim_fps = 160

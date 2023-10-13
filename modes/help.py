@@ -13,16 +13,17 @@ def run():
     ])
 
 def input(key):
-    selected_option = system.get_selected_option()
-    if(key == 'up'):
-        system.ui_selection_y_prev()
-    elif(key == 'down'):
-        system.ui_selection_y_next()
-    elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back")):
-        if key == 'return' and selected_option.name == 'back':
-            config.trigger_animation(config.ANIMATION_UI_SELECTION)
-        audio.ui_back()
-        system.change_mode(config.previous_mode)
+    selected_option = config.ui_selection_current
+    if selected_option is not None:
+        if(key == 'up'):
+            system.ui_selection_y_prev()
+        elif(key == 'down'):
+            system.ui_selection_y_next()
+        elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back")):
+            if key == 'return' and selected_option.name == 'back':
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+            audio.ui_back()
+            system.change_mode(config.previous_mode)
 
 def selection_options():
     result = [[
