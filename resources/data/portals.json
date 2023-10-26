@@ -24,14 +24,14 @@
     "text2to1": "You head back into the cave. You emerge in a grotto.",
     "on_interact": []
   },
-  "test1": {
+  "3": {
     "link1": "3",
-    "link2": "test1",
-    "pos1": "nw",
-    "pos2": "sw",
-    "dir": "nw",
-    "text1to2": "test text 1",
-    "text2to1": "test text 2",
+    "link2": "4",
+    "pos1": "w",
+    "pos2": "e",
+    "dir": "w",
+    "text1to2": "You follow the path.",
+    "text2to1": "You follow the path.",
     "on_interact": []
   }
 }

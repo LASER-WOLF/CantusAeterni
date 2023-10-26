@@ -9,16 +9,18 @@ cutscene = None
 
 def run():
     system.run_queued_actions()
-    return windows.combine([
-        windows.window_upper(),
-        window_center(),
-        window_lower(),
-    ])
+    return [
+        windows.main([
+            windows.window_upper(),
+            window_center(),
+            window_lower(),
+        ])
+    ]
 
 def input(key):
     if key == 'return' or key == 'mouse1':
         audio.ui_confirm()
-        config.trigger_animation(config.ANIMATION_UI_SELECTION)
+        config.trigger_animation(config.ANIMATION_UI_SELECTION_FG)
         for line in cutscene['on_exit']:
             system.queue_action(line)
 

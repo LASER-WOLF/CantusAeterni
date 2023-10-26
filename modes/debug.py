@@ -10,12 +10,14 @@ debug_input_char = None
 
 def run():
     system.set_selection_options(selection_options())
-    return windows.combine([
-        windows.window_upper(),
-        window_center(),
-        window_log(),
-        window_lower(),
-    ])
+    return [
+        windows.main([
+            windows.window_upper(),
+            window_center(),
+            window_log(),
+            window_lower(),
+        ])
+    ]
 
 def input(key):
     global debug_input_char
@@ -67,7 +69,7 @@ def window_center():
 
 def window_log():
     lines = []
-    lines.extend(windows.log_content(config.debug_log_list))
+    lines.extend(windows.log_content(config.debug_log_list, False))
     return windows.Content(windows.WINDOW_LOG, lines)
 
 def window_lower():

@@ -15,6 +15,7 @@ import modes.cutscene
 import modes.debug
 import modes.game
 import modes.help
+import modes.inventory
 import modes.main_menu
 import modes.map
 import modes.settings
@@ -158,7 +159,6 @@ def run():
             screen.fill(config.PALETTES[config.settings['palette']]['background'])
             # GET SCREEN CONTENT
             screen_content = []
-            ui_options = []
             if config.mode == config.MODE_MAIN_MENU:
                 screen_content = modes.main_menu.run()
             elif config.mode == config.MODE_DEBUG:
@@ -167,88 +167,134 @@ def run():
                 screen_content = modes.settings.run()
             elif config.mode == config.MODE_HELP:
                 screen_content = modes.help.run()
+            elif config.mode == config.MODE_INVENTORY:
+                screen_content = modes.inventory.run()
             elif config.mode == config.MODE_CUTSCENE:
                 screen_content = modes.cutscene.run()
             elif config.mode == config.MODE_GAME:
                 screen_content = modes.game.run()
             elif config.mode == config.MODE_MAP:
                 screen_content = modes.map.run()
-            # CHECK LINES
-            for num in range(config.size_y):
-                pos_y = offset_y + (num * font_height)
-                # LINE
-                if len(screen_content) > num:
-                    line = screen_content[num][0]
-                    fill_line = screen_content[num][1]
-                    # RENDER FILL
-                    if fill_line:
-                        render_fill_line = font.render(fill_line[0], False, config.PALETTES[config.settings['palette']][config.TAGS_REVERSE[fill_line[1]]])
-                        screen.blit(render_fill_line, (offset_x, pos_y))
-                    # RENDER LINE
-                    clean_line = utils.remove_tag(line)
-                    render_line = font.render(clean_line, False, config.PALETTES[config.settings['palette']]['foreground'])
-                    screen.blit(render_line, (offset_x, pos_y))
-                    # FIND UI TAGS
-                    tag_search = re.finditer('<ui=(.{2}):(.{2}):(.{2})>(.*?)</ui>', utils.remove_text_tag(line))
-                    for tag_num, match in enumerate(tag_search):
-                        match_x = match.group(1)
-                        match_y = match.group(2)
-                        match_action = match.group(3)
-                        match_text = match.group(4)
-                        start_adj = 18 * tag_num
-                        match_start = match.start() - start_adj
-                        ui_option_x = offset_x + ((match_start) * font_width)
-                        ui_option_y = pos_y
-                        ui_option_size_x = font_width * len(match_text)
-                        ui_option_size_y = font_height
-                        ui_option_rect = pygame.Rect(ui_option_x, ui_option_y, ui_option_size_x, ui_option_size_y)
-                        ui_option = (match_text, ui_option_rect,(int(match_x), int(match_y)), match_action)
-                        ui_options.append(ui_option)
-                    # FIND TEXT TAGS
-                    tag_search = re.finditer('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>',  utils.remove_ui_tag(line))
-                    for tag_num, match in enumerate(tag_search):
-                        match_fg = match.group(1)
-                        match_bg = match.group(2)
-                        match_other = match.group(3)
-                        match_text = match.group(4)
-                        start_adj = 22 * tag_num
-                        match_start = match.start() - start_adj
-                        # SET OTHER
-                        tag_line_font = None
-                        if match_other == 'ul':
-                            tag_line_font = font_underline
-                        elif match_other == 'st':
-                            tag_line_font = font_strikethrough
-                        else:
-                            tag_line_font = font
-                        # SET FG COLOR
-                        tag_line_render = tag_line_font.render(match_text, False, config.PALETTES[config.settings['palette']][config.TAGS_REVERSE[match_fg]])
-                        # SET BG COLOR
-                        if match_bg != 'bg':
-                            tag_line_bg = pygame.Surface(tag_line_render.get_size())
-                            tag_line_bg.fill(config.PALETTES[config.settings['palette']][config.TAGS_REVERSE[match_bg]])
-                            tag_line_bg.blit(tag_line_render, (0, 0))
-                            tag_line_render = tag_line_bg
-                        # RENDER TAGGED TEXT
-                        screen.blit(tag_line_render, (offset_x + ((match_start) * font_width), pos_y))
-        # PLAY UI ANIMATION
-        if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION_SHORTEST:
-            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 1)
-        if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION_SHORT:
-            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 3)
-        if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION:
-            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1])
-        if current_animation is not None and current_animation[0] == config.ANIMATION_UI_SELECTION_LONG:
-            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 7)
-        # PLAY BOOT ANIMATION
-        elif current_animation is not None and current_animation[0] == config.ANIMATION_BOOT:
-            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = boot_animation(animation_frame)
-        # PLAY FADE ANIMATION
-        elif current_animation is not None and current_animation[0] == config.ANIMATION_FADE:
-            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = fade_animation(animation_frame)
-        # PLAY CHANGE ROOM ANIMATION
-        elif current_animation is not None and current_animation[0] == config.ANIMATION_CHANGE_ROOM:
-            animation_frame, animation_control_stopping, animation_fps, config.refresh_content = change_room_animation(animation_frame)
+            for layer_num, content_layer in enumerate(screen_content):
+                ui_options = []
+                layer_type = content_layer[0]
+                layer_lines = content_layer[1]
+                layer_fg_color = content_layer[2]
+                layer_bg_color = content_layer[3]
+                if layer_fg_color is None:
+                    layer_fg_color = 'foreground'
+                start_x = 0
+                start_y = 0
+                fill_start_x = 0
+                fill_start_y = 0
+                if layer_num > 0:
+                    if layer_type == config.LAYER_TYPE_POPUP:
+                        # FADE OUT PREVIOUS LAYERS
+                        for num in range(config.size_y):
+                            pos_y = offset_y + (num * font_height)
+                            bg_line = '▒' * config.size_x
+                            render_line = font.render(bg_line, False, config.PALETTES[config.settings['palette']]['background'])
+                            screen.blit(render_line, (offset_x + start_x, start_y + pos_y))
+                        # MAKE BOX
+                        layer_size_y = len(layer_lines) * font_height
+                        layer_size_x = utils.list_longest_entry_length([utils.remove_tag(line[0][0]) for line in layer_lines]) * font_width
+                        centered_x = ((config.size_x * font_width) / 2) - (layer_size_x / 2)
+                        centered_y = ((config.size_y * font_height) / 2) - (layer_size_y / 2)
+                        popup_rect = pygame.Rect(offset_x + centered_x + (font_width / 2), offset_y + centered_y + (font_height / 2), layer_size_x - font_width, layer_size_y - font_height)
+                        screen.fill(config.PALETTES[config.settings['palette']][layer_bg_color], popup_rect)
+                        start_x = centered_x
+                        start_y = centered_y
+                        fill_start_x = start_x + (font_width / 2)
+                        fill_start_y = start_y + (font_height / 2)
+                # CHECK LINES
+                for num in range(config.size_y):
+                    pos_y = offset_y + (num * font_height)
+                    # LINE
+                    if len(layer_lines) > num:
+                        line = layer_lines[num][0][0]
+                        line_color = layer_lines[num][0][1]
+                        fill_line = layer_lines[num][1][0]
+                        fill_color = layer_lines[num][1][1]
+                        if line_color is None:
+                            line_color = layer_fg_color
+                        if fill_color is None:
+                            fill_color = 'bright_black'
+                        clean_line = utils.remove_tag(line)
+                        # RENDER FILL
+                        if fill_line:
+                            render_fill_line = font.render(fill_line, False, config.PALETTES[config.settings['palette']][fill_color])
+                            screen.blit(render_fill_line, (offset_x + fill_start_x, fill_start_y + pos_y))
+                        # RENDER LINE
+                        if clean_line.strip():
+                            render_line = font.render(clean_line, False, config.PALETTES[config.settings['palette']][line_color])
+                            screen.blit(render_line, (offset_x + start_x, start_y + pos_y))
+                        # FIND UI TAGS
+                        tag_search = re.finditer('<ui=(.{2}):(.{2}):(.{2})>(.*?)</ui>', utils.remove_text_tag(line))
+                        for tag_num, match in enumerate(tag_search):
+                            match_x = match.group(1)
+                            match_y = match.group(2)
+                            match_action = match.group(3)
+                            match_text = match.group(4)
+                            start_adj = 18 * tag_num
+                            match_start = match.start() - start_adj
+                            ui_option_x = offset_x + start_x + ((match_start) * font_width)
+                            ui_option_y = pos_y + start_y
+                            ui_option_size_x = font_width * len(match_text)
+                            ui_option_size_y = font_height
+                            ui_option_rect = pygame.Rect(ui_option_x, ui_option_y, ui_option_size_x, ui_option_size_y)
+                            ui_option = (match_text, ui_option_rect,(int(match_x), int(match_y)), match_action)
+                            ui_options.append(ui_option)
+                        # FIND TEXT TAGS
+                        tag_search = re.finditer('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>',  utils.remove_ui_tag(line))
+                        for tag_num, match in enumerate(tag_search):
+                            match_fg = match.group(1)
+                            match_bg = match.group(2)
+                            match_other = match.group(3)
+                            match_text = match.group(4)
+                            start_adj = 22 * tag_num
+                            match_start = match.start() - start_adj
+                            # SET OTHER
+                            tag_line_font = None
+                            if match_other == 'ul':
+                                tag_line_font = font_underline
+                            elif match_other == 'st':
+                                tag_line_font = font_strikethrough
+                            else:
+                                tag_line_font = font
+                            # SET FG COLOR
+                            tag_line_render = tag_line_font.render(match_text, False, config.PALETTES[config.settings['palette']][config.TAGS_REVERSE[match_fg]])
+                            # SET BG COLOR
+                            if match_bg != 'bg':
+                                tag_line_bg = pygame.Surface(tag_line_render.get_size())
+                                tag_line_bg.fill(config.PALETTES[config.settings['palette']][config.TAGS_REVERSE[match_bg]])
+                                tag_line_bg.blit(tag_line_render, (0, 0))
+                                tag_line_render = tag_line_bg
+                            # RENDER TAGGED TEXT
+                            screen.blit(tag_line_render, (offset_x + start_x + ((match_start) * font_width), start_y + pos_y))
+        # PLAY ANIMATION
+        if current_animation is not None:
+            # UI ANIMATIONS
+            if current_animation[0] == config.ANIMATION_UI_SELECTION_SHORTEST:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 1)
+            elif current_animation[0] == config.ANIMATION_UI_SELECTION_SHORT:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 3)
+            elif current_animation[0] == config.ANIMATION_UI_SELECTION:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1])
+            elif current_animation[0] == config.ANIMATION_UI_SELECTION_LONG:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 7)
+            elif current_animation[0] == config.ANIMATION_UI_SELECTION_LONG:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], length = 7)
+            elif current_animation[0] == config.ANIMATION_UI_SELECTION_FG:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = ui_animation(animation_frame, ui_options, current_animation[1], color_hl = False)
+            # BOOT ANIMATION
+            elif current_animation[0] == config.ANIMATION_BOOT:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = boot_animation(animation_frame)
+            # PLAY FADE ANIMATION
+            elif current_animation[0] == config.ANIMATION_FADE:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = fade_animation(animation_frame)
+            # PLAY CHANGE ROOM ANIMATION
+            elif current_animation[0] == config.ANIMATION_CHANGE_ROOM:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = change_room_animation(animation_frame)
         # UPDATE DISPLAY
         if config.refresh_screen:
             pygame.display.flip()
@@ -258,7 +304,7 @@ def run():
                 debug_pos_y = offset_y + ((config.size_y - 1) * font_height)
                 fps = int(clock.get_fps())
                 debug_line = '  '
-                if config.settings['debug_info_screen'] == 'full':
+                if config.settings['debug_info_screen'] == 'full' or (current_animation is None and config.mode == config.MODE_DEBUG):
                     debug_line += 'RESOLUTION: ' + str(screen_width) + 'x' + str(screen_height) + ' | SIZE: ' + str(config.size_x) + 'x' + str(config.size_y) + ' | OFFSET: ' + 'X=' + str(offset_x) + ' Y=' + str(offset_y) + ' | FONT: ' + font_name + ' (' + str(font_width) + 'x' + str(font_height) + ') | MOUSE: ' + str(pygame.mouse.get_pos()[0]).zfill(4) + 'x' + str(pygame.mouse.get_pos()[1]).zfill(4) + ' | '
                 debug_line += 'FPS: ' + str(fps).zfill(2) + '  '
                 debug_rect = (screen_width - (len(debug_line) * font_width) - offset_x, debug_pos_y, screen_width - offset_x, font_height)
@@ -318,6 +364,8 @@ def run():
                         modes.settings.input(key)
                     elif config.mode == config.MODE_HELP:
                         modes.help.input(key)
+                    elif config.mode == config.MODE_INVENTORY:
+                        modes.inventory.input(key)
                     elif config.mode == config.MODE_CUTSCENE:
                         modes.cutscene.input(key)
                     elif config.mode == config.MODE_GAME:
@@ -350,7 +398,7 @@ def run():
         quit_animation()
     pygame.quit()
 
-def ui_animation(frame, ui_options, ui_sel, length = 5):
+def ui_animation(frame, ui_options, ui_sel, length = 5, color_hl = True):
     anim_fps = 8
     ANIMATION_FRAMES = []
     for num in range(length):
@@ -364,7 +412,9 @@ def ui_animation(frame, ui_options, ui_sel, length = 5):
             ui_text = option[0]
             ui_rect = option[1]
             anim_line = ''
-            color = 'bright_white'
+            color = 'foreground'
+            if color_hl:
+                color = 'bright_white'
             if frame == 1 or frame == 3 or frame == 5:
                 color = 'background'
             if ANIMATION_FRAMES[frame] == 'T':

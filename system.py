@@ -111,7 +111,8 @@ def run_queued_actions():
 
 def add_log(item):
     global log_list
-    log_list.append(item)
+    list_entry = (config.turn, item)
+    log_list.append(list_entry)
 
 def press_to_continue(key, target_key = "enter"):
     while key != target_key:
@@ -268,7 +269,7 @@ def initialize_new_game():
     portals = json.load(open('resources/data/portals.json','r')) 
     statuses = json.load(open('resources/data/statuses.json','r')) 
     items = json.load(open('resources/data/items.json','r')) 
-    log_list = ["You start the game"]
+    log_list = [(0, "You start the game")]
     inventory_list = []
     active_cutscene = "1"
     active_room = "1"

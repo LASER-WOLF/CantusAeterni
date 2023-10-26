@@ -41,11 +41,13 @@ def check_rooms():
 def run():
     check_rooms()
     system.set_selection_options(selection_options())
-    return windows.combine([
-        windows.window_upper(),
-        window_center(),
-        window_lower(),
-    ])
+    return [
+        windows.main([
+            windows.window_upper(),
+            window_center(),
+            window_lower(),
+        ])
+    ]
 
 def input(key):
     selected_option = config.ui_selection_current
@@ -74,8 +76,8 @@ def selection_options():
                 if len(found_rooms) > 1:
                     add_debug_log("Multiple rooms with same coordinates " + "(ID: " + str(found_rooms) + ")", True)
                 if found_room == system.active_room and system.ui_selection_options is None:
-                    config.ui_selection_x = x
-                    config.ui_selection_y = y
+                    config.ui_selection[0][0] = x
+                    config.ui_selection[0][1] = y
             else:
                 result[x].append(None)
     return result
@@ -86,9 +88,10 @@ def window_center():
     lines.append('')
     lines.append('')
     lines.append('')
+    lines.append(system.rooms[system.ui_selection_options[config.ui_selection[0][0]][config.ui_selection[0][1]]]['noun'].upper())
     if config.settings['debug_mode']:
-        lines.append("DEBUG: " + str(system.ui_selection_options[config.ui_selection_x][config.ui_selection_y]))
-    lines.extend(windows.block_minimap(system.rooms[config.ui_selection_current], system.current_position))
+        lines.append("DEBUG: " + str(system.ui_selection_options[config.ui_selection[0][0]][config.ui_selection[0][1]]))
+    #lines.extend(windows.block_minimap(system.rooms[config.ui_selection_current], system.current_position))
     return windows.Content(windows.WINDOW_CENTER, lines, None, windows.FILL_PATTERNS['dots1'],None, True, True)
 
 def window_lower():
@@ -128,7 +131,7 @@ def map_content():
             if {'x': x, 'y': y} in known_rooms.values():
                 found_rooms = utils.dict_key_by_value(known_rooms, {'x': x, 'y': y})
                 found_room = found_rooms[0]
-                selected_room = system.ui_selection_options[config.ui_selection_x][config.ui_selection_y]
+                selected_room = system.ui_selection_options[config.ui_selection[0][0]][config.ui_selection[0][1]]
                 if found_room == system.active_room:
                     if found_room == selected_room:
                         map_line_top += utils.add_ui_tag(MAP_TILES['active_selected_top'], x, y)

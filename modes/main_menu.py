@@ -6,11 +6,13 @@ import windows
 
 def run():
     system.set_selection_options(selection_options())
-    return windows.combine([
-        windows.window_upper(),
-        window_center(),
-        windows.window_lower_empty(),
-    ])
+    return [
+        windows.main([
+            windows.window_upper(),
+            window_center(),
+            windows.window_lower_empty(),
+        ])
+    ]
 
 def input(key):
     selected_option = config.ui_selection_current
@@ -97,5 +99,5 @@ def window_center():
         lines.append('')
         lines.append('')
         lines = windows.line_set_color_multi(lines, windows.TAG_COLOR_TITLE_SCREEN)
-    lines.extend(windows.combine_blocks(windows.format_selection_options_display_bg_centered(system.ui_selection_options, 30)))
+    lines.extend(windows.combine_blocks(windows.format_selection_options_display_bg_centered(system.ui_selection_options, min_size = 30)))
     return windows.Content(windows.WINDOW_CENTER, lines, None, windows.FILL_PATTERNS['dots2'], None, True, True)

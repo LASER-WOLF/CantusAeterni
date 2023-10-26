@@ -7,7 +7,7 @@ import windows
 def run():
     system.set_selection_options(selection_options())
     return [
-        windows.main([
+        windows.combine([
             windows.window_upper(),
             window_center(),
             window_lower(),
@@ -35,21 +35,11 @@ def selection_options():
 
 def window_center():
     lines = []
-    lines.append('MUSIC BY:')
-    lines.append('Lory Werths'.upper())
-    lines.append('mandolingals.tripod.com')
-    lines.append('')
-    lines.append('SOUND FROM:')
-    lines.append('100 Retro RPG UI Sound Effects'.upper())
-    lines.append('leohpaz.itch.io')
-    lines.append('')
-    lines.append('FONTS FROM:')
-    lines.append('The Ultimate Oldschool PC Font Pack'.upper())
-    lines.append('int10h.org/oldschool-pc-fonts/')
-    lines.append('')
-    lines.append('COLOR SCHEMES FROM:')
-    lines.append('Gogh color scheme collection'.upper())
-    lines.append('github.com/Gogh-Co/Gogh')
+    if not system.inventory_list:
+        lines.append('(EMPTY)')
+    for item_id in system.inventory_list:
+        item = system.items[item_id]
+        lines.append(' - ' + item['name'].upper() + ' ∙ ' + item['text'].upper())
     return windows.Content(windows.WINDOW_CENTER, lines)
 
 def window_lower():

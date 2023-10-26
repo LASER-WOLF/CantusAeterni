@@ -7,7 +7,7 @@ import config
 import utils
 
 class Content:
-    def __init__(self, w_type, lines = None, line_color = None, fill = None, fill_color = None, centered_horizontal = False, centered_vertical = False, min_height = None):
+    def __init__(self, w_type = None, lines = None, line_color = None, fill = None, fill_color = None, centered_horizontal = False, centered_vertical = False, min_height = None):
         self.w_type = w_type
         self.lines = lines
         self.line_color = line_color
@@ -32,6 +32,7 @@ WINDOW_LOWER = "lower"
 WINDOW_LOG = "log"
 
 # SET CONSTANTS, TAGS
+TAG_REVERSE_COLOR_FG = 'foreground'
 TAG_COLOR_FG = config.TAGS['foreground']
 TAG_COLOR_BG = config.TAGS['background']
 TAG_COLOR_DARK = config.TAGS['bright_black']
@@ -88,14 +89,17 @@ FILL_PATTERNS = {
         " *      ",
         " -    ",
     ],
+    'fade1': [
+        "░",
+    ],
 }
 FILL_PATTERN_COLORS = {
     'rygma': [
-        config.TAGS['red'],
-        config.TAGS['yellow'],
-        config.TAGS['green'],
-        config.TAGS['magenta'],
-        config.TAGS['cyan'],
+        'red',
+        'yellow',
+        'green',
+        'magenta',
+        'cyan',
     ]
 }
 
@@ -149,7 +153,7 @@ MINIMAP_TILES = {
     'selected_interactable_current_low': utils.add_tag("╚═══╝", TAG_COLOR_INTERACTABLE),
 }
 
-def combine(target_list):
+def main(target_list):
     # FIND UPPER AND LOWER WINDOWS
     size_upper = 0
     size_lower = 0
@@ -175,7 +179,28 @@ def combine(target_list):
             content_center.append(center(window, size_upper, size_lower))
     # COMBINE ALL WINDOWS
     result = make_lines_multi(content_upper + content_center + content_lower)
-    return result
+    return (config.LAYER_TYPE_MAIN, result, None, None)
+
+def popup(content, fill = '░', fill_color = 'bright_black', fg_color = 'foreground', bg_color = 'black', border_color = 'foreground', centered = False, margin = 1):
+    result = []
+    height = len(content)
+    width = utils.list_longest_entry_length([utils.remove_tag(line[0]) for line in content])
+    if fill:
+        fill = fill_empty_space('', length = width + (margin * 2) + 1, char = fill)
+    border_hor = fill_empty_space('', width + (margin * 2), '═', centered = centered)
+    first_line = '╔' + border_hor + '╗'
+    final_line = '╚' + border_hor + '╝'
+    border_ver = utils.add_tag('║', config.TAGS[border_color])
+    border_margin = fill_empty_space('', margin)
+    border_left = border_ver + border_margin
+    border_right = border_margin + border_ver
+    result.append(((first_line, border_color), (fill, fill_color)))
+    for line, line_color in content:
+        line_without_tags = utils.remove_tag(line)
+        line_formatted = border_left + fill_empty_space(line, width - len(line_without_tags), centered = centered) + border_right
+        result.append(((line_formatted, line_color), (fill, fill_color)))
+    result.append(((final_line, border_color), (None, None)))
+    return (config.LAYER_TYPE_POPUP, result, fg_color, bg_color)
 
 def upper(content):
     lines = []
@@ -273,15 +298,19 @@ def log(content):
     lines.append(seperator())
     return lines
 
+def format_fill(fill, width):
+    result = None
+    if fill:
+        result = ""
+        for n in range(int(width / len(fill))):
+            result += fill
+        result = result[:width]
+    return result
+
 def make_line(line, line_color = None, fill = None, fill_color = None, align = "l", margin = 2):
     line_without_tags = utils.remove_tag(line)
     line_length = len(line_without_tags)
     centered_start = int((config.size_x - line_length) / 2)
-    # FILL SETUP
-    if fill:
-        fill_length = len(fill)
-        if not fill_color:
-            fill_color = TAG_COLOR_DARK
     line_formatted = ""
     num = 0
     # ADD LINE
@@ -292,17 +321,9 @@ def make_line(line, line_color = None, fill = None, fill_color = None, align = "
         else:
             line_formatted += " "
             num += 1
-    # LINE COLOR
-    if line_color:
-        line_formatted = line_set_color(line_formatted, line_color)
     # FORMAT FILL
-    fill_formatted = None
-    if fill:
-        fill_formatted = ""
-        for n in range(int(config.size_x / fill_length)):
-            fill_formatted += fill
-        fill_formatted = (fill_formatted, fill_color)
-    return (line_formatted, fill_formatted)
+    fill_formatted = format_fill(fill, config.size_x)
+    return ((line_formatted, line_color), (fill_formatted, fill_color))
 
 def make_line_centered(line, line_color = None, fill = None, fill_color = None):
     return make_line(line, line_color, fill, fill_color, "c")
@@ -323,7 +344,7 @@ def make_lines_multi(target_list):
     return result
 
 def seperator():
-    return Line("", fill = "-", fill_color = TAG_COLOR_FG)
+    return Line("", fill = "-", fill_color = TAG_REVERSE_COLOR_FG)
 
 def fill_init(fill):
     fill_list = fill
@@ -440,11 +461,11 @@ def window_upper():
     elif config.mode == config.MODE_HELP:
         content.append("HELP")
     elif config.mode == config.MODE_CUTSCENE or config.mode == config.MODE_GAME:
-        content.append("NAME")
-        content.append("LVL 4")
-        content.append("HP 20 / 20")
+        content.append('TURN # ' + str(config.turn))
     elif config.mode == config.MODE_MAP:
         content.append("MAP")
+    elif config.mode == config.MODE_INVENTORY:
+        content.append("INVENTORY")
     upper_window_string = ""
     for num, item in enumerate(content):
         if num != 0:
@@ -616,7 +637,7 @@ def make_scrollbar(scrollbar_window_height, scroll_pos, scroll_max):
         num += 1
     return lines
 
-def log_content(target_list, max_num_lines = 10):
+def log_content(target_list, num_tuple = True, max_num_lines = 10):
     result = []
     target_list_len = len(target_list)
     max_scroll_num = max(0, target_list_len-max_num_lines)
@@ -634,8 +655,11 @@ def log_content(target_list, max_num_lines = 10):
         num += 1
     for num, line in enumerate(target_list_shortened):
         log_line = line
-        if num + 1 == len(target_list_shortened) and not ui_log_end_pos:
-            log_line = utils.add_tag(log_line, fg = TAG_COLOR_HIGHLIGHT)
+        if num_tuple:
+            log_num = line[0]
+            log_line = line[1]
+            if log_num == config.turn - 1:
+                log_line = utils.add_tag(log_line, fg = TAG_COLOR_HIGHLIGHT)
         result.append(scrollbar[num] + " " + log_line)
     return result
 

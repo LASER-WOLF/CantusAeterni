@@ -6,10 +6,12 @@ import windows
 
 def run():
     system.set_selection_options(selection_options())
-    return windows.combine([
-        windows.window_upper(),
-        window_lower(),
-    ])
+    return [
+        windows.main([
+            windows.window_upper(),
+            window_lower(),
+        ])
+    ]
 
 def input(key):
     selected_option = config.ui_selection_current

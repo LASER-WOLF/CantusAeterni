@@ -12,6 +12,7 @@ MODE_SETTINGS = "settings_menu"
 MODE_HELP = "help"
 MODE_CUTSCENE = "cutscene"
 MODE_GAME = "game"
+MODE_INVENTORY = "inventory"
 MODE_MAP = "map"
 WINDOW_MODE_NORMAL = 'windowed'
 WINDOW_MODE_FULLSCREEN = 'fullscreen'
@@ -23,6 +24,9 @@ ANIMATION_UI_SELECTION_SHORTEST = 'ui_sel_shortest'
 ANIMATION_UI_SELECTION_SHORT = 'ui_sel_short'
 ANIMATION_UI_SELECTION = 'ui_sel'
 ANIMATION_UI_SELECTION_LONG = 'ui_sel_long'
+ANIMATION_UI_SELECTION_FG = 'ui_continue'
+LAYER_TYPE_MAIN = 'main'
+LAYER_TYPE_POPUP = 'popup'
 RESOLUTIONS = [
     (1600, 900),
     (1920, 1080),
@@ -215,26 +219,6 @@ PALETTES = {
         "background": (54, 53, 55),
         "foreground": (253, 249, 243),
     },
-    "Papercolor Light": {
-        "black": (238, 238, 238),
-        "red": (175, 0, 0),
-        "green": (0, 135, 0),
-        "yellow": (95, 135, 0),
-        "blue": (0, 135, 175),
-        "magenta": (135, 135, 135),
-        "cyan": (0, 95, 135),
-        "white": (68, 68, 68),
-        "bright_black": (188, 188, 188),
-        "bright_red": (215, 0, 0),
-        "bright_green": (215, 0, 135),
-        "bright_yellow": (135, 0, 175),
-        "bright_blue": (215, 95, 0),
-        "bright_magenta": (215, 95, 0),
-        "bright_cyan": (0, 95, 175),
-        "bright_white": (0, 95, 135),
-        "background": (238, 238, 238),
-        "foreground": (68, 68, 68),
-    },
     "Powershell": {
         "black": (0, 0, 0),
         "red": (126, 0, 8),
@@ -311,8 +295,9 @@ ui_selection_current = None
 ui_selection_x = 0
 ui_selection_y = 0
 ui_log_scroll_pos = 0
-ui_selection_hl = False
+#ui_selection_hl = False
 animation_queue = []
+turn = 1
 
 def initialize():
     import_settings()

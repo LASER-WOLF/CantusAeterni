@@ -18,13 +18,13 @@
       {
         "position": "c",
         "link": "1",
-        "content": "Dive into the deep pool of slime leading in an unknown direction",
+        "content": "Dive into the deep pool of slime",
         "disabled": true
       },
       {
         "position": "s",
         "link": "2",
-        "content": "Climb into the cave leading south",
+        "content": "Climb into the cave",
         "disabled": true
       }
     ],
@@ -36,12 +36,6 @@
         "disabled": false
       },
       {
-        "position": "ne",
-        "link": "2",
-        "content": "Something glinting in the darkness",
-        "disabled": false
-      },
-      {
         "position": "s",
         "link": "3",
         "content": "A narrow cave entrance on the grotto wall",
@@ -49,6 +43,12 @@
       }
     ],
     "sight": [
+      {
+        "position": "",
+        "link": null,
+        "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu lobortis augue, pharetra condimentum erat. Phasellus ut accumsan est. Phasellus commodo nec dui at bibendum. Quisque non odio eget lorem semper tempor. Sed luctus nunc egestas sapien malesuada, sit amet sodales augue hendrerit. Fusce aliquet dignissim magna, vitae dignissim magna vulputate eleifend. Maecenas efficitur tempor lacus eget eleifend. Quisque ut rutrum sem, a ullamcorper odio. Etiam posuere neque non erat efficitur elementum. Nullam ac pellentesque dui. Vestibulum at enim lectus. Suspendisse vitae nunc eu enim ultrices aliquet. Ut iaculis, nunc sit amet fringilla fringilla, orci ante ultrices odio, a ullamcorper ligula ex id magna. Proin rutrum ante a nibh imperdiet fringilla.Nam quis urna erat. In imperdiet arcu sit amet felis tincidunt vestibulum ac non dolor. Pellentesque nec rutrum felis, ut elementum magna. Cras ultricies ex et mauris congue aliquam. Fusce molestie aliquet mi, sed pulvinar dolor fringilla et. Duis tincidunt placerat odio, eu cursus tortor. Aliquam erat volutpat. Nulla lacinia ornare mattis. Fusce diam tortor, dapibus ac orci et, malesuada fermentum leo. Etiam vulputate, elit vitae dapibus rhoncus, turpis magna suscipit nisi, eget sagittis nunc dui et erat. Suspendisse ornare est molestie laoreet posuere. Cras convallis odio ac sem malesuada, id sagittis arcu pharetra.Etiam ullamcorper condimentum ex, ac gravida mauris auctor eu. Fusce a ullamcorper mauris, ac efficitur enim. Ut malesuada, felis quis ornare ultricies, sapien sapien eleifend elit, eget finibus odio arcu a tortor. Etiam vel velit a massa tempus fringilla in ut lectus. Vestibulum convallis rutrum neque, sed varius augue sagittis et. Maecenas non dui ultricies, iaculis tellus ut, lacinia magna. Nullam a nunc egestas, ultricies lorem eget, tincidunt nisl. Proin eu sollicitudin justo.Donec bibendum turpis sit amet sodales dapibus. Fusce ut faucibus risus. Quisque mollis auctor urna, sed lobortis lectus accumsan eget. Nunc vel ligula et diam varius finibus ac a ipsum. Etiam rhoncus lectus nec lacus mollis, sit amet sodales nisi bibendum. Pellentesque dignissim hendrerit convallis. Suspendisse porttitor, tortor vel faucibus egestas, nulla arcu luctus augue, quis eleifend odio lacus eget libero. Nulla id eros mi. Suspendisse a pulvinar urna.Maecenas ac nibh ut dui suscipit aliquam. Proin euismod orci dolor, eget auctor nunc fermentum sit amet. Maecenas eget faucibus diam. Etiam hendrerit nisl nulla, venenatis dictum mi vehicula in. Curabitur aliquam, augue pretium mollis rhoncus, tellus leo rutrum dolor, vitae posuere felis orci ut eros. Duis in justo vel lectus consectetur euismod. Aenean mollis dapibus dapibus.",
+        "disabled": false
+      },
       {
         "position": "-c",
         "link": "1",
@@ -70,20 +70,8 @@
       {
         "position": "c",
         "link": "2",
-        "content": "You see <p>a deep pool of slime</p> leading in an <d>unknown</d> direction.",
+        "content": "You see <p>a deep pool of slime</p> leading in a <d>northernly</d> direction.",
         "disabled": true
-      },
-      {
-        "position": "-ne",
-        "link": "3",
-        "content": "It is very dark, but you see <i>something glinting</i> in the darkness in the <d>north-east</d> corner of the grotto.",
-        "disabled": false
-      },
-      {
-        "position": "ne",
-        "link": "3",
-        "content": "You see <i>something glinting</i> in the darkness in front of you.",
-        "disabled": false
       },
       {
         "position": "-s",
@@ -120,7 +108,7 @@
       {
         "position": "c",
         "link": null,
-        "content": "The smell of slime is overwhelmingly strong here.",
+        "content": "The smell of slime is quite strong here.",
         "disabled": false
       }
     ],
@@ -128,7 +116,7 @@
       {
         "position": "",
         "link": null,
-        "content": "You hear the faint sound of slime dripping on slime.",
+        "content": "You hear the faint sound of dripping liquid.",
         "disabled": false
       }
     ]
@@ -156,8 +144,21 @@
         "disabled": true
       }
     ],
-    "interactable": [],
+    "interactable": [
+      {
+        "position": "sw",
+        "link": "2",
+        "content": "Something glinting in the darkness",
+        "disabled": false
+      }
+    ],
     "sight": [
+      {
+        "position": "sw",
+        "link": "3",
+        "content": "You see <i>something glinting</i> in the darkness in front of you.",
+        "disabled": false
+      },
       {
         "position": "-c",
         "link": null,
@@ -167,7 +168,7 @@
       {
         "position": "c",
         "link": null,
-        "content": "It is very dark, but you make out <p>a deep pool of slime</p> leading in an <d>unknown</d> direction.",
+        "content": "It is very dark, but you make out <p>a deep pool of slime</p> leading <d>south</d>.",
         "disabled": false
       }
     ],
@@ -187,7 +188,7 @@
     ],
     "sound": [
       {
-        "position": "s",
+        "position": "n",
         "link": null,
         "content": "You hear a barely audible rumbling sound.",
         "disabled": false
@@ -195,8 +196,8 @@
     ]
   },
   "3": {
-    "noun": "void",
-    "location": "You find yourself in a void.",
+    "noun": "pine forest",
+    "location": "You find yourself in a pine forest. Giant pine trees surround you. The forest floor is covered in layers upon layers of brown pine leaves and patches of green moss.",
 	"visited": {
       "nw": false,
       "n": false,
@@ -217,18 +218,24 @@
         "disabled": true
       },
 	  {
-        "position": "nw",
-        "link": "test1",
-        "content": "Enter portal",
+        "position": "w",
+        "link": "3",
+        "content": "Head westwards through the trees",
         "disabled": false
       }
     ],
     "interactable": [],
     "sight": [
       {
+        "position": "",
+        "link": null,
+        "content": "Tall trees stretches on for as far as you are able to see in all directions but north. To the north you see a large grey mountain wall blocking your path, ferns grow thick at the base of the mountain.",
+        "disabled": false
+      },
+      {
         "position": "-n",
         "link": null,
-        "content": "You see <p>a narrow cave entrance</p> on the <d>northern</d> side of the void.",
+        "content": "You see <p>a narrow cave entrance</p> on the <d>northern</d> side of the area.",
         "disabled": false
       },
       {
@@ -238,15 +245,15 @@
         "disabled": false
       },
       {
-        "position": "-nw",
+        "position": "-w",
         "link": null,
-        "content": "You see <p>a portal</p> on the <d>north-west</d> side of the void.",
+        "content": "You see <p>a path</p> to the <d>west</d>.",
         "disabled": false
       },
       {
-        "position": "nw",
+        "position": "w",
         "link": null,
-        "content": "You see <p>a portal</p> leading <d>north</d>.",
+        "content": "You see <p>a path</p> through the pine trees, leading <d>westwards</d>.",
         "disabled": false
       }
     ],
@@ -260,9 +267,9 @@
     ],
     "sound": []
   },
-  "test1": {
-    "noun": "test",
-    "location": "You find yourself in a void.",
+  "4": {
+    "noun": "pine forest",
+    "location": "You find yourself in a pine forest.",
 	"visited": {
       "nw": false,
       "n": false,
@@ -277,24 +284,24 @@
     "on_enter": [],
     "portal": [
       {
-        "position": "sw",
-        "link": "test1",
-        "content": "Enter portal",
+        "position": "e",
+        "link": "3",
+        "content": "Head eastwards through the trees.",
         "disabled": false
       }
     ],
     "interactable": [],
     "sight": [
       {
-        "position": "-sw",
+        "position": "-e",
         "link": null,
-        "content": "You see <p>a portal</p> on the <d>south-west</d> side.",
+        "content": "You see <p>a path</p> to the <d>east</d>.",
         "disabled": false
       },
       {
-        "position": "sw",
+        "position": "e",
         "link": null,
-        "content": "You see <p>a portal</p> leading <d>south</d>.",
+        "content": "You see <p>a path</p> through the trees, leading in an <d>eastwards</d> direction.",
         "disabled": false
       }
     ],

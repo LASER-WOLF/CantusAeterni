@@ -54,8 +54,10 @@ SOUNDS = {
     'ui_confirm': 'resources/sound/ui_confirm.wav',
     'ui_confirm_big': 'resources/sound/ui_confirm_big.wav',
     'ui_back': 'resources/sound/ui_back.wav',
-    'change_room': 'resources/sound/fx_change_room.wav',
-    'move': 'resources/sound/fx_move.wav',
+    'fx_change_room': 'resources/sound/fx_change_room.wav',
+    'fx_move': 'resources/sound/fx_move.wav',
+    'fx_discover_portal': 'resources/sound/fx_discover_portal.wav',
+    'fx_pick_up_item': 'resources/sound/fx_pick_up_item.wav',
 }
 
 # SET VARS
@@ -69,6 +71,7 @@ music_playlist_files = []
 music_playlist_titles = []
 
 def initialize():
+    pygame.mixer.set_num_channels(32)
     change_master_volume(config.settings['master_volume'])
     pygame.mixer.music.set_endevent(MUSIC_END) 
     music_change_type(MUSIC_TYPE_MAIN_MENU)
@@ -129,7 +132,7 @@ def sound_play(sound_file):
     if config.settings['enable_sound']:
         sound = pygame.mixer.Sound(SOUNDS[sound_file])
         sound.set_volume(sound_volume)
-        sound.play()
+        pygame.mixer.find_channel(True).play(sound)
 
 def sound_ui(sound):
     if config.settings['enable_sound_ui']:
@@ -154,7 +157,13 @@ def ui_back():
     sound_ui('ui_back')
 
 def fx_change_room():
-    sound_fx('change_room')
+    sound_fx('fx_change_room')
 
 def fx_move():
-    sound_fx('move')
+    sound_fx('fx_move')
+
+def fx_pick_up_item():
+    sound_fx('fx_pick_up_item')
+
+def fx_discover_portal():
+    sound_fx('fx_discover_portal')

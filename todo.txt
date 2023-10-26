@@ -1,8 +1,26 @@
 # TODO:
-  # items
-  # inventory
+  # support for multiple layers of input options
+  # better support for multiple layers of rendered content
+  # enable / disable id tied to room?
+  # BUG: Black screen after minimize
+  # arrow when scroll available ▲ ▼
+  # scrollable lower window
+  # dynamic color scheme
+  # apprentice -> default
+  # ibm -> cave
+  # solarized -> forest
+  # remove line color
+  # zero turn number on restart game
+  # pop up window for examine stuff
+  # word wrap on main window
+  # multiline main window with scrolling
   # npcs
   # dialogue
+  # map mode: store room data in selection
+  # better inventory screen
+  # better minimap in map mode
+  # new move sound
+  # play sound later (sound queueing?) for: move / discover portal / pick up item / change room
   # character screen / stats
   # save / load game
   # combat?
@@ -11,6 +29,17 @@
   # cool logo and background for main menu
 
 # DONE:
+  # support for multiple layers of rendered content
+  # turn number stored in log
+  # add turn number
+  # sound discover portal
+  # sound pick up item
+  # add sound credits in help
+  # more audio channels
+  # play audio find free channel
+  # ui animation on press to continue (cutscene) without highlight color (just normal foreground)
+  # items
+  # inventory
   # minimap in map screen
   # flashing ui animation on selection
   # Animation queue system
