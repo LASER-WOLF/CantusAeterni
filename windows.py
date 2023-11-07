@@ -657,7 +657,7 @@ def log_content(target_list, num_tuple = True, max_num_lines = 10):
         log_line = line
         if num_tuple:
             log_num = line[0]
-            log_line = line[1]
+            log_line = '∙ ' + line[1]
             if log_num == config.turn - 1:
                 log_line = utils.add_tag(log_line, fg = TAG_COLOR_HIGHLIGHT)
         result.append(scrollbar[num] + " " + log_line)

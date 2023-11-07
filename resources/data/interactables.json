@@ -4,18 +4,18 @@
     "link": "1",
     "enable": "2",
     "disable": "1",
-    "log_text": "A pool of slime that is very deep. You could dive in and try to swim to the end.",
+    "log_text": "a series of flooded caves leading to a grotto.",
     "examine_text": [
       "You examine the pool of slime and upon closer inspection you find that it leads to a cave system flooded by slime leading in an <d>unknown</d> direction.",
       "You could possibly dive in and swim towards the end?"
     ],
     "examine_options": [
       {
-        "text": "> Dive in",
+        "text": "Dive in",
         "type": "confirm"
       },
       {
-        "text": " Cancel",
+        "text": "Cancel",
         "type": "cancel"
       }
     ],
@@ -26,10 +26,10 @@
     "link": "1",
     "enable": null,
     "disable": "3",
-    "log_text": "An iron key. It seems quite old. It has some slime on it.",
+    "log_text": "an old iron key.",
     "examine_text": [
       "On closer inspection the glinting object is revealed to be a key.",
-      "It looks very old and seems to be made of iron and has some slime on it."
+      "It looks very old and seems to be made of iron. It has some slime on it."
     ],
     "examine_options": [
       {
@@ -48,7 +48,7 @@
     "link": "2",
     "enable": "5",
     "disable": "4",
-    "log_text": "A cave that looks big enough for you to fit inside.",
+    "log_text": "a tight cave leading out of the grotto.",
     "examine_text": [
       "You examine the cave entrance, it looks big enough for you to fit inside."
     ],

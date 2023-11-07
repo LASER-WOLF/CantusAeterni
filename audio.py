@@ -56,7 +56,6 @@ SOUNDS = {
     'ui_back': 'resources/sound/ui_back.wav',
     'fx_change_room': 'resources/sound/fx_change_room.wav',
     'fx_move': 'resources/sound/fx_move.wav',
-    'fx_discover_portal': 'resources/sound/fx_discover_portal.wav',
     'fx_pick_up_item': 'resources/sound/fx_pick_up_item.wav',
 }
 
@@ -164,6 +163,3 @@ def fx_move():
 
 def fx_pick_up_item():
     sound_fx('fx_pick_up_item')
-
-def fx_discover_portal():
-    sound_fx('fx_discover_portal')

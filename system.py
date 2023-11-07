@@ -22,6 +22,23 @@ ui_selection_options = None
 ui_pre_quit_prompt = False
 ui_restart_prompt = False
 ui_quit_prompt = False
+main_content = None
+popup_content = None
+
+def set_popup_content(lines, max_len, options):
+    global popup_content
+    config.trigger_animation(config.ANIMATION_FADE_POPUP)
+    config.ui_selection_x_prev = config.ui_selection_x
+    config.ui_selection_y_prev = config.ui_selection_y
+    config.ui_selection_x = 0
+    config.ui_selection_y = 0
+    popup_content = (lines, max_len, options)
+
+def unset_popup_content():
+    global popup_content
+    config.ui_selection_x = config.ui_selection_x_prev
+    config.ui_selection_y = config.ui_selection_y_prev
+    popup_content = None
 
 def quit_game():
     config.run_game = False
@@ -243,6 +260,8 @@ def ui_selection_none():
 
 def change_mode(new_mode):
     ui_selection_none()
+    main_content = None
+    popup_content = None
     config.trigger_animation(config.ANIMATION_FADE)
     config.previous_mode = config.mode
     config.mode = new_mode

@@ -6,7 +6,7 @@
   "palette": "Apprentice",
   "enable_mouse": true,
   "enable_minimap": true,
-  "enable_music": true,
+  "enable_music": false,
   "enable_sound": true,
   "enable_sound_ui": true,
   "master_volume": 1.0,

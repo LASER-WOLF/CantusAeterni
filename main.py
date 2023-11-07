@@ -187,25 +187,25 @@ def run():
                 start_y = 0
                 fill_start_x = 0
                 fill_start_y = 0
-                if layer_num > 0:
-                    if layer_type == config.LAYER_TYPE_POPUP:
-                        # FADE OUT PREVIOUS LAYERS
-                        for num in range(config.size_y):
-                            pos_y = offset_y + (num * font_height)
-                            bg_line = '▒' * config.size_x
-                            render_line = font.render(bg_line, False, config.PALETTES[config.settings['palette']]['background'])
-                            screen.blit(render_line, (offset_x + start_x, start_y + pos_y))
-                        # MAKE BOX
-                        layer_size_y = len(layer_lines) * font_height
-                        layer_size_x = utils.list_longest_entry_length([utils.remove_tag(line[0][0]) for line in layer_lines]) * font_width
-                        centered_x = ((config.size_x * font_width) / 2) - (layer_size_x / 2)
-                        centered_y = ((config.size_y * font_height) / 2) - (layer_size_y / 2)
-                        popup_rect = pygame.Rect(offset_x + centered_x + (font_width / 2), offset_y + centered_y + (font_height / 2), layer_size_x - font_width, layer_size_y - font_height)
-                        screen.fill(config.PALETTES[config.settings['palette']][layer_bg_color], popup_rect)
-                        start_x = centered_x
-                        start_y = centered_y
-                        fill_start_x = start_x + (font_width / 2)
-                        fill_start_y = start_y + (font_height / 2)
+                #if layer_num > 0:
+                if layer_type == config.LAYER_TYPE_POPUP:
+                    # FADE OUT PREVIOUS LAYERS
+                    for num in range(config.size_y):
+                        pos_y = offset_y + (num * font_height)
+                        bg_line = '▒' * config.size_x
+                        render_line = font.render(bg_line, False, config.PALETTES[config.settings['palette']]['background'])
+                        screen.blit(render_line, (offset_x + start_x, start_y + pos_y))
+                    # MAKE BOX
+                    layer_size_y = len(layer_lines) * font_height
+                    layer_size_x = utils.list_longest_entry_length([utils.remove_tag(line[0][0]) for line in layer_lines]) * font_width
+                    centered_x = ((config.size_x * font_width) / 2) - (layer_size_x / 2)
+                    centered_y = ((config.size_y * font_height) / 2) - (layer_size_y / 2)
+                    popup_rect = pygame.Rect(offset_x + centered_x + (font_width / 2), offset_y + centered_y + (font_height / 2), layer_size_x - font_width, layer_size_y - font_height)
+                    screen.fill(config.PALETTES[config.settings['palette']][layer_bg_color], popup_rect)
+                    start_x = centered_x
+                    start_y = centered_y
+                    fill_start_x = start_x + (font_width / 2)
+                    fill_start_y = start_y + (font_height / 2)
                 # CHECK LINES
                 for num in range(config.size_y):
                     pos_y = offset_y + (num * font_height)
@@ -292,6 +292,9 @@ def run():
             # PLAY FADE ANIMATION
             elif current_animation[0] == config.ANIMATION_FADE:
                 animation_frame, animation_control_stopping, animation_fps, config.refresh_content = fade_animation(animation_frame)
+            # PLAY FADE POPUP ANIMATION
+            elif current_animation[0] == config.ANIMATION_FADE_POPUP:
+                animation_frame, animation_control_stopping, animation_fps, config.refresh_content = fade_popup_animation(animation_frame)
             # PLAY CHANGE ROOM ANIMATION
             elif current_animation[0] == config.ANIMATION_CHANGE_ROOM:
                 animation_frame, animation_control_stopping, animation_fps, config.refresh_content = change_room_animation(animation_frame)
@@ -485,6 +488,26 @@ def fade_animation(frame):
         return (frame, False, anim_fps, True)
     else:
         return (frame, False, anim_fps, False)
+
+def fade_popup_animation(frame):
+    anim_fps = 8
+    ANIMATION_FRAMES = [
+    '░',
+    '▒',
+    ]
+    for line_num in range(config.size_y):
+        pos_y = offset_y + (line_num * font_height)
+        line = ''
+        for char_num in range(config.size_x):
+            line += ANIMATION_FRAMES[frame]
+        render_line = font.render(line, False, config.PALETTES[config.settings['palette']]['background'])
+        screen.blit(render_line, (offset_x, pos_y))
+    frame += 1
+    if frame >= len(ANIMATION_FRAMES):
+        frame = 0
+        return (frame, True, anim_fps, True)
+    else:
+        return (frame, False, anim_fps, True)
 
 def change_room_animation(frame):
     anim_fps = 8

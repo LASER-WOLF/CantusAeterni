@@ -19,6 +19,7 @@ WINDOW_MODE_FULLSCREEN = 'fullscreen'
 WINDOW_MODE_BORDERLESS = 'borderless'
 ANIMATION_BOOT = 'boot'
 ANIMATION_FADE = 'fade'
+ANIMATION_FADE_POPUP = 'fade_popup'
 ANIMATION_CHANGE_ROOM = 'change_room'
 ANIMATION_UI_SELECTION_SHORTEST = 'ui_sel_shortest'
 ANIMATION_UI_SELECTION_SHORT = 'ui_sel_short'
@@ -295,9 +296,10 @@ ui_selection_current = None
 ui_selection_x = 0
 ui_selection_y = 0
 ui_log_scroll_pos = 0
-#ui_selection_hl = False
 animation_queue = []
 turn = 1
+ui_selection_x_prev = 0
+ui_selection_y_prev = 0
 
 def initialize():
     import_settings()
