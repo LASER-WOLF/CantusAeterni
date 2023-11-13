@@ -14,7 +14,7 @@ def run():
         ])
     ]
 
-def input(key):
+def input(key, mod = None):
     selected_option = config.ui_selection_current
     if selected_option is not None:
         if(key == 'up'):

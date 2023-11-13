@@ -2,18 +2,25 @@
 import audio
 import config
 import system
+import random
 import utils
 import windows
 
 # SET VARS
 room_id = None
 room = None
+npcs = None
 
 def set_room():
     global room_id
     global room
+    global npcs
     room_id = system.active_room
     room = system.rooms[room_id]
+    npcs = {}
+    for npc_id, npc in system.npcs.items():
+        if npc['disabled'] == False and npc['room'] == room_id:
+            npcs[npc_id] = npc
 
 def run():
     set_room()
@@ -31,54 +38,38 @@ def run():
     layers.append(
         system.main_content
     )
+    # CHECK IF DEAD
+    if config.game['game_over'] is False and config.player['health_points'] <= 0:
+        system.player_death()
     # POPUP LAYER
     if system.popup_content is not None:
+        system.set_selection_options(system.popup_content['options'])
         layers.append(
-            windows.popup(format_popup_content(system.popup_content))
+            windows.popup(system.popup_content['lines'], options = system.ui_selection_options, centered = system.popup_content['centered'])
         )
+
     return layers
 
-def format_popup_content(content):
-    result = []
-    lines = content[0]
-    max_len = content[1]
-    options = content[2]
-    for line in lines:
-        result.append(line)
-    if options is not None:
-        system.set_selection_options(options)
-        result.append(('-' * max_len, None))
-        selection_options_display = windows.format_selection_options_display(system.ui_selection_options)
-        selection_options_display[0].insert(0, 'SELECT ACTION:')
-        for option_line in selection_options_display[0]:
-            result.append((option_line, None))
-    return result
-
 def action_portal(link):
-    audio.fx_change_room()
     enter_portal(link)
-    config.turn += 1
+    system.end_turn('portal', npcs)
 
 def action_move(link):
-    audio.fx_move()
-    config.trigger_animation(config.ANIMATION_FADE)
-    system.change_position(link, True)
-    config.turn += 1
+    system.player_change_position(link, logging = True)
+    system.end_turn('move', npcs)
 
 def action_pickup(link):
-    audio.fx_pick_up_item()
-    config.trigger_animation(config.ANIMATION_FADE)
     add_to_inventory(link)
-    config.turn += 1
+    system.end_turn('pickup', npcs)
 
-def input_popup(key):
+def input_popup(key, mod = None):
     selected_option = config.ui_selection_current
     if selected_option is not None:
         if(key == 'up'):
             system.ui_selection_y_prev()
         elif(key == 'down'):
             system.ui_selection_y_next()
-        elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == 'examine-cancel')):
+        elif not config.game['game_over'] and (key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == 'examine-cancel')):
             if key == 'return' and selected_option.name == 'examine-cancel':
                 config.trigger_animation(config.ANIMATION_UI_SELECTION)
             audio.ui_back()
@@ -89,10 +80,29 @@ def input_popup(key):
                 config.trigger_animation(config.ANIMATION_UI_SELECTION)
                 examine_confirm(selected_option.link)
                 system.unset_popup_content()
+            elif selected_option.name == "restart_game":
+                ui_action_restart_game()
+            elif selected_option.name == "quit_game":
+                system.quit_game()
 
-def input_main(key):
+def ui_action_restart_game():
+    audio.ui_back()
+    config.trigger_animation(config.ANIMATION_UI_SELECTION)
+    system.restart_game()
+
+def input_main(key, mod = None):
     selected_option = config.ui_selection_current
-    if selected_option is not None:
+    if key == 'up' and (mod == 'shift' or mod == 'scroll_center'):
+        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST, config.UI_TAGS['scroll_center_up'])
+        system.ui_scroll_center_up()
+    elif key == 'down' and (mod == 'shift' or mod == 'scroll_center'):
+        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST, config.UI_TAGS['scroll_center_down'])
+        system.ui_scroll_center_down()
+    elif key == 'up' and mod == 'scroll_log':
+        system.ui_log_scroll_up()
+    elif key == 'down' and mod == 'scroll_log':
+        system.ui_log_scroll_down()
+    elif selected_option is not None:
         if(key == 'up'):
             system.ui_log_or_selection_up()
         elif(key == 'down'):
@@ -102,8 +112,8 @@ def input_main(key):
         elif(key == 'right'):
             system.ui_log_or_selection_right()
         elif(key == 'escape' or key == 'mouse3'):
-            if config.ui_log_scroll_pos > 0:
-                config.ui_log_scroll_pos = 0
+            if config.ui_scroll_log > 0:
+                config.ui_scroll_log = 0
             elif system.ui_pre_quit_prompt:
                 audio.ui_back()
                 system.pre_quit_prompt()
@@ -113,7 +123,7 @@ def input_main(key):
             elif system.ui_quit_prompt:
                 audio.ui_back()
                 system.quit_game_prompt()
-        elif(key == 'return' and config.ui_log_scroll_pos == 0):
+        elif(key == 'return' and config.ui_scroll_log == 0):
             if selected_option.name == "pre_quit_prompt":
                 config.trigger_animation(config.ANIMATION_UI_SELECTION)
                 if system.ui_pre_quit_prompt:
@@ -138,9 +148,7 @@ def input_main(key):
                     audio.ui_back()
                 system.quit_game_prompt()
             elif selected_option.name == "restart_game":
-                audio.ui_back()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
-                system.restart_game()
+                ui_action_restart_game()
             elif selected_option.name == "quit_game":
                 system.quit_game()
             elif selected_option.name == "help":
@@ -174,11 +182,11 @@ def input_main(key):
                 config.trigger_animation(config.ANIMATION_UI_SELECTION_LONG)
                 action_portal(selected_option.link)
 
-def input(key):
+def input(key, mod = None):
     if system.popup_content:
-        input_popup(key)
+        input_popup(key, mod)
     else:
-        input_main(key)
+        input_main(key, mod)
 
 def selection_options():
     result = []
@@ -215,9 +223,13 @@ def selection_options():
 
 def window_center():
     lines = []
-    lines.extend(show_active_status())
-    lines.append("")
-    lines.extend(load_room())
+    if config.player['health_status']:
+        lines.append(config.player['health_status'])
+    if config.player['health_points'] > 0:
+        lines.extend(show_active_status())
+        if lines:
+            lines.append("")
+        lines.extend(load_room())
     return windows.Content(windows.WINDOW_CENTER, lines)
 
 def window_lower():
@@ -229,7 +241,7 @@ def window_lower():
         selection_options_display[0].insert(0, 'ARE YOU SURE?')
     else:
         if config.settings['enable_minimap']:
-            ui_blocks.append(windows.block_minimap(room, system.current_position, check_move_options(True)))
+            ui_blocks.append(windows.block_minimap(room, npcs, system.current_position, check_move_options(True)))
         option_titles = ["MOVE / WAIT:", "INTERACT:", "OTHER:", "SYSTEM:"]
         selection_options_display = windows.format_selection_options_display_add_titles(selection_options_display, option_titles)
     ui_blocks.extend(selection_options_display)
@@ -338,7 +350,7 @@ def load_room():
     result.extend(sense_sound())
     result.extend(sense_smell())
     result.append("")
-    result.append("You are positioned at the " + windows.format_position_text(system.current_position) + " of the " + room['noun'] + ".")
+    result.append("You are positioned at the " + utils.format_position_text_room(system.current_position, room['noun']) + '.')
     result.extend(sense_sight(True))
     result.extend(sense_sound(True))
     result.extend(sense_smell(True))
@@ -348,17 +360,37 @@ def show_active_status():
     result = []
     for status in system.statuses.values():
         if (status['active']):
-            result.append(windows.format_status(status['text']))
+            result.append(utils.format_color_tags(status['text']))
     return result
 
 def sense_scan(sense, sense_text, position_mode = False):
     result = []
     for line in room[sense]:
         if not line['disabled']:
-            content = windows.format_color_tags(line['content'])
+            content = utils.format_color_tags(line['content'])
             if not position_mode and (line['position'] == "" or (line['position'][0] == "-" and line['position'][1:] != system.current_position)):
                 result.append(sense_text + content)
             elif (position_mode and line['position'] == system.current_position):
+                result.append(sense_text + content)
+    for npc in npcs.values():
+        sense_text_list = []
+        if not position_mode and npc['position'] != system.current_position:
+            sense_text_list.append(npc[sense + '_far_always'])
+            if npc['hostile']:
+                sense_text_list.append(npc[sense + '_far_hostile'])
+            else:
+                sense_text_list.append(npc[sense + '_far_friendly'])
+        elif position_mode and npc['position'] == system.current_position:
+            sense_text_list.append(npc[sense + '_near_always'])
+            if npc['hostile']:
+                sense_text_list.append(npc[sense + '_near_hostile'])
+            else:
+                sense_text_list.append(npc[sense + '_near_friendly'])
+        for line in sense_text_list:
+            if line:
+                content = line.replace('<pos>', utils.format_position_text_room(npc['position'], room['noun']))
+                content = content.replace('<name>', utils.format_npc(npc['name']))
+                content = utils.format_color_tags(content)
                 result.append(sense_text + content)
     return result
 
@@ -377,7 +409,7 @@ def sense_sound(position_mode = False):
     result = []
     sense_text = "You focus on your sense of hearing: "
     if position_mode:
-        sense_text = "You focus on the sounds in you immediate proximity: "
+        sense_text = "You focus on the sounds in your immediate proximity: "
     if not system.statuses['deaf']['active']:
         result.extend(sense_scan("sound", sense_text, position_mode))
     if system.statuses['blind']['active'] and not result:
@@ -408,7 +440,7 @@ def enter_portal(link):
         target_pos = portal['pos1']
         system.add_log(portal['text2to1'])
     system.enter_room(target_room)
-    system.change_position(target_pos)
+    system.player_change_position(target_pos)
     for line in portal['on_interact']:
         system.execute_action(line)
 
@@ -419,18 +451,14 @@ def examine(link):
     interactable = system.interactables[link]
     popup_lines = []
     popup_options = None
-    max_len = 0
     if interactable['examine_text']:
         for line in interactable['examine_text']:
-            line_text = windows.format_color_tags(line)
-            line_without_tags = utils.remove_tag(line_text)
-            popup_lines.append((line_text, None))
-            max_len = max(max_len, len(line_without_tags))
+            popup_lines.append(utils.format_color_tags(line))
         if interactable['examine_options']:
             popup_options = [[]]
             for line in interactable['examine_options']:
                 popup_options[0].append(system.SelectionOption("examine-" + line['type'], line['text'], link))
-    system.set_popup_content(popup_lines, max_len, popup_options)
+    system.set_popup_content(popup_lines, popup_options)
 
 def examine_confirm(link):
     interactable = system.interactables[link]
@@ -446,5 +474,6 @@ def examine_confirm(link):
         enable_event_portal(interactable['link'])
         system.add_log("You have discovered " + interactable['log_text'])
         action_portal(interactable['link'])
+        system.prev_selection_none()
     for line in interactable['on_interact']:
         execute_action(line)

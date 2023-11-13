@@ -31,24 +31,6 @@ WINDOW_CENTER = "center"
 WINDOW_LOWER = "lower"
 WINDOW_LOG = "log"
 
-# SET CONSTANTS, TAGS
-TAG_REVERSE_COLOR_FG = 'foreground'
-TAG_COLOR_FG = config.TAGS['foreground']
-TAG_COLOR_BG = config.TAGS['background']
-TAG_COLOR_DARK = config.TAGS['bright_black']
-TAG_COLOR_UI_BG_SEL_FG = TAG_COLOR_BG
-TAG_COLOR_UI_BG_SEL_BG = TAG_COLOR_FG
-TAG_COLOR_UI_SEL_FG = TAG_COLOR_FG
-TAG_COLOR_TITLE_SCREEN = config.TAGS['bright_cyan']
-TAG_COLOR_INTERACTABLE = config.TAGS['bright_green']
-TAG_COLOR_PORTAL = config.TAGS['bright_cyan']
-TAG_COLOR_DIRECTION = config.TAGS['bright_blue']
-TAG_COLOR_STATUS = config.TAGS['bright_magenta']
-TAG_COLOR_HIGHLIGHT = config.TAGS['bright_white']
-TAG_COLOR_SCROLLBAR_BG = TAG_COLOR_HIGHLIGHT
-TAG_COLOR_MAP_INACTIVE = TAG_COLOR_DARK
-TAG_COLOR_MAP_SELECTED = TAG_COLOR_FG
-
 # SET CONSTANTS, FILL
 FILL_PATTERNS = {
     'dots1': [
@@ -105,52 +87,64 @@ FILL_PATTERN_COLORS = {
 
 # SET CONSTANTS, MINIMAP
 MINIMAP_TILES = {  
-    'undiscovered_top': utils.add_tag("     ", TAG_COLOR_MAP_INACTIVE),
-    'undiscovered_mid': utils.add_tag("  -  ", TAG_COLOR_MAP_INACTIVE),
-    'undiscovered_low': utils.add_tag("     ", TAG_COLOR_MAP_INACTIVE),
-    'undiscovered_top_upper_left': utils.add_tag("┌─   ", TAG_COLOR_MAP_INACTIVE),
-    'undiscovered_top_upper_right': utils.add_tag("   ─┐", TAG_COLOR_MAP_INACTIVE),
-    'undiscovered_bottom_lower_left': utils.add_tag("└─   ", TAG_COLOR_MAP_INACTIVE),
-    'undiscovered_bottom_lower_right': utils.add_tag("   ─┘", TAG_COLOR_MAP_INACTIVE),
-    'selected_undiscovered_top': utils.add_tag("╔═══╗", TAG_COLOR_MAP_INACTIVE),
-    'selected_undiscovered_mid': utils.add_tag("║ - ║", TAG_COLOR_MAP_INACTIVE),
-    'selected_undiscovered_low': utils.add_tag("╚═══╝", TAG_COLOR_MAP_INACTIVE),
-    'visited_top': utils.add_tag("┌───┐", TAG_COLOR_MAP_INACTIVE),
-    'visited_mid': utils.add_tag("│   │", TAG_COLOR_MAP_INACTIVE),
-    'visited_low': utils.add_tag("└───┘", TAG_COLOR_MAP_INACTIVE),
-    'selected_visited_top': utils.add_tag("╔═══╗", TAG_COLOR_MAP_INACTIVE),
-    'selected_visited_mid': utils.add_tag("║   ║", TAG_COLOR_MAP_INACTIVE),
-    'selected_visited_low': utils.add_tag("╚═══╝", TAG_COLOR_MAP_INACTIVE),
-    'current_top': utils.add_tag("┌───┐", TAG_COLOR_MAP_SELECTED),
-    'current_mid': utils.add_tag("│YOU│", TAG_COLOR_MAP_SELECTED),
-    'current_low': utils.add_tag("└───┘", TAG_COLOR_MAP_SELECTED),
-    'selected_current_top': utils.add_tag("╔═══╗", TAG_COLOR_MAP_SELECTED),
-    'selected_current_mid': utils.add_tag("║YOU║", TAG_COLOR_MAP_SELECTED),
-    'selected_current_low': utils.add_tag("╚═══╝", TAG_COLOR_MAP_SELECTED),
-    'portal_top': utils.add_tag("┌───┐", TAG_COLOR_PORTAL),
-    'portal_mid': utils.add_tag("││→││", TAG_COLOR_PORTAL),
-    'portal_low': utils.add_tag("└───┘", TAG_COLOR_PORTAL),
-    'selected_portal_top': utils.add_tag("╔═══╗", TAG_COLOR_PORTAL),
-    'selected_portal_mid': utils.add_tag("║│→│║", TAG_COLOR_PORTAL),
-    'selected_portal_low': utils.add_tag("╚═══╝", TAG_COLOR_PORTAL),
-    'portal_current_top': utils.add_tag("┌───┐", TAG_COLOR_PORTAL),
-    'portal_current_mid': utils.add_tag("│", TAG_COLOR_PORTAL) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("│", TAG_COLOR_PORTAL),
-    'portal_current_low': utils.add_tag("└───┘", TAG_COLOR_PORTAL),
-    'selected_portal_current_top': utils.add_tag("╔═══╗", TAG_COLOR_PORTAL),
-    'selected_portal_current_mid': utils.add_tag("║", TAG_COLOR_PORTAL) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("║", TAG_COLOR_PORTAL),
-    'selected_portal_current_low': utils.add_tag("╚═══╝", TAG_COLOR_PORTAL),
-    'interactable_top': utils.add_tag("┌───┐", TAG_COLOR_INTERACTABLE),
-    'interactable_mid': utils.add_tag("│???│", TAG_COLOR_INTERACTABLE),
-    'interactable_low': utils.add_tag("└───┘", TAG_COLOR_INTERACTABLE),
-    'selected_interactable_top': utils.add_tag("╔═══╗", TAG_COLOR_INTERACTABLE),
-    'selected_interactable_mid': utils.add_tag("║???║", TAG_COLOR_INTERACTABLE),
-    'selected_interactable_low': utils.add_tag("╚═══╝", TAG_COLOR_INTERACTABLE),
-    'interactable_current_top': utils.add_tag("┌───┐", TAG_COLOR_INTERACTABLE),
-    'interactable_current_mid': utils.add_tag("│", TAG_COLOR_INTERACTABLE) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("│", TAG_COLOR_INTERACTABLE),
-    'interactable_current_low': utils.add_tag("└───┘", TAG_COLOR_INTERACTABLE),
-    'selected_interactable_current_top': utils.add_tag("╔═══╗", TAG_COLOR_INTERACTABLE),
-    'selected_interactable_current_mid': utils.add_tag("║", TAG_COLOR_INTERACTABLE) + utils.add_tag("YOU", TAG_COLOR_MAP_SELECTED) + utils.add_tag("║", TAG_COLOR_INTERACTABLE),
-    'selected_interactable_current_low': utils.add_tag("╚═══╝", TAG_COLOR_INTERACTABLE),
+    'undiscovered_top': utils.add_tag("     ", config.TAG_COLOR_MAP_INACTIVE),
+    'undiscovered_mid': utils.add_tag("  -  ", config.TAG_COLOR_MAP_INACTIVE),
+    'undiscovered_low': utils.add_tag("     ", config.TAG_COLOR_MAP_INACTIVE),
+    'undiscovered_top_upper_left': utils.add_tag("┌─   ", config.TAG_COLOR_MAP_INACTIVE),
+    'undiscovered_top_upper_right': utils.add_tag("   ─┐", config.TAG_COLOR_MAP_INACTIVE),
+    'undiscovered_bottom_lower_left': utils.add_tag("└─   ", config.TAG_COLOR_MAP_INACTIVE),
+    'undiscovered_bottom_lower_right': utils.add_tag("   ─┘", config.TAG_COLOR_MAP_INACTIVE),
+    'selected_undiscovered_top': utils.add_tag("╔═══╗", config.TAG_COLOR_MAP_INACTIVE),
+    'selected_undiscovered_mid': utils.add_tag("║ - ║", config.TAG_COLOR_MAP_INACTIVE),
+    'selected_undiscovered_low': utils.add_tag("╚═══╝", config.TAG_COLOR_MAP_INACTIVE),
+    'visited_top': utils.add_tag("┌───┐", config.TAG_COLOR_MAP_INACTIVE),
+    'visited_mid': utils.add_tag("│   │", config.TAG_COLOR_MAP_INACTIVE),
+    'visited_low': utils.add_tag("└───┘", config.TAG_COLOR_MAP_INACTIVE),
+    'selected_visited_top': utils.add_tag("╔═══╗", config.TAG_COLOR_MAP_INACTIVE),
+    'selected_visited_mid': utils.add_tag("║   ║", config.TAG_COLOR_MAP_INACTIVE),
+    'selected_visited_low': utils.add_tag("╚═══╝", config.TAG_COLOR_MAP_INACTIVE),
+    'current_top': utils.add_tag("┌───┐", config.TAG_COLOR_MAP_SELECTED),
+    'current_mid': utils.add_tag("│YOU│", config.TAG_COLOR_MAP_SELECTED),
+    'current_low': utils.add_tag("└───┘", config.TAG_COLOR_MAP_SELECTED),
+    'selected_current_top': utils.add_tag("╔═══╗", config.TAG_COLOR_MAP_SELECTED),
+    'selected_current_mid': utils.add_tag("║YOU║", config.TAG_COLOR_MAP_SELECTED),
+    'selected_current_low': utils.add_tag("╚═══╝", config.TAG_COLOR_MAP_SELECTED),
+    'portal_top': utils.add_tag("┌───┐", config.TAG_COLOR_PORTAL),
+    'portal_mid': utils.add_tag("││→││", config.TAG_COLOR_PORTAL),
+    'portal_low': utils.add_tag("└───┘", config.TAG_COLOR_PORTAL),
+    'selected_portal_top': utils.add_tag("╔═══╗", config.TAG_COLOR_PORTAL),
+    'selected_portal_mid': utils.add_tag("║│→│║", config.TAG_COLOR_PORTAL),
+    'selected_portal_low': utils.add_tag("╚═══╝", config.TAG_COLOR_PORTAL),
+    'portal_current_top': utils.add_tag("┌───┐", config.TAG_COLOR_PORTAL),
+    'portal_current_mid': utils.add_tag("│", config.TAG_COLOR_PORTAL) + utils.add_tag("YOU", config.TAG_COLOR_MAP_SELECTED) + utils.add_tag("│", config.TAG_COLOR_PORTAL),
+    'portal_current_low': utils.add_tag("└───┘", config.TAG_COLOR_PORTAL),
+    'selected_portal_current_top': utils.add_tag("╔═══╗", config.TAG_COLOR_PORTAL),
+    'selected_portal_current_mid': utils.add_tag("║", config.TAG_COLOR_PORTAL) + utils.add_tag("YOU", config.TAG_COLOR_MAP_SELECTED) + utils.add_tag("║", config.TAG_COLOR_PORTAL),
+    'selected_portal_current_low': utils.add_tag("╚═══╝", config.TAG_COLOR_PORTAL),
+    'interactable_top': utils.add_tag("┌───┐", config.TAG_COLOR_INTERACTABLE),
+    'interactable_mid': utils.add_tag("│???│", config.TAG_COLOR_INTERACTABLE),
+    'interactable_low': utils.add_tag("└───┘", config.TAG_COLOR_INTERACTABLE),
+    'selected_interactable_top': utils.add_tag("╔═══╗", config.TAG_COLOR_INTERACTABLE),
+    'selected_interactable_mid': utils.add_tag("║???║", config.TAG_COLOR_INTERACTABLE),
+    'selected_interactable_low': utils.add_tag("╚═══╝", config.TAG_COLOR_INTERACTABLE),
+    'interactable_current_top': utils.add_tag("┌───┐", config.TAG_COLOR_INTERACTABLE),
+    'interactable_current_mid': utils.add_tag("│", config.TAG_COLOR_INTERACTABLE) + utils.add_tag("YOU", config.TAG_COLOR_MAP_SELECTED) + utils.add_tag("│", config.TAG_COLOR_INTERACTABLE),
+    'interactable_current_low': utils.add_tag("└───┘", config.TAG_COLOR_INTERACTABLE),
+    'selected_interactable_current_top': utils.add_tag("╔═══╗", config.TAG_COLOR_INTERACTABLE),
+    'selected_interactable_current_mid': utils.add_tag("║", config.TAG_COLOR_INTERACTABLE) + utils.add_tag("YOU", config.TAG_COLOR_MAP_SELECTED) + utils.add_tag("║", config.TAG_COLOR_INTERACTABLE),
+    'selected_interactable_current_low': utils.add_tag("╚═══╝", config.TAG_COLOR_INTERACTABLE),
+    'npc_top': utils.add_tag("┌───┐", config.TAG_COLOR_NPC),
+    'npc_mid': utils.add_tag("│NPC│", config.TAG_COLOR_NPC),
+    'npc_low': utils.add_tag("└───┘", config.TAG_COLOR_NPC),
+    'selected_npc_top': utils.add_tag("╔═══╗", config.TAG_COLOR_NPC),
+    'selected_npc_mid': utils.add_tag("║NPC║", config.TAG_COLOR_NPC),
+    'selected_npc_low': utils.add_tag("╚═══╝", config.TAG_COLOR_NPC),
+    'npc_current_top': utils.add_tag("┌───┐", config.TAG_COLOR_NPC),
+    'npc_current_mid': utils.add_tag("│", config.TAG_COLOR_NPC) + utils.add_tag("YOU", config.TAG_COLOR_MAP_SELECTED) + utils.add_tag("│", config.TAG_COLOR_NPC),
+    'npc_current_low': utils.add_tag("└───┘", config.TAG_COLOR_NPC),
+    'selected_npc_current_top': utils.add_tag("╔═══╗", config.TAG_COLOR_NPC),
+    'selected_npc_current_mid': utils.add_tag("║", config.TAG_COLOR_NPC) + utils.add_tag("YOU", config.TAG_COLOR_MAP_SELECTED) + utils.add_tag("║", config.TAG_COLOR_NPC),
+    'selected_npc_current_low': utils.add_tag("╚═══╝", config.TAG_COLOR_NPC),
 }
 
 def main(target_list):
@@ -181,10 +175,10 @@ def main(target_list):
     result = make_lines_multi(content_upper + content_center + content_lower)
     return (config.LAYER_TYPE_MAIN, result, None, None)
 
-def popup(content, fill = '░', fill_color = 'bright_black', fg_color = 'foreground', bg_color = 'black', border_color = 'foreground', centered = False, margin = 1):
+def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg_color = 'foreground', bg_color = 'black', border_color = 'foreground', centered = False, margin = 1):
     result = []
     height = len(content)
-    width = utils.list_longest_entry_length([utils.remove_tag(line[0]) for line in content])
+    width = utils.list_longest_entry_length([utils.remove_tag(line) for line in content])
     if fill:
         fill = fill_empty_space('', length = width + (margin * 2) + 1, char = fill)
     border_hor = fill_empty_space('', width + (margin * 2), '═', centered = centered)
@@ -195,9 +189,19 @@ def popup(content, fill = '░', fill_color = 'bright_black', fg_color = 'foregr
     border_left = border_ver + border_margin
     border_right = border_margin + border_ver
     result.append(((first_line, border_color), (fill, fill_color)))
-    for line, line_color in content:
+    content_final = content
+    if options is not None:
+        selection_options_display = format_selection_options_display(options)
+        selection_options_display[0].insert(0, '-' * width)
+        selection_options_display[0].insert(1, 'SELECT ACTION:')
+        content_final = content + selection_options_display[0]
+    for num, line in enumerate(content_final):
+        line_centered = False
+        if num < len(content):
+            line_centered = centered
+        line_color = None
         line_without_tags = utils.remove_tag(line)
-        line_formatted = border_left + fill_empty_space(line, width - len(line_without_tags), centered = centered) + border_right
+        line_formatted = border_left + fill_empty_space(line, width - len(line_without_tags), centered = line_centered) + border_right
         result.append(((line_formatted, line_color), (fill, fill_color)))
     result.append(((final_line, border_color), (None, None)))
     return (config.LAYER_TYPE_POPUP, result, fg_color, bg_color)
@@ -225,10 +229,84 @@ def upper(content):
     lines.append(seperator())
     return lines
 
+def word_wrap(target_list, max_width):
+    def add_word(line, word):
+        if line != '':
+            line += ' '
+        line += word
+        return line, ''
+    result = []
+    for line in target_list:
+        # WRAP LINE IF TOO LONG
+        if len(utils.remove_tag(line)) > max_width:
+            word = new_line = ''
+            tag = tag_search = None
+            for character in line:
+                # LOOK FOR TAGS
+                if tag_search is None:
+                    tag_search = re.search('<text=(.{2}):(.{2}):(.{2})>',  word)
+                # TAG FOUND
+                if tag_search is not None:
+                    tag = (tag_search.string, '</text>')
+                    tag_search_end = re.search('</text>',  word)
+                    if tag_search_end:
+                        tag = tag_search = None
+                # END OF WORD
+                if len(word) > 0 and character == ' ':
+                    # ADD WORD TO LINE
+                    if (len(utils.remove_tag(new_line + word)) + 1) <= max_width:
+                        new_line, word = add_word(new_line, word)
+                    # MAKE NEW LINE WITH WORD
+                    else:
+                        if tag:
+                            new_line += tag[1]
+                            word = tag[0] + word
+                        result.append(new_line)
+                        new_line = word
+                        word = ''
+                # ADD CHARACTER TO WORD
+                else:
+                    word += character
+            # ADD LAST WORD TO LINE
+            new_line, word = add_word(new_line, word)
+            if new_line != '':
+                result.append(new_line)
+        # DO NOTHING IF LINE LENGTH WITHIN MAX LENGTH
+        else:
+            result.append(line)
+    return result
+
+def scrollable_content_center(target_list, scroll_pos = 0, max_num_lines = 10):
+    result = []
+    if len(target_list) > max_num_lines:
+        max_num_lines -= 1
+        scroll_pos_mod = 0
+        if scroll_pos > 0:
+            max_num_lines -= 1
+            scroll_pos_mod = 1
+        max_scroll_num = max(0, len(target_list) - max_num_lines - scroll_pos_mod)
+        scroll_pos = min(max_scroll_num, max(0, scroll_pos))
+        ui_log_start_pos = scroll_pos + scroll_pos_mod
+        ui_log_end_pos = max_num_lines + scroll_pos + scroll_pos_mod
+        target_list_shortened = target_list[ui_log_start_pos:ui_log_end_pos]
+        if scroll_pos > 0:
+            result.append(utils.add_ui_tag('▲ PRESS [SHIFT] + [UP] TO SCROLL UP', action = config.UI_TAGS['scroll_center_up']))
+        for line in target_list_shortened:
+            log_line = line
+            result.append(line)
+        if scroll_pos < max_scroll_num:
+            result.append(utils.add_ui_tag('▼ PRESS [SHIFT] + [DOWN] TO SCROLL DOWN', action = config.UI_TAGS['scroll_center_down']))
+    else:
+        result = target_list
+        scroll_pos = 0
+    return result, scroll_pos
+
 def center(content, padding_top = 0, padding_bottom = 0):
     if padding_bottom > 0:
         padding_bottom += 1
     padding = padding_top + padding_bottom
+    wrapped_lines = word_wrap(content.lines, config.size_x - 5)
+    wrapped_lines, config.ui_scroll_center = scrollable_content_center(wrapped_lines, config.ui_scroll_center, config.size_y - padding)
     lines = []
     # INIT FILL
     fill, fill_list, fill_num = fill_init(content.fill)
@@ -236,7 +314,7 @@ def center(content, padding_top = 0, padding_bottom = 0):
     # CENTER CONTENT
     num_empty = 0
     if content.centered_vertical:
-        while num_empty < ((config.size_y - padding) - len(content.lines)) / 2:
+        while num_empty < ((config.size_y - padding) - len(wrapped_lines)) / 2:
             lines.append(Line("", None, fill, fill_color))
             # INCREMENT FILL
             fill, fill_num = utils.increment_list_loop(fill_list, fill_num)
@@ -244,7 +322,7 @@ def center(content, padding_top = 0, padding_bottom = 0):
             num_empty += 1
     # CONTENT
     num = 0
-    for num, line in enumerate(content.lines):
+    for num, line in enumerate(wrapped_lines):
         lines.append(Line(line, content.line_color, fill, fill_color, content.centered_horizontal))
         # INCREMENT FILL
         fill, fill_num = utils.increment_list_loop(fill_list, fill_num)
@@ -344,7 +422,7 @@ def make_lines_multi(target_list):
     return result
 
 def seperator():
-    return Line("", fill = "-", fill_color = TAG_REVERSE_COLOR_FG)
+    return Line("", fill = "-", fill_color = config.TAG_REVERSE_COLOR_FG)
 
 def fill_init(fill):
     fill_list = fill
@@ -372,9 +450,9 @@ def format_selection_options_display(target_list, min_size_list = None, min_size
                 entry = pre_line_empty + "(EMPTY)"
             if option_entry:
                 entry = option_entry.display_name
-                if x == config.ui_selection_x and y == config.ui_selection_y and config.ui_log_scroll_pos == 0:
+                if x == config.ui_selection_x and y == config.ui_selection_y and config.ui_scroll_log == 0:
                     entry = utils.add_ui_tag(entry, x, y, config.UI_TAGS['return'])
-                    entry = utils.add_tag(pre_line + entry, TAG_COLOR_UI_SEL_FG)
+                    entry = utils.add_tag(pre_line + entry, config.TAG_COLOR_UI_SEL_FG)
                 else:
                     entry = utils.add_ui_tag(entry, x, y, config.UI_TAGS['return'])
                     entry = pre_line_empty + entry
@@ -398,7 +476,7 @@ def format_selection_options_display_modifiable(target_list, min_size_name = 60,
                 entry_name = option_entry.display_name
                 entry_link = option_entry.link
                 if x == config.ui_selection_x and y == config.ui_selection_y:
-                    entry_name = utils.add_tag(pre_line + entry_name, TAG_COLOR_UI_SEL_FG)
+                    entry_name = utils.add_tag(pre_line + entry_name, config.TAG_COLOR_UI_SEL_FG)
                 else:
                     entry_name = pre_line_empty + entry_name
                 entry = fill_empty_space(entry_name, just_num_name - len(utils.remove_tag(entry_name)))
@@ -433,7 +511,7 @@ def format_selection_options_display_bg(target_list, centered = False, min_size 
                 if x == config.ui_selection_x and y == config.ui_selection_y:
                     entry = padding + entry + padding
                     entry = fill_empty_space(entry, just_num - len(utils.remove_tag(entry)), " ", centered)
-                    entry = utils.add_tag(entry, fg = TAG_COLOR_UI_BG_SEL_FG, bg = TAG_COLOR_UI_BG_SEL_BG)
+                    entry = utils.add_tag(entry, fg = config.TAG_COLOR_UI_BG_SEL_FG, bg = config.TAG_COLOR_UI_BG_SEL_BG)
                 else:
                     entry = padding_fill + entry + padding_fill
                     entry = fill_empty_space(entry, just_num - len(utils.remove_tag(entry)), centered = centered)
@@ -461,7 +539,8 @@ def window_upper():
     elif config.mode == config.MODE_HELP:
         content.append("HELP")
     elif config.mode == config.MODE_CUTSCENE or config.mode == config.MODE_GAME:
-        content.append('TURN # ' + str(config.turn))
+        if config.flags['show_hp_num']:
+            content.append('HEALTH POINTS: ' + str(config.player['health_points']))
     elif config.mode == config.MODE_MAP:
         content.append("MAP")
     elif config.mode == config.MODE_INVENTORY:
@@ -510,7 +589,7 @@ def combine_blocks(blocks, margin_size = 4, r_align = None):
                     lines[line_num] += margin + line
     return lines
 
-def block_minimap(room, position = None, ui_tags = None):
+def block_minimap(room, npcs = None, position = None, ui_tags = None):
     lines = []
     if config.mode == config.MODE_GAME:
         lines.append("MEMORY (LOCAL):".ljust(15))
@@ -592,6 +671,27 @@ def block_minimap(room, position = None, ui_tags = None):
                                 tile_top = MINIMAP_TILES['selected_interactable_current_top']
                                 tile_mid = MINIMAP_TILES['selected_interactable_current_mid']
                                 tile_low = MINIMAP_TILES['selected_interactable_current_low']
+            if npcs:
+                for npc in npcs.values():
+                    if npc['position'] == pos and room['visited'][pos]:
+                        tile_top = MINIMAP_TILES['npc_top']
+                        tile_mid = MINIMAP_TILES['npc_mid']
+                        tile_low = MINIMAP_TILES['npc_low']
+                        if config.mode == config.MODE_GAME and config.ui_selection_current is not None:
+                            if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
+                                tile_top = MINIMAP_TILES['selected_npc_top']
+                                tile_mid = MINIMAP_TILES['selected_npc_mid']
+                                tile_low = MINIMAP_TILES['selected_npc_low']
+                        if pos == position:
+                            tile_top = MINIMAP_TILES['npc_current_top']
+                            tile_mid = MINIMAP_TILES['npc_current_mid']
+                            tile_low = MINIMAP_TILES['npc_current_low']
+                            if config.mode == config.MODE_GAME and config.ui_selection_current is not None:
+                                if config.ui_selection_current.name == 'move' and config.ui_selection_current.link == pos:
+                                    tile_top = MINIMAP_TILES['selected_npc_current_top']
+                                    tile_mid = MINIMAP_TILES['selected_npc_current_mid']
+                                    tile_low = MINIMAP_TILES['selected_npc_current_low']
+
             if ui_tags is not None and pos in ui_tags:
                 tile_top = utils.add_ui_tag(tile_top, 0, ui_tags[pos], config.UI_TAGS['return'])
                 tile_mid = utils.add_ui_tag(tile_mid, 0, ui_tags[pos], config.UI_TAGS['return'])
@@ -608,10 +708,22 @@ def block_minimap(room, position = None, ui_tags = None):
 
 def make_scrollbar(scrollbar_window_height, scroll_pos, scroll_max):
     scrollbar_style_line = "│"
-    scrollbar_style_body_top = utils.add_tag(" ", bg = TAG_COLOR_SCROLLBAR_BG)
-    scrollbar_style_body_mid = utils.add_tag(" ", bg = TAG_COLOR_SCROLLBAR_BG)
-    scrollbar_style_body_low = utils.add_tag(" ", bg = TAG_COLOR_SCROLLBAR_BG)
+    scrollbar_style_body_top = utils.add_tag(" ", bg = config.TAG_COLOR_SCROLLBAR_BG)
+    scrollbar_style_body_mid = utils.add_tag(" ", bg = config.TAG_COLOR_SCROLLBAR_BG)
+    scrollbar_style_body_low = utils.add_tag(" ", bg = config.TAG_COLOR_SCROLLBAR_BG)
     lines = []
+    #down_arrow = None
+    #if scroll_max > 0:
+    #    up_arrow = '▲'
+    #    scrollbar_window_height -= 1
+    #    if scroll_pos >= scroll_max:
+    #        up_arrow = utils.add_tag(up_arrow, fg = config.TAG_COLOR_UI_INACTIVE)
+    #    else:
+    #        up_arrow = utils.add_ui_tag(up_arrow, action = config.UI_TAGS['scroll_log_up'])
+    #    lines.append(up_arrow)
+    #if scroll_pos > 0:
+    #    scrollbar_window_height -= 1
+    #    down_arrow = utils.add_ui_tag('▼', action = config.UI_TAGS['scroll_log_down'])
     scrollbar_pos = 0
     scrollbar_size = 1
     if scroll_pos > 0 and scroll_max > 0:
@@ -635,20 +747,22 @@ def make_scrollbar(scrollbar_window_height, scroll_pos, scroll_max):
                 scrollbar_body_pos += 1
         lines.append(scrollbar)
         num += 1
+    #if down_arrow:
+    #    lines.append(down_arrow)
     return lines
 
 def log_content(target_list, num_tuple = True, max_num_lines = 10):
     result = []
     target_list_len = len(target_list)
     max_scroll_num = max(0, target_list_len-max_num_lines)
-    config.ui_log_scroll_pos = max(0, config.ui_log_scroll_pos)
-    config.ui_log_scroll_pos = min(max_scroll_num, config.ui_log_scroll_pos)
-    ui_log_start_pos = -abs(max_num_lines + config.ui_log_scroll_pos)
-    ui_log_end_pos = -abs(config.ui_log_scroll_pos)
+    config.ui_scroll_log = max(0, config.ui_scroll_log)
+    config.ui_scroll_log = min(max_scroll_num, config.ui_scroll_log)
+    ui_log_start_pos = -abs(max_num_lines + config.ui_scroll_log)
+    ui_log_end_pos = -abs(config.ui_scroll_log)
     if ui_log_end_pos == 0:
         ui_log_end_pos = None
     target_list_shortened = target_list[ui_log_start_pos:ui_log_end_pos]
-    scrollbar = make_scrollbar(max_num_lines, config.ui_log_scroll_pos, max_scroll_num)
+    scrollbar = make_scrollbar(max_num_lines, config.ui_scroll_log, max_scroll_num)
     num = len(target_list_shortened)
     while num < max_num_lines:
         result.append(scrollbar[num-1] + "")
@@ -658,39 +772,10 @@ def log_content(target_list, num_tuple = True, max_num_lines = 10):
         if num_tuple:
             log_num = line[0]
             log_line = '∙ ' + line[1]
-            if log_num == config.turn - 1:
-                log_line = utils.add_tag(log_line, fg = TAG_COLOR_HIGHLIGHT)
+            if log_num < config.game['turn'] - 1:
+                log_line = utils.add_tag(utils.remove_tag(log_line), fg = config.TAG_COLOR_LOG_OLD)
         result.append(scrollbar[num] + " " + log_line)
     return result
-
-def format_status(text):
-    return utils.add_tag(text, fg = TAG_COLOR_STATUS)
-
-def format_interactable(text):
-    return utils.add_tag(text, fg = TAG_COLOR_INTERACTABLE)
-
-def format_direction(text):
-    return utils.add_tag(text, fg = TAG_COLOR_DIRECTION)
-
-def format_portal(text):
-    return utils.add_tag(text, fg = TAG_COLOR_PORTAL)
-
-def format_color_tags(content):
-    content = re.sub("<i>(.*?)</i>", format_interactable(r"\1"), content)
-    content = re.sub("<s>(.*?)</s>", format_status(r"\1"), content)
-    content = re.sub("<d>(.*?)</d>", format_direction(r"\1"), content)
-    content = re.sub("<p>(.*?)</p>", format_portal(r"\1"), content)
-    return content
-
-def format_position_text(abr):
-    position_string = ""
-    if abr in utils.DIRECTION_ABR:
-        position_string = format_direction(utils.DIRECTION_ABR[abr])
-        if abr != "c":
-            position_string += " side"
-    else:
-        position_string = "INVALID"
-    return position_string
 
 def press_to_continue_text(target_key = "enter"):
     text ='PRESS [' + target_key.upper() + ']'

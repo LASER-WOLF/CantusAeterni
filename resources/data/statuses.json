@@ -1,26 +1,39 @@
 {
   "slime": {
     "active": false,
-    "text": "You are engulfed in sticky slime.",
-    "activation_text": "You have been completely covered in nasty slime.",
+    "damage": null,
+    "text": "You are covered in <s>slime</s>.",
+    "activation_text": "You have been covered in nasty <s>slime</s>.",
     "deactivation_text": "You are no longer covered in slime."
+  },
+  "poison": {
+    "active": false,
+    "damage": 1,
+    "damage_name": "the <s>poison</s>",
+    "game_over_text": "You died from <s>poisoning</s>.",
+    "text": "You are <s>poisoned</s>.",
+    "activation_text": "You have been <s>poisoned</s>.",
+    "deactivation_text": "You are no longer poisoned."
   },
   "blind": {
     "active": false,
-    "text": "You are blind.",
-    "activation_text": "You have lost your sense of vision.",
+    "damage": null,
+    "text": "You are <s>blind</s>.",
+    "activation_text": "You have <s>lost your sense of vision</s>.",
     "deactivation_text": "You have regained your sense of vision."
   },
   "deaf": {
     "active": false,
-    "text": "You are deaf.",
-    "activation_text": "You have lost your sense of hearing.",
+    "damage": null,
+    "text": "You are <s>deaf</s>.",
+    "activation_text": "You have <s>lost your sense of hearing</s>.",
     "deactivation_text": "You have regained your sense of hearing."
   },
   "anosmic": {
     "active": false,
-    "text": "You are anosmic.",
-    "activation_text": "You have lost your sense of smell.",
+    "damage": null,
+    "text": "You are <s>anosmic</s>.",
+    "activation_text": "You have <s>lost your sense of smell</s>.",
     "deactivation_text": "You have regained your sense of smell."
   }
 }

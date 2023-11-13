@@ -20,12 +20,14 @@ WINDOW_MODE_BORDERLESS = 'borderless'
 ANIMATION_BOOT = 'boot'
 ANIMATION_FADE = 'fade'
 ANIMATION_FADE_POPUP = 'fade_popup'
+ANIMATION_TAKE_DAMAGE = 'take_damage'
 ANIMATION_CHANGE_ROOM = 'change_room'
 ANIMATION_UI_SELECTION_SHORTEST = 'ui_sel_shortest'
 ANIMATION_UI_SELECTION_SHORT = 'ui_sel_short'
 ANIMATION_UI_SELECTION = 'ui_sel'
 ANIMATION_UI_SELECTION_LONG = 'ui_sel_long'
-ANIMATION_UI_SELECTION_FG = 'ui_continue'
+ANIMATION_UI_SELECTION_FG_SHORT = 'ui_sel_fg_short'
+ANIMATION_UI_SELECTION_FG = 'ui_sel_fg'
 LAYER_TYPE_MAIN = 'main'
 LAYER_TYPE_POPUP = 'popup'
 RESOLUTIONS = [
@@ -81,12 +83,20 @@ UI_TAGS = {
     "return": "01",
     "left": "<-",
     "right": "->",
+    "scroll_center_up": "▲c",
+    "scroll_center_down": "▼c",
+    "scroll_log_up": "▲l",
+    "scroll_log_down": "▼l",
 }
 UI_TAGS_REVERSE = {
     "00": "none",
     "01": "return",
     "<-": "left",
     "->": "right",
+    "▲c": "scroll_center_up",
+    "▼c": "scroll_center_down",
+    "▲l": "scroll_log_up",
+    "▼l": "scroll_log_down",
 }
 FONTS = {
     'DOS/V re. ANK16': 'Px437_DOS-V_re_ANK16',
@@ -282,6 +292,71 @@ PALETTES = {
     },
 }
 
+# SET CONSTANTS, TAG COLORS
+TAG_REVERSE_COLOR_FG = 'foreground'
+TAG_COLOR_HEALTH_1 = TAGS['red']
+TAG_COLOR_HEALTH_2 = TAGS['yellow']
+TAG_COLOR_FG = TAGS['foreground']
+TAG_COLOR_BG = TAGS['background']
+TAG_COLOR_DARK = TAGS['bright_black']
+TAG_COLOR_UI_BG_SEL_FG = TAG_COLOR_BG
+TAG_COLOR_UI_BG_SEL_BG = TAG_COLOR_FG
+TAG_COLOR_UI_SEL_FG = TAG_COLOR_FG
+TAG_COLOR_UI_INACTIVE = TAGS['white']
+TAG_COLOR_TITLE_SCREEN = TAGS['bright_cyan']
+TAG_COLOR_INTERACTABLE = TAGS['bright_green']
+TAG_COLOR_PORTAL = TAGS['bright_cyan']
+TAG_COLOR_DIRECTION = TAGS['bright_blue']
+TAG_COLOR_NPC = TAGS['bright_yellow']
+TAG_COLOR_STATUS = TAGS['bright_magenta']
+TAG_COLOR_HEALTH_STAGE_3 = TAG_COLOR_HEALTH_2
+TAG_COLOR_HEALTH_STAGE_6 = TAG_COLOR_HEALTH_1
+TAG_COLOR_HIGHLIGHT = TAGS['bright_white']
+TAG_COLOR_SCROLLBAR_BG = TAG_COLOR_HIGHLIGHT
+TAG_COLOR_MAP_INACTIVE = TAG_COLOR_DARK
+TAG_COLOR_MAP_SELECTED = TAG_COLOR_FG
+TAG_COLOR_LOG_OLD = TAG_COLOR_UI_INACTIVE
+TAG_COLOR_LOG_DAMAGE = TAG_COLOR_HEALTH_1
+
+# SET HEALTH STAGES
+health_stages = {
+    1: [
+    'You have received some <color>minor scratches</color>.',
+    'You are <color>slighty bruised</color>.'
+    ],
+    2: [
+    'You are <color>injured</color>.',
+    ],
+    3: [
+    'You are <color>badly injured</color>.' 
+    ],
+    4: [
+    'You are <color>very badly wounded</color>.'
+    ],
+    5: [
+    'You are <color>seriously wounded</color>. Your body aches.'
+    ],
+    6: [
+    'You are in <color>a bad state of health</color> You have sustained a number of serious injuries.'
+    ],
+    7: [
+    'You are <color>mortally wounded</color> and barely able to remain conscious.',
+    'You have sustained <color>life treatening injuries</color> and are in dire need of medical treatment.'
+    ],
+    8: [
+    'You are <color>dead</color>.',
+    ]
+}
+
+# SET DODGE TEXT
+dodge_text = [
+'The attack misses you.',
+'You successfully dodge the attack.',
+'You evade the attack.',
+'You manage to successfully evade the attack.',
+'The attack doesn\'t hit you.',
+]
+
 # SET VARS
 run_game = True
 refresh_screen = True
@@ -295,11 +370,38 @@ debug_log_list = []
 ui_selection_current = None
 ui_selection_x = 0
 ui_selection_y = 0
-ui_log_scroll_pos = 0
-animation_queue = []
-turn = 1
 ui_selection_x_prev = 0
 ui_selection_y_prev = 0
+ui_scroll_log = 0
+ui_scroll_center = 0
+ui_scroll_lower = 0
+animation_queue = []
+game = {
+    'turn': None,
+    'game_over': None,
+    'game_over_text': None,
+}
+player = {
+    'health_points': None,
+    'health_stage': None,
+    'health_status': None,
+}
+flags = {
+    'show_hp_num': None,
+}
+
+def initialize_new_game():
+    global game
+    global player
+    game['turn'] = 1
+    game['game_over'] = False
+    game['game_over_text'] = None
+    player['health_points'] = 100
+    player['health_stage'] = 0
+    player['health_status'] = None
+    for flag in flags.values():
+        flag = False
+    add_debug_log("Initializing new game")
 
 def initialize():
     import_settings()

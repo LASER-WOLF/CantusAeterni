@@ -9,14 +9,14 @@ import windows
 MAP_TILES = {
     'empty_top': "   ",
     'empty_low': "   ",
-    'visited_top': utils.add_tag("┌─┐", windows.TAG_COLOR_MAP_INACTIVE),
-    'visited_low': utils.add_tag("└─┘", windows.TAG_COLOR_MAP_INACTIVE),
-    'selected_top': utils.add_tag("╔═╗", windows.TAG_COLOR_MAP_SELECTED),
-    'selected_low': utils.add_tag("╚═╝", windows.TAG_COLOR_MAP_SELECTED),
-    'active_top': utils.add_tag("┌↓┐", windows.TAG_COLOR_MAP_SELECTED),
-    'active_low': utils.add_tag("└─┘", windows.TAG_COLOR_MAP_SELECTED),
-    'active_selected_top': utils.add_tag("╔↓╗", windows.TAG_COLOR_MAP_SELECTED),
-    'active_selected_low': utils.add_tag("╚═╝", windows.TAG_COLOR_MAP_SELECTED),
+    'visited_top': utils.add_tag("┌─┐", config.TAG_COLOR_MAP_INACTIVE),
+    'visited_low': utils.add_tag("└─┘", config.TAG_COLOR_MAP_INACTIVE),
+    'selected_top': utils.add_tag("╔═╗", config.TAG_COLOR_MAP_SELECTED),
+    'selected_low': utils.add_tag("╚═╝", config.TAG_COLOR_MAP_SELECTED),
+    'active_top': utils.add_tag("┌↓┐", config.TAG_COLOR_MAP_SELECTED),
+    'active_low': utils.add_tag("└─┘", config.TAG_COLOR_MAP_SELECTED),
+    'active_selected_top': utils.add_tag("╔↓╗", config.TAG_COLOR_MAP_SELECTED),
+    'active_selected_low': utils.add_tag("╚═╝", config.TAG_COLOR_MAP_SELECTED),
 }
 
 # SET VARS
@@ -49,7 +49,7 @@ def run():
         ])
     ]
 
-def input(key):
+def input(key, mod = None):
     selected_option = config.ui_selection_current
     if selected_option is not None:
         if(key == 'up'):

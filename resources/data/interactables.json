@@ -4,10 +4,10 @@
     "link": "1",
     "enable": "2",
     "disable": "1",
-    "log_text": "a series of flooded caves leading to a grotto.",
+    "log_text": "<p>a deep pool of slime</p> leading <d>north</d> to a grotto.",
     "examine_text": [
-      "You examine the pool of slime and upon closer inspection you find that it leads to a cave system flooded by slime leading in an <d>unknown</d> direction.",
-      "You could possibly dive in and swim towards the end?"
+      "You examine <i>the pool of slime</i> and upon closer inspection you find that it leads to <p>a cave system flooded by slime</p> leading in an <d>unknown direction</d>.",
+      "You could try to dive in, hold your breath and swim towards the end?"
     ],
     "examine_options": [
       {
@@ -26,9 +26,9 @@
     "link": "1",
     "enable": null,
     "disable": "3",
-    "log_text": "an old iron key.",
+    "log_text": "<i>an old iron key</i>.",
     "examine_text": [
-      "On closer inspection the glinting object is revealed to be a key.",
+      "On closer inspection the glinting object is revealed to be <i>a key</i>.",
       "It looks very old and seems to be made of iron. It has some slime on it."
     ],
     "examine_options": [
@@ -48,9 +48,9 @@
     "link": "2",
     "enable": "5",
     "disable": "4",
-    "log_text": "a tight cave leading out of the grotto.",
+    "log_text": "<p>a tight cave</p> leading <d>south</d> out of the grotto.",
     "examine_text": [
-      "You examine the cave entrance, it looks big enough for you to fit inside."
+      "You examine <p>the cave entrance</p>, it looks big enough for you to fit inside. The cave leads <d>south</d>."
     ],
     "examine_options": [
       {

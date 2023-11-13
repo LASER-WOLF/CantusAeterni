@@ -17,7 +17,7 @@ def run():
         ])
     ]
 
-def input(key):
+def input(key, mod = None):
     if key == 'return' or key == 'mouse1':
         audio.ui_confirm()
         config.trigger_animation(config.ANIMATION_UI_SELECTION_FG)

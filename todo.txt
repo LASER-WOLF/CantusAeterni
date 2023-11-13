@@ -1,31 +1,54 @@
 # TODO:
-  # word wrap on main window
-  # scrolling on main window (if full)
-  # scrollable lower window
-  # arrow when scroll available ▲ ▼ (on lower/main/log)
+  # npcs: dialogue
+  # add dialogue system
+  # add player combat
+  # add equipable items
+  # add equipment system
+  # npcs: actions
+  # npcs: friendly (dialogue) / hostile (dialogue & combat)
+  # minimap: multicolor if multiple things on same tile
+  # combat: fx when npc misses attack on player
+  # game over screen: audio fx
+  # game over screen: music
+  # add character screen / stats
+  # ▲ ▼ arrows for scroll on log
+  # portal placement stored in portals and room file (duplicate data)
   # enable / disable id tied to room?
+  # map mode: store room data in selection
+  # audio fx: replace move sound fx
+  # play sound later (sound queueing?) for: move / discover portal / pick up item / change room
   # BUG: Black screen after minimize
-  # dynamic color scheme
+  # dynamic color scheme?
     # apprentice -> default
     # ibm -> cave
     # solarized -> forest
   # remove line color?
-  # zero turn number on restart game
-  # add npcs
-  # add dialogue system
-  # map mode: store room data in selection
   # better inventory screen
   # better minimap in map mode
-  # new move sound
-  # play sound later (sound queueing?) for: move / discover portal / pick up item / change room
-  # add character screen / stats
   # support for saving / loading game
-  # add combat?
-  # portal placement stored in portals and room file (duplicate data)
   # BUG (FIXED?): audio not playing when music is off and audio volume is same as music volume (sometimes)
   # cool logo and background for main menu
 
 # DONE:
+  # log: colored npc
+  # log: colored status
+  # log: show health stage change
+  # log: color support
+  # reset turn number on restart game
+  # sound on taking damage
+  # animation on taking damage
+  # dead screen
+  # no npc action when exiting portal
+  # npcs: different 'sight' text on friendly / hostile status
+  # npcs: ranged attack
+  # npcs: mobility
+  # damage from statuses
+  # damage from wounds
+  # health system
+  # add npcs
+  # scrolling on main window (if full)
+  # arrow when scroll available ▲ ▼ on main window
+  # word wrap on main window
   # pop up window for examine stuff
   # support for multiple layers of rendered content
   # turn number stored in log

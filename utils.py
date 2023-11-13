@@ -2,6 +2,9 @@
 import json
 import re
 
+# PROJECT
+import config
+
 # SET CONSTANTS
 DIRECTION_ABR = {'nw': 'north-west', 'n': 'north', 'ne': 'north-east', 'w': 'west', 'c': 'center', 'e': 'east', 'sw': 'south-west', 's': 'south', 'se': 'south-east' }
 DIRECTION_TO_COORD = {'nw': {'x': -1, 'y': -1}, 'n': {'x': 0, 'y': -1}, 'ne': {'x': 1, 'y': -1}, 'w': {'x': -1, 'y': 0}, 'c': {'x': 0, 'y': 0}, 'e': {'x': 1, 'y': 0}, 'sw': {'x': -1, 'y': 1}, 's': {'x': 0, 'y': 1}, 'se': {'x': 1, 'y': 1} }
@@ -82,3 +85,57 @@ def coords_to_pos(x,y):
     elif x == 2:
         pos += "e"
     return pos
+
+def format_position_text(abr):
+    position_string = format_direction(DIRECTION_ABR[abr])
+    if abr != "c":
+        position_string += " side"
+    return position_string
+
+def format_position_text_room(abr, room_noun):
+    return format_position_text(abr) + ' of the ' + room_noun
+
+def format_status(text):
+    return add_tag(text, fg = config.TAG_COLOR_STATUS)
+
+def format_interactable(text):
+    return add_tag(text, fg = config.TAG_COLOR_INTERACTABLE)
+
+def format_npc(text):
+    return add_tag(text, fg = config.TAG_COLOR_NPC)
+
+def format_direction(text):
+    return add_tag(text, fg = config.TAG_COLOR_DIRECTION)
+
+def format_portal(text):
+    return add_tag(text, fg = config.TAG_COLOR_PORTAL)
+
+def format_log_damage(text):
+    return add_tag(text, fg = config.TAG_COLOR_LOG_DAMAGE)
+
+def format_log_npc(name, proper_noun):
+    name = format_npc(name)
+    if proper_noun is False:
+        name = 'the ' + name
+    return name
+
+def format_health(stage, status):
+    def add_color(text, color):
+        if color:
+            text = add_tag(text, fg = color)
+        return text
+    color = None
+    if stage >= 6:
+        color = config.TAG_COLOR_HEALTH_STAGE_6
+    elif stage >= 3:
+        color = config.TAG_COLOR_HEALTH_STAGE_3
+    status = re.sub("<color>(.*?)</color>", add_color(r"\1", color), status)
+    return status
+
+def format_color_tags(content):
+    content = re.sub("<i>(.*?)</i>", format_interactable(r"\1"), content)
+    content = re.sub("<s>(.*?)</s>", format_status(r"\1"), content)
+    content = re.sub("<d>(.*?)</d>", format_direction(r"\1"), content)
+    content = re.sub("<p>(.*?)</p>", format_portal(r"\1"), content)
+    content = re.sub("<n>(.*?)</n>", format_npc(r"\1"), content)
+    return content

@@ -1,0 +1,80 @@
+{
+  "1": {
+    "name": "big toad",
+    "proper_noun": false,
+    "disabled": false,
+    "room": "3",
+    "position": "s",
+    "health": 10,
+    "damage": 10,
+    "damage_ranged": 10,
+    "attack_skill": 3,
+    "attack_skill_ranged": 2,
+    "speed": 3,
+    "immobile": false,
+    "always_moving": false,
+    "hostile": true,
+    "ranged": true,
+    "sight_near_always": null,
+    "sight_near_hostile": "You see <n>a big toad</n> in front of you. The toad appears unfriendly and stares at you with unnerving intensity.",
+    "sight_near_friendly": "You see <n>a big toad</n> in front of you. The toad appears friendly and stares at you from time to time.",
+    "sight_far_always": null,
+    "sight_far_hostile": "You see <n>a big toad</n> at the <pos>.",
+    "sight_far_friendly": "You see a something moving at the <pos>.",
+    "smell_near_always": null,
+    "smell_near_hostile": null,
+    "smell_near_friendly": null,
+    "smell_far_always": null,
+    "smell_far_hostile": null,
+    "smell_far_friendly": null,
+    "sound_near_always": null,
+    "sound_near_hostile": "You hear loud and frequent toad calls nearby.",
+    "sound_near_friendly": "You occasionally hear loud toad calls nearby.",
+    "sound_far_always": "You notice strange sounds coming from the <pos>.",
+    "sound_far_hostile": null,
+    "sound_far_friendly": null,
+    "attack_text": [
+      "<name> opens it's mouth and whips you with it's poisonous tongue.",
+      "<name> unleashes a fierce and painfull attack with it's poisonous tongue.",
+      "<name> whips it's deadly poisonous tongue at you."
+    ],
+    "attack_text_ranged": [
+      "<name> spits a nasty ball of poisonous slime at you from the <pos>.",
+      "<name> spits a ball of poisonous slime at you from the <pos>."
+    ],
+    "attack_miss_text": [
+      "You jump away just in time to avoid the attack.",
+      "The poisonous tongue misses you by an inch."
+    ],
+    "attack_miss_text_ranged": [
+      "The ball of slime lands on the ground near you.",
+      "The poisonous slime ball impacts right next to your feet.",
+      "You jump away just in time to avoid the poisonous ball of slime."
+    ],
+    "game_over_text": [
+      "<name> murdered you with it's poisonous tongue.",
+      "<name> smacked you to death with it's tongue.",
+      "<name> mortally slammed you with it's deadly tongue."
+    ],
+    "game_over_text_ranged": [
+      "<name> killed you with a deadly ball of poisonous slime.",
+      "<name> murdered you with a nasty ball of poisonous slime."
+    ],
+    "on_attack": [
+      {
+        "type": "activate_status",
+        "link": "poison"
+      }
+    ],
+    "on_attack_ranged": [
+      {
+        "type": "activate_status",
+        "link": "poison"
+      },
+      {
+        "type": "activate_status",
+        "link": "slime"
+      }
+    ]
+  }
+}

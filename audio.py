@@ -55,6 +55,7 @@ SOUNDS = {
     'ui_confirm_big': 'resources/sound/ui_confirm_big.wav',
     'ui_back': 'resources/sound/ui_back.wav',
     'fx_change_room': 'resources/sound/fx_change_room.wav',
+    'fx_npc_hit': 'resources/sound/fx_npc_hit.wav',
     'fx_move': 'resources/sound/fx_move.wav',
     'fx_pick_up_item': 'resources/sound/fx_pick_up_item.wav',
 }
@@ -160,6 +161,9 @@ def fx_change_room():
 
 def fx_move():
     sound_fx('fx_move')
+
+def fx_npc_hit():
+    sound_fx('fx_npc_hit')
 
 def fx_pick_up_item():
     sound_fx('fx_pick_up_item')

@@ -19,7 +19,7 @@ def run():
         ])
     ]
 
-def input(key):
+def input(key, mod = None):
     global debug_input_char
     debug_input_char = key
     selected_option = config.ui_selection_current
@@ -28,15 +28,15 @@ def input(key):
             system.ui_log_or_selection_up()
         elif(key == 'down'):
             system.ui_log_or_selection_down()
-        elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back"  and config.ui_log_scroll_pos == 0)):
-            if config.ui_log_scroll_pos > 0:
-                config.ui_log_scroll_pos = 0
+        elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back"  and config.ui_scroll_log == 0)):
+            if config.ui_scroll_log > 0:
+                config.ui_scroll_log = 0
             else:
                 if key == 'return' and selected_option.name == 'back':
                     config.trigger_animation(config.ANIMATION_UI_SELECTION)
                 audio.ui_back()
                 system.change_mode(config.previous_mode)
-        elif(key == 'return' and config.ui_log_scroll_pos == 0):
+        elif(key == 'return' and config.ui_scroll_log == 0):
             config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             if selected_option.name == "music_next":
                 audio.music_stop()
@@ -63,6 +63,8 @@ def window_center():
     lines.append('BLACK: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['black']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_black']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['black']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_black']))
     lines.append("")
     lines.append('LAST INPUT: '.ljust(justnum) + '"' + str(debug_input_char)  + '"')
+    lines.append('TURN #: '.ljust(justnum) + str(config.game['turn']))
+    lines.append('HEALTH: '.ljust(justnum) + str(config.player['health_points'])  + ' (' + str(config.player['health_stage']) +')')
     lines.append('')
     lines.append('MUSIC STATUS: '.ljust(justnum) + 'PLAYING: ' + str(audio.music_status()).upper() + ' | VOL: ' + str(config.settings['music_volume']) + ' | MODE: ' + str(audio.music_type).upper() + ' | TITLE: ' + str(audio.music_title).upper())
     return windows.Content(windows.WINDOW_CENTER, lines)

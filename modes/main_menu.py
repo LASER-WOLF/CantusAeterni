@@ -14,7 +14,7 @@ def run():
         ])
     ]
 
-def input(key):
+def input(key, mod = None):
     selected_option = config.ui_selection_current
     if selected_option is not None:
         if(key == 'up'):
@@ -98,6 +98,6 @@ def window_center():
         lines.append('')
         lines.append('')
         lines.append('')
-        lines = windows.line_set_color_multi(lines, windows.TAG_COLOR_TITLE_SCREEN)
+        lines = windows.line_set_color_multi(lines, config.TAG_COLOR_TITLE_SCREEN)
     lines.extend(windows.combine_blocks(windows.format_selection_options_display_bg_centered(system.ui_selection_options, min_size = 30)))
     return windows.Content(windows.WINDOW_CENTER, lines, None, windows.FILL_PATTERNS['dots2'], None, True, True)

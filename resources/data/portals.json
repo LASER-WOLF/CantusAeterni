@@ -5,8 +5,8 @@
     "pos1": "c",
     "pos2": "c",
     "dir": "n",
-    "text1to2": "You dive into the deep slime pool. After a long and terrifying swim through the submerged cave you emerge in a pitch black grotto.",
-    "text2to1": "You jump back into the slime pool. You emerge in a slimy grotto.",
+    "text1to2": "You dive into <p>the deep slime pool</p>. After a long and terrifying swim through the submerged cave you emerge in a pitch black grotto.",
+    "text2to1": "You jump back into <p>the slime pool</p>. You emerge in a slimy grotto.",
     "on_interact": [
       {
         "type": "activate_status",
@@ -20,8 +20,8 @@
     "pos1": "s",
     "pos2": "n",
     "dir": "s",
-    "text1to2": "You squeeze yourself through the tight cave opening. You emerge on the other side.",
-    "text2to1": "You head back into the cave. You emerge in a grotto.",
+    "text1to2": "You squeeze yourself through <p>the tight cave opening</p>. You emerge on the other side.",
+    "text2to1": "You head back into <p>the cave</p>. You emerge in a grotto.",
     "on_interact": []
   },
   "3": {
@@ -30,8 +30,8 @@
     "pos1": "w",
     "pos2": "e",
     "dir": "w",
-    "text1to2": "You follow the path.",
-    "text2to1": "You follow the path.",
+    "text1to2": "You follow <p>the path west</p>.",
+    "text2to1": "You follow <p>the path east</p>.",
     "on_interact": []
   }
 }
