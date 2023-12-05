@@ -64,7 +64,7 @@
       {
         "position": "c",
         "link": "2",
-        "content": "You see <p>a deep pool of slime</p> leading in a <d>northernly</d> direction.",
+        "content": "You see <p>a deep pool of slime</p> leading in a <d>northerly</d> direction.",
         "disabled": true
       },
       {
@@ -144,6 +144,36 @@
         "link": "2",
         "content": "Something glinting in the darkness",
         "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "7",
+        "content": "A helmet",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "6",
+        "content": "A ring",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "4",
+        "content": "An unknown object",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "5",
+        "content": "An unknown object",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "8",
+        "content": "An unknown object",
+        "disabled": false
       }
     ],
     "sight": [
@@ -151,6 +181,42 @@
         "position": "sw",
         "link": "3",
         "content": "You see <i>something glinting</i> in the darkness in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": null,
+        "content": "You see a dusty old human skeleton leaned against the grotto wall in the darkness in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "9",
+        "content": "You see <i>a helmet</i> on the head of the skeleton.",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "8",
+        "content": "You see <i>a ring</i> on one of the fingers of the skeleton.",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "6",
+        "content": "You see <i>an unknown object</i> in the darkness in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "7",
+        "content": "You see <i>an unknown object</i> in the darkness in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "10",
+        "content": "You see <i>an unknown object</i> in the darkness in front of you.",
         "disabled": false
       },
       {

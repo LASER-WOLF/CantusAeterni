@@ -39,8 +39,6 @@ def input(key, mod = None):
             elif selected_option.name == "debug_error_log_to_file":
                 config.settings['debug_error_log_to_file'] = system.ui_selection_option_change_toggle(config.settings['debug_error_log_to_file'])
                 config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
-            elif selected_option.name == "enable_minimap":
-                config.settings['enable_minimap'] = system.ui_selection_option_change_toggle(config.settings['enable_minimap'])
                 config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif selected_option.name == "enable_music":
                 config.settings['enable_music'] = system.ui_selection_option_change_toggle(config.settings['enable_music'])
@@ -135,7 +133,6 @@ def selection_options():
     result[0].append(system.SelectionOption("font", "SCREEN, FONT:", str(config.settings['font']).upper(), "multi", list(config.FONTS.keys())))
     result[0].append(system.SelectionOption("palette", "SCREEN, COLOR PALETTE:", str(config.settings['palette']).upper(), "multi", list(config.PALETTES.keys())))
     result[0].append(system.SelectionOption("enable_mouse", "SYSTEM, ENABLE MOUSE:", str(config.settings['enable_mouse']).upper(), "toggle"))
-    result[0].append(system.SelectionOption("enable_minimap", "OTHER, ENABLE MINIMAP:", str(config.settings['enable_minimap']).upper(), "toggle"))
     result[0].append(system.SelectionOption("enable_music", "AUDIO, ENABLE MUSIC:", str(config.settings['enable_music']).upper(), "toggle"))
     result[0].append(system.SelectionOption("enable_sound", "AUDIO, ENABLE SOUND:", str(config.settings['enable_sound']).upper(), "toggle"))
     if config.settings['enable_sound']:

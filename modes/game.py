@@ -50,9 +50,32 @@ def run():
 
     return layers
 
+def action_attack(link):
+    player_attack_npc(link)
+    system.end_turn('attack', npcs)
+
+def action_attack_ranged(link):
+    player_attack_npc(link, ranged = True)
+    system.end_turn('attack_ranged', npcs)
+
 def action_portal(link):
-    enter_portal(link)
-    system.end_turn('portal', npcs)
+    block_action = False
+    blocking_npc = None
+    for npc in npcs.values():
+        if npc['hostile'] is True:
+            if npc['position'] == system.current_position:
+                block_action = random.choice([False, True, True, True])
+            elif npc['ranged'] is True:
+                block_action = random.choice([False, True])
+            if block_action is True:
+                blocking_npc = npc
+                break
+    if block_action is False:
+        enter_portal(link)
+        system.end_turn('portal', npcs)
+    else:
+        system.add_log(system.format_npc_log_text('<name> blocks you from leaving.', blocking_npc))
+        system.end_turn('portal_blocked', npcs)
 
 def action_move(link):
     system.player_change_position(link, logging = True)
@@ -64,7 +87,13 @@ def action_pickup(link):
 
 def input_popup(key, mod = None):
     selected_option = config.ui_selection_current
-    if selected_option is not None:
+    if selected_option is None:
+        if key == 'return' or key == 'mouse1':
+            config.trigger_animation(config.ANIMATION_UI_SELECTION_FG)
+            audio.ui_confirm()
+            config.trigger_animation(config.ANIMATION_FADE)
+            system.unset_popup_content()
+    else:
         if(key == 'up'):
             system.ui_selection_y_prev()
         elif(key == 'down'):
@@ -84,6 +113,7 @@ def input_popup(key, mod = None):
                 ui_action_restart_game()
             elif selected_option.name == "quit_game":
                 system.quit_game()
+
 
 def ui_action_restart_game():
     audio.ui_back()
@@ -181,6 +211,12 @@ def input_main(key, mod = None):
             elif selected_option.name == "portal":
                 config.trigger_animation(config.ANIMATION_UI_SELECTION_LONG)
                 action_portal(selected_option.link)
+            elif selected_option.name == "attack":
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                action_attack(selected_option.link)
+            elif selected_option.name == "attack_ranged":
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                action_attack_ranged(selected_option.link)
 
 def input(key, mod = None):
     if system.popup_content:
@@ -240,7 +276,7 @@ def window_lower():
     elif system.ui_quit_prompt or system.ui_restart_prompt:
         selection_options_display[0].insert(0, 'ARE YOU SURE?')
     else:
-        if config.settings['enable_minimap']:
+        if config.flags['hide_minimap'] is False:
             ui_blocks.append(windows.block_minimap(room, npcs, system.current_position, check_move_options(True)))
         option_titles = ["MOVE / WAIT:", "INTERACT:", "OTHER:", "SYSTEM:"]
         selection_options_display = windows.format_selection_options_display_add_titles(selection_options_display, option_titles)
@@ -277,6 +313,14 @@ def check_move_options(minimap_mode = False):
 
 def check_interact_options():
     result = []
+    for npc in npcs.values():
+        if npc['hostile'] is True:
+            if npc['position'] == system.current_position:
+                result.append(system.SelectionOption("attack", "(ATTACK) " + npc['name'].upper(), npc))
+            elif npc['position'] != system.current_position and config.equipment['attack_ranged'] is not None:
+                result.append(system.SelectionOption("attack_ranged", "(RANGED ATTACK) " + npc['name'].upper(), npc))
+        elif npc['position'] == system.current_position:
+            result.append(system.SelectionOption("talk", "(TALK) " + npc['name'].upper(), npc))
     for entry in room['interactable']:
         if entry['position'] == system.current_position and not entry['disabled']:
             result.append(system.SelectionOption("examine", "(EXAMINE) " + entry['content'].upper(), entry['link']))
@@ -477,3 +521,41 @@ def examine_confirm(link):
         system.prev_selection_none()
     for line in interactable['on_interact']:
         execute_action(line)
+
+def player_attack_npc(npc, ranged = False):
+    attack_text = config.player_attack_text
+    miss_text = config.npc_dodge_text
+    player_miss_text = npc['player_attack_miss_text']
+    killed_text = 'You have murdered <name>.'
+    attack_skill = config.player['attack_skill']
+    damage = config.player['damage_melee']
+    on_attack = None
+    player_attack_text = None
+    if config.equipment['attack'] is not None:
+        damage = system.items[config.equipment['attack']]['damage']
+        on_attack = system.items[config.equipment['attack']]['on_attack']
+        player_attack_text = system.items[config.equipment['attack']]['attack_text']
+    if ranged:
+        attack_text = config.player_attack_text_ranged
+        killed_text = 'You have murdered <name> from a distance.'
+        attack_skill = config.player['attack_skill_ranged']
+        damage = system.items[config.equipment['attack_ranged']]['damage']
+        on_attack = system.items[config.equipment['attack_ranged']]['on_attack']
+        player_attack_text = system.items[config.equipment['attack_ranged']]['attack_text']
+    hit = system.random_chance(attack_skill)
+    if player_miss_text and random.choice([False, True]):
+        miss_text = player_miss_text
+    if player_attack_text and random.choice([False, True]):
+        attack_text = player_attack_text
+    miss_text = random.choice(miss_text)
+    miss_text = system.format_npc_log_text(miss_text, npc)
+    attack_text = random.choice(attack_text)
+    attack_text = system.format_npc_log_text(attack_text, npc)
+    system.add_log(attack_text)
+    if hit:
+        system.npc_take_damage(system.randomize_damage(damage), 'the attack', npc, killed_text)
+        if npc['health_points'] > 0 and on_attack:
+            for action in on_attack:
+              system.execute_action(action)
+    else:
+        system.add_log(miss_text)

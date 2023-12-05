@@ -167,3 +167,6 @@ def fx_npc_hit():
 
 def fx_pick_up_item():
     sound_fx('fx_pick_up_item')
+
+def fx_portal_blocked():
+    sound_fx('ui_back')

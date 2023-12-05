@@ -139,3 +139,54 @@ def format_color_tags(content):
     content = re.sub("<p>(.*?)</p>", format_portal(r"\1"), content)
     content = re.sub("<n>(.*?)</n>", format_npc(r"\1"), content)
     return content
+
+def format_item_type(name):
+    if name == 'attack':
+        name = 'weapon'
+    elif name == 'attack_ranged':
+        name = 'ranged weapon'
+    elif name == 'hands':
+        name = 'gloves'
+    elif name == 'head':
+        name = 'headgear'
+    elif name == 'upper_body':
+        name = 'upper body armor'
+    elif name == 'lower_body':
+        name = 'lower body armor'
+    elif name == 'feet':
+        name = 'footwear'
+    return name
+
+def format_damage_num(damage):
+    if config.flags['show_hp_num'] is False:
+        damage_text = 'medium'
+        if damage < 7:
+            damage_text = 'very weak'
+        elif damage < 14:
+            damage_text = 'weak'
+        elif damage > 35:
+            damage_text = 'very strong'
+        elif damage > 21:
+            damage_text = 'strong'
+        damage = damage_text
+    else:
+        damage = str(damage)
+    return damage
+
+def format_defence_num(damage):
+    if config.flags['show_def_num'] is False:
+        damage_text = 'medium'
+        if damage == 0:
+            damage_text = 'none'
+        elif damage < 2:
+            damage_text = 'very weak'
+        elif damage < 4:
+            damage_text = 'weak'
+        elif damage > 10:
+            damage_text = 'very strong'
+        elif damage > 8:
+            damage_text = 'strong'
+        damage = damage_text
+    else:
+        damage = str(damage)
+    return damage

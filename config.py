@@ -348,13 +348,34 @@ health_stages = {
     ]
 }
 
-# SET DODGE TEXT
-dodge_text = [
+# SET ATTACK / DODGE TEXT
+player_dodge_text = [
 'The attack misses you.',
 'You successfully dodge the attack.',
 'You evade the attack.',
 'You manage to successfully evade the attack.',
 'The attack doesn\'t hit you.',
+]
+player_attack_text = [
+'You attack <name>.',
+'You try to hit <name>.',
+'You strike <name>.',
+]
+player_attack_text_ranged = [
+'You attack <name> from a distance.',
+'You try to hit <name> with your ranged weapon.',
+'You strike <name> from afar.',
+]
+npc_dodge_text = [
+'Your attack misses <name>.',
+'<name> successfully dodges your attack.',
+'<name> evades your attack.',
+'<name> successfully evades your attack.',
+]
+npc_attack_text = [
+'<name> attacks you.',
+'<name> hits you.',
+'<name> strikes you.',
 ]
 
 # SET VARS
@@ -385,9 +406,27 @@ player = {
     'health_points': None,
     'health_stage': None,
     'health_status': None,
+    'attack_skill': None,
+    'attack_skill_ranged': None,
+    'damage_melee': None,
 }
+equipment = {
+    'head': None,
+    'upper_body': None,
+    'lower_body': None,
+    'hands': None,
+    'feet': None,
+    'attack': None,
+    'attack_ranged': None,
+    'shield': None,
+}
+
+rings = []
+
 flags = {
     'show_hp_num': None,
+    'show_def_num': None,
+    'hide_minimap': None,
 }
 
 def initialize_new_game():
@@ -399,8 +438,17 @@ def initialize_new_game():
     player['health_points'] = 100
     player['health_stage'] = 0
     player['health_status'] = None
-    for flag in flags.values():
-        flag = False
+    player['attack_skill'] = 2
+    player['attack_skill_ranged'] = 1
+    player['damage_melee'] = 5
+    rings = []
+    for key in flags:
+        flags[key] = False
+    for key in equipment:
+        equipment[key] = None
+    equipment['upper_body'] = '5'
+    equipment['lower_body'] = '6'
+    equipment['feet'] = '7'
     add_debug_log("Initializing new game")
 
 def initialize():

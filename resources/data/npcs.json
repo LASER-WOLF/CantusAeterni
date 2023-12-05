@@ -5,7 +5,7 @@
     "disabled": false,
     "room": "3",
     "position": "s",
-    "health": 10,
+    "health_points": 10,
     "damage": 10,
     "damage_ranged": 10,
     "attack_skill": 3,
@@ -15,6 +15,7 @@
     "always_moving": false,
     "hostile": true,
     "ranged": true,
+    "dialogue": "1",
     "sight_near_always": null,
     "sight_near_hostile": "You see <n>a big toad</n> in front of you. The toad appears unfriendly and stares at you with unnerving intensity.",
     "sight_near_friendly": "You see <n>a big toad</n> in front of you. The toad appears friendly and stares at you from time to time.",
@@ -35,21 +36,25 @@
     "sound_far_friendly": null,
     "attack_text": [
       "<name> opens it's mouth and whips you with it's poisonous tongue.",
-      "<name> unleashes a fierce and painfull attack with it's poisonous tongue.",
+      "<name> unleashes a fierce and painful attack with it's poisonous tongue.",
       "<name> whips it's deadly poisonous tongue at you."
     ],
     "attack_text_ranged": [
       "<name> spits a nasty ball of poisonous slime at you from the <pos>.",
       "<name> spits a ball of poisonous slime at you from the <pos>."
     ],
-    "attack_miss_text": [
+    "npc_attack_miss_text": [
       "You jump away just in time to avoid the attack.",
       "The poisonous tongue misses you by an inch."
     ],
-    "attack_miss_text_ranged": [
+    "npc_attack_miss_text_ranged": [
       "The ball of slime lands on the ground near you.",
       "The poisonous slime ball impacts right next to your feet.",
       "You jump away just in time to avoid the poisonous ball of slime."
+    ],
+    "player_attack_miss_text": [
+      "<name> jumps away to avoid your attack.",
+      "<name> jumps away, successfully avoiding your attack."
     ],
     "game_over_text": [
       "<name> murdered you with it's poisonous tongue.",

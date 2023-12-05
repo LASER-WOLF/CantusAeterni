@@ -33,11 +33,11 @@
     ],
     "examine_options": [
       {
-        "text": "Pick up",
+        "text": "Pick up the key",
         "type": "confirm"
       },
       {
-        "text": "Cancel",
+        "text": "Leave it",
         "type": "cancel"
       }
     ],
@@ -59,6 +59,116 @@
       },
       {
         "text": "Cancel",
+        "type": "cancel"
+      }
+    ],
+    "on_interact": []
+  },
+  "4": {
+    "type": "item",
+    "link": "2",
+    "enable": null,
+    "disable": "6",
+    "log_text": "<i>a rusty sword</i>.",
+    "examine_text": [
+      "On closer inspection the object is revealed to be <i>a rusty sword</i>.",
+      "It looks quite old. It has some slime on it."
+    ],
+    "examine_options": [
+      {
+        "text": "Pick up the sword",
+        "type": "confirm"
+      },
+      {
+        "text": "Leave it",
+        "type": "cancel"
+      }
+    ],
+    "on_interact": []
+  },
+  "5": {
+    "type": "item",
+    "link": "3",
+    "enable": null,
+    "disable": "7",
+    "log_text": "<i>a bow</i>.",
+    "examine_text": [
+      "On closer inspection the object is revealed to be <i>an old bow</i>.",
+      "It looks aged. It has deteriorated in quality due to the passage of time."
+    ],
+    "examine_options": [
+      {
+        "text": "Pick up the bow",
+        "type": "confirm"
+      },
+      {
+        "text": "Leave it",
+        "type": "cancel"
+      }
+    ],
+    "on_interact": []
+  },
+  "6": {
+    "type": "item",
+    "link": "4",
+    "enable": null,
+    "disable": "8",
+    "log_text": "<i>a ring</i>.",
+    "examine_text": [
+      "You look closer at <i>the ring</i> on the skeleton finger.",
+      "It is made of a green mineral and decorated with pearls. The craftmanship is of remarkable quality."
+    ],
+    "examine_options": [
+      {
+        "text": "Take the ring",
+        "type": "confirm"
+      },
+      {
+        "text": "Leave it",
+        "type": "cancel"
+      }
+    ],
+    "on_interact": []
+  },
+  "7": {
+    "type": "item",
+    "link": "8",
+    "enable": null,
+    "disable": "9",
+    "log_text": "<i>a rusty helmet</i>.",
+    "examine_text": [
+      "You look closer at <i>the rusty helmet</i> on the skeleton.",
+      "It is made of metal. It is badly dented and covered in rust."
+    ],
+    "examine_options": [
+      {
+        "text": "Take the helmet",
+        "type": "confirm"
+      },
+      {
+        "text": "Leave it",
+        "type": "cancel"
+      }
+    ],
+    "on_interact": []
+  },
+  "8": {
+    "type": "item",
+    "link": "9",
+    "enable": null,
+    "disable": "10",
+    "log_text": "<i>a rusty shield</i>.",
+    "examine_text": [
+      "On closer inspection the object is revealed to be <i>a rusty old shield</i>.",
+      "It seems to be in a bad condition. It is worn out by battle and by age. It is covered in rust and has several holes."
+    ],
+    "examine_options": [
+      {
+        "text": "Take the shield",
+        "type": "confirm"
+      },
+      {
+        "text": "Leave it",
         "type": "cancel"
       }
     ],

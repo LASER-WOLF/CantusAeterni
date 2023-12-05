@@ -175,10 +175,11 @@ def main(target_list):
     result = make_lines_multi(content_upper + content_center + content_lower)
     return (config.LAYER_TYPE_MAIN, result, None, None)
 
-def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg_color = 'foreground', bg_color = 'black', border_color = 'foreground', centered = False, margin = 1):
+def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg_color = 'foreground', bg_color = 'black', border_color = 'foreground', centered = False, margin = 1, min_width = 50):
     result = []
     height = len(content)
     width = utils.list_longest_entry_length([utils.remove_tag(line) for line in content])
+    width = max(width, min_width)
     if fill:
         fill = fill_empty_space('', length = width + (margin * 2) + 1, char = fill)
     border_hor = fill_empty_space('', width + (margin * 2), '═', centered = centered)
@@ -189,12 +190,19 @@ def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg
     border_left = border_ver + border_margin
     border_right = border_margin + border_ver
     result.append(((first_line, border_color), (fill, fill_color)))
-    content_final = content
-    if options is not None:
+    content_final = []
+    for line in content:
+        if line == '<seperator>':
+            line = '-' * width
+        content_final.append(line)
+    if options is None:
+        press_to_continue_lines = ['-' * width, press_to_continue_text()]
+        content_final = content_final + press_to_continue_lines
+    else:
         selection_options_display = format_selection_options_display(options)
         selection_options_display[0].insert(0, '-' * width)
         selection_options_display[0].insert(1, 'SELECT ACTION:')
-        content_final = content + selection_options_display[0]
+        content_final = content_final + selection_options_display[0]
     for num, line in enumerate(content_final):
         line_centered = False
         if num < len(content):
@@ -539,6 +547,7 @@ def window_upper():
     elif config.mode == config.MODE_HELP:
         content.append("HELP")
     elif config.mode == config.MODE_CUTSCENE or config.mode == config.MODE_GAME:
+        content.append('ADVENTURE')
         if config.flags['show_hp_num']:
             content.append('HEALTH POINTS: ' + str(config.player['health_points']))
     elif config.mode == config.MODE_MAP:
@@ -782,14 +791,16 @@ def press_to_continue_text(target_key = "enter"):
     if config.settings['enable_mouse']:
         text += ' OR [LEFT MOUSE]'
     text += ' TO CONTINUE'
-    return utils.add_ui_tag(text, 0, 0)
+    text = utils.add_ui_tag(text, 0, 0)
+    return text
 
 def press_to_go_back_text(target_key = "esc"):
     text ='PRESS [' + target_key.upper() + ']'
     if config.settings['enable_mouse']:
         text += ' OR [RIGHT MOUSE]'
     text += ' TO GO BACK'
-    return utils.add_ui_tag(text, 0, 0)
+    #return utils.add_ui_tag(text, 0, 0)
+    return text
 
 def line_set_color_multi(target_list, target_color):
     result = []

@@ -1,6 +1,186 @@
 {
   "1": {
     "name": "slimy iron key",
-    "text": "It seems quite old."
+    "type": "key",
+    "text": [
+      "It looks very old and seems to be made of iron. It has some slime on it."
+    ]
+  },
+  "2": {
+    "name": "rusty sword",
+    "type": "attack",
+    "damage": 8,
+    "on_attack": [
+    ],
+    "attack_text": [
+      "You attack <name> with your rusty sword.",
+      "You swing your rusty sword at <name>.",
+      "You stab at <name> with your rusty sword."
+    ],
+    "identified": false,
+    "text_unidentified": null,
+    "text_identified": null,
+    "on_equip_text": [
+      "You carry the rusty old sword in it's accompanying scabbard placed on your hip."
+    ],
+    "on_equip": [
+    ],
+    "on_unequip": [
+    ],
+    "text": [
+      "It looks quite old. It has some slime on it."
+    ]
+  },
+  "3": {
+    "name": "bow",
+    "type": "attack_ranged",
+    "damage": 6,
+    "on_attack": [
+    ],
+    "attack_text": [
+      "You fire an arrow at <name>.",
+      "You shoot an arrow towards <name>."
+    ],
+    "identified": false,
+    "text_unidentified": null,
+    "text_identified": null,
+    "on_equip_text": [
+      "You carry the old bow and it's accompanying quiver over your shoulder."
+    ],
+    "on_equip": [
+    ],
+    "on_unequip": [
+    ],
+    "text": [
+      "It looks aged. It has deteriorated in quality due to the passage of time."
+    ]
+  },
+  "4": {
+    "name": "green ring",
+    "type": "ring",
+    "identified": false,
+    "text_unidentified": null,
+    "text_identified": "This magical ring grants the wearer powers of detailed insight into damage dealt and recived during combat",
+    "on_equip_text": [
+      "The magicks of the ring fills your body and strengthens your mind with new powers!",
+      "You gain detailed insigth into damage dealt and recived during combat!"
+    ],
+    "on_equip": [
+      {
+        "type": "activate_flag",
+        "link": "show_hp_num"
+      }
+    ],
+    "on_unequip": [
+      {
+        "type": "deactivate_flag",
+        "link": "show_hp_num"
+      }
+    ],
+    "text": [
+      "It is made of a green mineral and decorated with pearls. The craftmanship is of remarkable quality."
+    ]
+  },
+  "5": {
+    "name": "ragged shirt",
+    "type": "upper_body",
+    "defence": 0,
+    "identified": false,
+    "text_unidentified": null,
+    "text_identified": null,
+    "on_equip_text": [
+    ],
+    "on_equip": [
+    ],
+    "on_unequip": [
+    ],
+    "text": [
+      "It is torn in multiple places and full of holes."
+    ]
+  },
+  "6": {
+    "name": "worn out pants",
+    "type": "lower_body",
+    "defence": 0,
+    "identified": false,
+    "text_unidentified": null,
+    "text_identified": null,
+    "on_equip_text": [
+    ],
+    "on_equip": [
+    ],
+    "on_unequip": [
+    ],
+    "text": [
+      "These pants are torn and damaged."
+    ]
+  },
+  "7": {
+    "name": "worn out shoes",
+    "type": "feet",
+    "defence": 0,
+    "identified": false,
+    "text_unidentified": null,
+    "text_identified": null,
+    "on_equip_text": [
+    ],
+    "on_equip": [
+    ],
+    "on_unequip": [
+    ],
+    "text": [
+      "These shoes are in a very bad condition."
+    ]
+  },
+  "8": {
+    "name": "rusty helmet",
+    "type": "head",
+    "defence": 1,
+    "identified": false,
+    "text_unidentified": null,
+    "text_identified": null,
+    "on_equip_text": [
+    ],
+    "on_equip": [
+    ],
+    "on_unequip": [
+    ],
+    "text": [
+      "It is badly damaged, covered in rust and dents."
+    ]
+  },
+  "9": {
+    "name": "rusty shield",
+    "type": "shield",
+    "defence": 2,
+    "identified": false,
+    "text_unidentified": null,
+    "text_identified": null,
+    "on_equip_text": [
+    ],
+    "on_equip": [
+    ],
+    "on_unequip": [
+    ],
+    "text": [
+      "It is worn out by battle and by age. It is covered in rust and and has several holes."
+    ]
+  },
+  "10": {
+    "name": "rusty gauntlets",
+    "type": "hands",
+    "defence": 1,
+    "identified": false,
+    "text_unidentified": null,
+    "text_identified": null,
+    "on_equip_text": [
+    ],
+    "on_equip": [
+    ],
+    "on_unequip": [
+    ],
+    "text": [
+      "Not in a very good conition. The gauntlets are detroyed by rust and doesn't function very well."
+    ]
   }
 }

@@ -1,9 +1,16 @@
 # TODO:
   # npcs: dialogue
   # add dialogue system
-  # add player combat
-  # add equipable items
-  # add equipment system
+  # combat: npc health stages
+  # combat: flag - accurate npc hp remaining in log - npc_hp_num
+  # magical ring to activate npc_hp_num
+  # char creation, skills / settings:
+    # skill: unarmed combat (attack_melee)
+    # skill: combat (attack_skill)
+    # skill: ranged combat (attack_skill_ranged)
+    # setting: enable minimap
+  # sound: player attack npc
+  # replace sound: portal_blocked
   # npcs: actions
   # npcs: friendly (dialogue) / hostile (dialogue & combat)
   # minimap: multicolor if multiple things on same tile
@@ -30,6 +37,24 @@
   # cool logo and background for main menu
 
 # DONE:
+  # add equipment system
+  # add equipable items
+  # combat: player ranged attack
+  # magical rings:
+  # ring to activate hp_num flag
+  # combat: chance for hostile npc to block escape if you try to enter portal during combat
+  # add armor value to combat (reduces damage)
+  # inventory types:
+    # attack (weapons)
+    # attack_ranged (ranged weapons)
+    # head (helmets / hats - adds armor value)
+    # hands (adds armor value)
+    # feet (adds armor value)
+    # shield (chance to block attack)
+    # upper_body (armor value)
+    # lower_body (armor value)
+    # rings (rings with various magical powers)
+  # add player combat
   # log: colored npc
   # log: colored status
   # log: show health stage change
@@ -41,6 +66,7 @@
   # no npc action when exiting portal
   # npcs: different 'sight' text on friendly / hostile status
   # npcs: ranged attack
+  # npcs: attack
   # npcs: mobility
   # damage from statuses
   # damage from wounds

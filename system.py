@@ -33,7 +33,7 @@ def end_turn(action, npcs = None):
     else:
         config.trigger_animation(config.ANIMATION_FADE)
     hp_old = config.player['health_points']
-    if npcs:
+    if npcs and action != 'portal':
         npc_behaviour(npcs)
     if config.player['health_points'] > 0:
         dmg_from_statuses()
@@ -47,6 +47,8 @@ def end_turn(action, npcs = None):
         audio.fx_move()
     elif action == 'pickup':
         audio.fx_pick_up_item()
+    elif action == 'portal_blocked':
+        audio.fx_portal_blocked()
     update_health_status()
     config.game['turn'] += 1
     config.ui_scroll_log = 0
@@ -113,7 +115,7 @@ def random_chance(level):
 
 def npc_behaviour(npcs):
     for npc_id, npc in npcs.items():
-        if npc['room'] == active_room and config.player['health_points'] > 0:
+        if npc['disabled'] is False and npc['room'] == active_room and config.player['health_points'] > 0:
             if npc['hostile'] is True:
                 if npc['ranged'] and npc['position'] != current_position:
                     npc_action_attack_player(npc, ranged = True)
@@ -137,7 +139,9 @@ def format_npc_log_text(text, npc):
         text = text.capitalize()
     return text
 
-def player_take_damage(dmg, dmg_source, game_over_text = None):
+def player_take_damage(dmg, dmg_source, game_over_text = None, defence_num = 0):
+    original_dmg = dmg
+    dmg -= defence_num
     if dmg > 0 and config.player['health_points'] > 0:
         old_hp = config.player['health_points']
         new_hp = max(0, old_hp - dmg)
@@ -145,22 +149,65 @@ def player_take_damage(dmg, dmg_source, game_over_text = None):
         dmg_num_txt = 'damage'
         if diff < 5:
             dmg_num_txt = 'minor damage'
-        elif diff > 20:
-            dmg_num_txt = 'major damage'
         elif diff > 40:
             dmg_num_txt = 'a colossal amount of damage'
+        elif diff > 20:
+            dmg_num_txt = 'major damage'
         damage_text = 'take ' + utils.format_log_damage(dmg_num_txt)
         if config.flags['show_hp_num']:
             s = ''
             if dmg != 1:
                 s = 's'
             damage_text = 'lose ' + utils.format_log_damage(str(diff) + ' health point' + s)
+        if defence_num > 0:
+            defence_precent = int((defence_num / original_dmg) * 100)
+            defence_text = 'a little bit'
+            if defence_precent > 20:
+                defence_text = 'some'
+            elif defence_precent > 40:
+                defence_text = 'a good amount'
+            elif defence_precent > 60:
+                defence_text = 'a very good amount'
+            elif defence_precent > 80:
+                defence_text = 'almost all'
+            if config.flags['show_def_num']:
+                defence_text = str(defence_precent) + '%'
+            add_log('Your equipment protects you from ' + defence_text + ' of the damage from ' + dmg_source + '.')
         add_log('You ' + damage_text + ' from ' + dmg_source +'.')
         config.player['health_points'] = new_hp
         if new_hp <= 0:
             add_log('You die from ' + dmg_source + '.')
             if game_over_text:
                 config.game['game_over_text'] = game_over_text
+
+def npc_take_damage(dmg, dmg_source, npc, killed_text):
+    if dmg > 0 and npc['health_points'] > 0:
+        old_hp = npc['health_points']
+        new_hp = max(0, old_hp - dmg)
+        diff = old_hp - new_hp
+        dmg_num_txt = 'damage'
+        if diff < 5:
+            dmg_num_txt = 'minor damage'
+        elif diff > 40:
+            dmg_num_txt = 'a colossal amount of damage'
+        elif diff > 20:
+            dmg_num_txt = 'major damage'
+        damage_text = 'takes ' + utils.format_log_damage(dmg_num_txt)
+        if config.flags['show_hp_num']:
+            s = ''
+            if dmg != 1:
+                s = 's'
+            damage_text = 'loses ' + utils.format_log_damage(str(diff) + ' health point' + s)
+        add_log(format_npc_log_text('<name> ' + damage_text + ' from ' + dmg_source +'.', npc))
+        npc['health_points'] = new_hp
+        if new_hp <= 0:
+            npc['disabled'] = True
+            add_log(format_npc_log_text('<name> dies from ' + dmg_source + '.', npc))
+            if killed_text:
+                add_log(format_npc_log_text(killed_text, npc))
+                popup_lines = []
+                popup_lines.append(format_npc_log_text(killed_text, npc))
+                set_popup_content(popup_lines)
 
 def player_death():
     config.game['game_over'] = True
@@ -199,19 +246,19 @@ def randomize_damage(dmg):
     return dmg_result
 
 def npc_action_attack_player(npc, ranged = False):
-    attack_text = npc['name'] + ' attacks you.'
-    miss_text = config.dodge_text
-    npc_miss_text = npc['attack_miss_text']
-    game_over_text = '<name_log> killed you.'
+    attack_text = config.npc_attack_text
+    miss_text = config.player_dodge_text
+    npc_miss_text = npc['npc_attack_miss_text']
+    killed_text = '<name> murdered you.'
     attack_skill = npc['attack_skill']
     npc_attack_text = npc['attack_text']
     npc_game_over_text = npc['game_over_text']
     damage = npc['damage']
     on_attack = npc['on_attack']
     if ranged:
-        attack_text = npc['name'] + ' attacks you from a distance.'
-        npc_miss_text = npc['attack_miss_text_ranged']
-        game_over_text = '<name_log> killed you from a distance.'
+        attack_text = '<name> attacks you from a distance.'
+        npc_miss_text = npc['npc_attack_miss_text_ranged']
+        game_over_text = '<name> killed you from a distance.'
         attack_skill = npc['attack_skill_ranged']
         npc_attack_text = npc['attack_text_ranged']
         if npc['game_over_text_ranged']:
@@ -219,23 +266,43 @@ def npc_action_attack_player(npc, ranged = False):
         damage = npc['damage_ranged']
         on_attack = npc['on_attack_ranged']
     hit = random_chance(attack_skill)
-    if npc_attack_text:
-        attack_text = random.choice(npc_attack_text)
     if npc_game_over_text:
         game_over_text = random.choice(npc_game_over_text)
     if npc_miss_text and random.choice([False, True]):
         miss_text = npc_miss_text
+    attack_text = random.choice(npc_attack_text)
     miss_text = random.choice(miss_text)
     attack_text = format_npc_log_text(attack_text, npc)
     game_over_text = format_npc_log_text(game_over_text, npc)
     add_log(attack_text)
     if hit:
-        player_take_damage(randomize_damage(damage), 'the attack', game_over_text)
-        if config.player['health_points'] > 0:
-            for action in on_attack:
-              execute_action(action)
+        damage_num = randomize_damage(damage)
+        defence_num = randomize_damage(check_player_defence())
+        if defence_num >= damage_num:
+            add_log('Your equipment protect you from the attack and you sustain no damage.')
+        else:
+            player_take_damage(damage_num, 'the attack', game_over_text, defence_num = defence_num)
+            if config.player['health_points'] > 0 and on_attack:
+                for action in on_attack:
+                  execute_action(action)
     else:
         add_log(miss_text)
+
+def check_player_defence():
+    defence_num = 0
+    if config.equipment['upper_body'] is not None:
+        defence_num += items[config.equipment['upper_body']]['defence']
+    if config.equipment['lower_body'] is not None:
+        defence_num += items[config.equipment['lower_body']]['defence']
+    if config.equipment['head'] is not None:
+        defence_num += items[config.equipment['head']]['defence']
+    if config.equipment['hands'] is not None:
+        defence_num += items[config.equipment['hands']]['defence']
+    if config.equipment['feet'] is not None:
+        defence_num += items[config.equipment['feet']]['defence']
+    if config.equipment['shield'] is not None:
+        defence_num += items[config.equipment['shield']]['defence']
+    return defence_num
 
 def npc_move_to_player(npc):
     move_options = []
@@ -354,6 +421,13 @@ def activate_status(status, activate = True):
 def deactivate_status(status):
     activate_status(status, False)
 
+def activate_flag(flag, activate = True):
+    if flag in config.flags:
+        config.flags[flag] = activate
+
+def deactivate_flag(flag):
+    activate_flag(flag, False)
+
 def enter_room(room_id, logging = False):
     global active_room
     ui_selection_none()
@@ -374,6 +448,12 @@ def execute_action(action):
         player_change_position(action['link'])
     elif action['type'] == 'activate_status':
         activate_status(action['link'])
+    elif action['type'] == 'deactivate_status':
+        deactivate_status(action['link'])
+    elif action['type'] == 'activate_flag':
+        activate_flag(action['link'])
+    elif action['type'] == 'deactivate_flag':
+        deactivate_flag(action['link'])
     elif action['type'] == 'change_mode':
         change_mode(action['link'])
     config.add_debug_log("Action: " + action['type'] + " -> " + action['link'])
@@ -399,11 +479,12 @@ def press_to_continue(key, target_key = "enter"):
 def set_selection_options(target_list):
     global ui_selection_options
     if target_list is None:
-        ui_selection_options = None
+        ui_selection_none()
     else:
         result = []
         num_x = len(target_list)
         num_y = len(max(target_list, key = len))
+        min_selection_y = None
         max_selection_y = None
         for x in range(num_x):
             result.append([])
@@ -411,17 +492,19 @@ def set_selection_options(target_list):
                 entry = None
                 if y < len(target_list[x]):
                     entry = target_list[x][y]
-                    if config.ui_selection_x == x:
+                    if config.ui_selection_x == x and entry is not None:
                         max_selection_y = y
+                        if min_selection_y is None:
+                            min_selection_y = y
                 result[x].append(entry)
         ui_selection_options = result
-        if max_selection_y is None:
+        if max_selection_y is None and num_x > 1:
             if config.ui_selection_x > 0:
                 ui_selection_x_prev()
             else:
                 ui_selection_x_next()
         else:
-            config.ui_selection_y = min(max_selection_y, config.ui_selection_y)
+            config.ui_selection_y = min(max_selection_y, max(min_selection_y, config.ui_selection_y))
         config.ui_selection_current = ui_selection_options[config.ui_selection_x][config.ui_selection_y]
 
 def ui_selection_y_prev():
