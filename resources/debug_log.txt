@@ -4796,3 +4796,577 @@
 05.12.2023 - 23:47:03 | Change event (2): portal:2 -> enabled
 05.12.2023 - 23:48:27 | Action: activate_status -> poison
 05.12.2023 - 23:48:27 | Action: activate_status -> slime
+06.12.2023 - 00:28:26 | Starting game
+06.12.2023 - 00:28:28 | Initializing new game
+06.12.2023 - 00:28:29 | Action: enter_room -> 1
+06.12.2023 - 00:28:29 | Action: change_position -> e
+06.12.2023 - 00:28:35 | Change event (1): interactable:1 -> disabled
+06.12.2023 - 00:28:35 | Change event (2): sight:2 -> enabled
+06.12.2023 - 00:28:35 | Change event (2): sight:1 -> disabled
+06.12.2023 - 00:28:35 | Change event (2): portal:1 -> enabled
+06.12.2023 - 00:28:35 | Action: activate_status -> slime
+06.12.2023 - 00:28:41 | Change event (1): interactable:2 -> disabled
+06.12.2023 - 00:28:41 | Change event (1): sight:3 -> disabled
+06.12.2023 - 00:28:48 | Change event (1): interactable:4 -> disabled
+06.12.2023 - 00:28:48 | Change event (1): sight:6 -> disabled
+06.12.2023 - 00:28:51 | Change event (1): interactable:5 -> disabled
+06.12.2023 - 00:28:51 | Change event (1): sight:7 -> disabled
+06.12.2023 - 00:28:54 | Change event (1): interactable:8 -> disabled
+06.12.2023 - 00:28:54 | Change event (1): sight:10 -> disabled
+06.12.2023 - 00:28:57 | Change event (1): interactable:6 -> disabled
+06.12.2023 - 00:28:57 | Change event (1): sight:8 -> disabled
+06.12.2023 - 00:29:00 | Change event (1): interactable:7 -> disabled
+06.12.2023 - 00:29:00 | Change event (1): sight:9 -> disabled
+06.12.2023 - 00:29:24 | Action: activate_flag -> show_hp_num
+06.12.2023 - 00:30:25 | Action: activate_status -> slime
+06.12.2023 - 00:30:34 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 00:30:34 | Change event (2): sight:5 -> enabled
+06.12.2023 - 00:30:34 | Change event (2): sight:4 -> disabled
+06.12.2023 - 00:30:34 | Change event (2): portal:2 -> enabled
+06.12.2023 - 00:30:35 | Action: activate_status -> poison
+06.12.2023 - 00:30:35 | Action: activate_status -> slime
+06.12.2023 - 00:31:31 | Action: activate_status -> poison
+06.12.2023 - 00:31:31 | Action: activate_status -> slime
+06.12.2023 - 00:32:06 | Action: activate_status -> poison
+06.12.2023 - 00:32:06 | Action: activate_status -> slime
+06.12.2023 - 00:32:29 | Action: activate_status -> poison
+06.12.2023 - 00:32:49 | Action: activate_status -> poison
+06.12.2023 - 01:05:27 | Starting game
+06.12.2023 - 01:05:32 | Initializing new game
+06.12.2023 - 01:05:34 | Action: enter_room -> 1
+06.12.2023 - 01:05:34 | Action: change_position -> e
+06.12.2023 - 01:05:38 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 01:05:38 | Change event (2): sight:5 -> enabled
+06.12.2023 - 01:05:38 | Change event (2): sight:4 -> disabled
+06.12.2023 - 01:05:38 | Change event (2): portal:2 -> enabled
+06.12.2023 - 13:12:06 | Starting game
+06.12.2023 - 13:12:08 | Initializing new game
+06.12.2023 - 13:12:10 | Action: enter_room -> 1
+06.12.2023 - 13:12:10 | Action: change_position -> e
+06.12.2023 - 13:12:15 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 13:12:15 | Change event (2): sight:5 -> enabled
+06.12.2023 - 13:12:15 | Change event (2): sight:4 -> disabled
+06.12.2023 - 13:12:15 | Change event (2): portal:2 -> enabled
+06.12.2023 - 13:35:47 | Starting game
+06.12.2023 - 13:35:49 | Initializing new game
+06.12.2023 - 13:35:51 | Action: enter_room -> 1
+06.12.2023 - 13:35:51 | Action: change_position -> e
+06.12.2023 - 13:35:56 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 13:35:56 | Change event (2): sight:5 -> enabled
+06.12.2023 - 13:35:56 | Change event (2): sight:4 -> disabled
+06.12.2023 - 13:35:56 | Change event (2): portal:2 -> enabled
+06.12.2023 - 14:28:34 | Starting game
+06.12.2023 - 14:28:35 | Initializing new game
+06.12.2023 - 14:28:37 | Action: enter_room -> 1
+06.12.2023 - 14:28:37 | Action: change_position -> e
+06.12.2023 - 14:28:59 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 14:28:59 | Change event (2): sight:5 -> enabled
+06.12.2023 - 14:28:59 | Change event (2): sight:4 -> disabled
+06.12.2023 - 14:28:59 | Change event (2): portal:2 -> enabled
+06.12.2023 - 14:30:40 | Starting game
+06.12.2023 - 14:30:41 | Initializing new game
+06.12.2023 - 14:30:43 | Action: enter_room -> 1
+06.12.2023 - 14:30:43 | Action: change_position -> e
+06.12.2023 - 14:30:48 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 14:30:48 | Change event (2): sight:5 -> enabled
+06.12.2023 - 14:30:48 | Change event (2): sight:4 -> disabled
+06.12.2023 - 14:30:48 | Change event (2): portal:2 -> enabled
+06.12.2023 - 14:30:55 | Action: set_npc_hostile -> 1
+06.12.2023 - 15:09:50 | Starting game
+06.12.2023 - 15:09:52 | Initializing new game
+06.12.2023 - 15:09:54 | Action: enter_room -> 1
+06.12.2023 - 15:09:54 | Action: change_position -> e
+06.12.2023 - 15:09:58 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 15:09:58 | Change event (2): sight:5 -> enabled
+06.12.2023 - 15:09:58 | Change event (2): sight:4 -> disabled
+06.12.2023 - 15:09:58 | Change event (2): portal:2 -> enabled
+06.12.2023 - 15:10:11 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 15:10:19 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 15:10:23 | Action: npc_set_hostile -> None
+06.12.2023 - 15:10:36 | Action: activate_status -> poison
+06.12.2023 - 15:10:41 | Action: activate_status -> poison
+06.12.2023 - 15:10:45 | Action: activate_status -> poison
+06.12.2023 - 15:22:17 | Starting game
+06.12.2023 - 15:22:18 | Initializing new game
+06.12.2023 - 15:22:20 | Action: enter_room -> 1
+06.12.2023 - 15:22:20 | Action: change_position -> e
+06.12.2023 - 15:22:24 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 15:22:24 | Change event (2): sight:5 -> enabled
+06.12.2023 - 15:22:24 | Change event (2): sight:4 -> disabled
+06.12.2023 - 15:22:24 | Change event (2): portal:2 -> enabled
+06.12.2023 - 15:22:38 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 15:22:58 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 15:23:00 | Action: npc_set_hostile -> None
+06.12.2023 - 15:35:02 | Action: activate_status -> poison
+06.12.2023 - 15:35:55 | Action: activate_status -> poison
+06.12.2023 - 15:35:59 | Action: activate_status -> poison
+06.12.2023 - 15:36:01 | Action: activate_status -> poison
+06.12.2023 - 15:36:02 | Action: activate_status -> poison
+06.12.2023 - 15:36:04 | Action: activate_status -> poison
+06.12.2023 - 15:36:06 | Action: activate_status -> poison
+06.12.2023 - 15:36:07 | Action: activate_status -> poison
+06.12.2023 - 15:36:09 | Action: activate_status -> poison
+06.12.2023 - 15:40:53 | Starting game
+06.12.2023 - 15:40:54 | Initializing new game
+06.12.2023 - 15:40:55 | Action: enter_room -> 1
+06.12.2023 - 15:40:55 | Action: change_position -> e
+06.12.2023 - 15:41:00 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 15:41:00 | Change event (2): sight:5 -> enabled
+06.12.2023 - 15:41:00 | Change event (2): sight:4 -> disabled
+06.12.2023 - 15:41:00 | Change event (2): portal:2 -> enabled
+06.12.2023 - 15:41:16 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 15:41:28 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 15:41:34 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 15:41:36 | Action: npc_set_hostile -> None
+06.12.2023 - 15:41:42 | Action: activate_status -> poison
+06.12.2023 - 15:45:31 | Starting game
+06.12.2023 - 15:45:32 | Initializing new game
+06.12.2023 - 15:45:34 | Action: enter_room -> 1
+06.12.2023 - 15:45:34 | Action: change_position -> e
+06.12.2023 - 15:45:37 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 15:45:37 | Change event (2): sight:5 -> enabled
+06.12.2023 - 15:45:37 | Change event (2): sight:4 -> disabled
+06.12.2023 - 15:45:37 | Change event (2): portal:2 -> enabled
+06.12.2023 - 15:45:45 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 15:45:51 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 15:45:53 | Action: npc_set_hostile -> None
+06.12.2023 - 15:45:58 | Action: activate_status -> poison
+06.12.2023 - 16:01:09 | Starting game
+06.12.2023 - 16:01:13 | Initializing new game
+06.12.2023 - 16:01:14 | Action: enter_room -> 1
+06.12.2023 - 16:01:14 | Action: change_position -> e
+06.12.2023 - 16:01:19 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 16:01:19 | Change event (2): sight:5 -> enabled
+06.12.2023 - 16:01:19 | Change event (2): sight:4 -> disabled
+06.12.2023 - 16:01:19 | Change event (2): portal:2 -> enabled
+06.12.2023 - 16:01:25 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 16:01:37 | Action: npc_set_hostile -> None
+06.12.2023 - 16:02:07 | Starting game
+06.12.2023 - 16:02:09 | Initializing new game
+06.12.2023 - 16:02:10 | Action: enter_room -> 1
+06.12.2023 - 16:02:10 | Action: change_position -> e
+06.12.2023 - 16:02:14 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 16:02:14 | Change event (2): sight:5 -> enabled
+06.12.2023 - 16:02:14 | Change event (2): sight:4 -> disabled
+06.12.2023 - 16:02:14 | Change event (2): portal:2 -> enabled
+06.12.2023 - 16:02:19 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 16:02:22 | Action: npc_set_hostile -> None
+06.12.2023 - 16:03:01 | Starting game
+06.12.2023 - 16:03:02 | Initializing new game
+06.12.2023 - 16:03:04 | Action: enter_room -> 1
+06.12.2023 - 16:03:04 | Action: change_position -> e
+06.12.2023 - 16:03:08 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 16:03:08 | Change event (2): sight:5 -> enabled
+06.12.2023 - 16:03:08 | Change event (2): sight:4 -> disabled
+06.12.2023 - 16:03:08 | Change event (2): portal:2 -> enabled
+06.12.2023 - 16:03:14 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 16:03:16 | Action: npc_set_hostile -> None
+06.12.2023 - 16:03:21 | Action: activate_status -> poison
+06.12.2023 - 16:03:47 | Action: activate_status -> poison
+06.12.2023 - 16:03:58 | Action: activate_status -> poison
+06.12.2023 - 16:04:07 | Action: activate_status -> poison
+06.12.2023 - 16:04:09 | Action: activate_status -> poison
+06.12.2023 - 16:04:10 | Action: activate_status -> poison
+06.12.2023 - 16:04:14 | Action: activate_status -> poison
+06.12.2023 - 16:05:37 | Change event (1): interactable:1 -> disabled
+06.12.2023 - 16:05:37 | Change event (2): sight:2 -> enabled
+06.12.2023 - 16:05:37 | Change event (2): sight:1 -> disabled
+06.12.2023 - 16:05:37 | Change event (2): portal:1 -> enabled
+06.12.2023 - 16:05:37 | Action: activate_status -> slime
+06.12.2023 - 16:05:45 | Change event (1): interactable:2 -> disabled
+06.12.2023 - 16:05:45 | Change event (1): sight:3 -> disabled
+06.12.2023 - 16:05:57 | Change event (1): interactable:7 -> disabled
+06.12.2023 - 16:05:57 | Change event (1): sight:9 -> disabled
+06.12.2023 - 16:06:28 | Change event (1): interactable:5 -> disabled
+06.12.2023 - 16:06:28 | Change event (1): sight:7 -> disabled
+06.12.2023 - 16:06:31 | Change event (1): interactable:8 -> disabled
+06.12.2023 - 16:06:31 | Change event (1): sight:10 -> disabled
+06.12.2023 - 16:06:34 | Change event (1): interactable:4 -> disabled
+06.12.2023 - 16:06:34 | Change event (1): sight:6 -> disabled
+06.12.2023 - 16:06:38 | Change event (1): interactable:6 -> disabled
+06.12.2023 - 16:06:38 | Change event (1): sight:8 -> disabled
+06.12.2023 - 16:06:54 | Action: activate_flag -> show_hp_num
+06.12.2023 - 16:07:39 | Starting game
+06.12.2023 - 16:07:40 | Initializing new game
+06.12.2023 - 16:07:42 | Action: enter_room -> 1
+06.12.2023 - 16:07:42 | Action: change_position -> e
+06.12.2023 - 16:07:47 | Change event (1): interactable:1 -> disabled
+06.12.2023 - 16:07:47 | Change event (2): sight:2 -> enabled
+06.12.2023 - 16:07:47 | Change event (2): sight:1 -> disabled
+06.12.2023 - 16:07:47 | Change event (2): portal:1 -> enabled
+06.12.2023 - 16:07:47 | Action: activate_status -> slime
+06.12.2023 - 16:07:52 | Change event (1): interactable:2 -> disabled
+06.12.2023 - 16:07:52 | Change event (1): sight:3 -> disabled
+06.12.2023 - 16:07:58 | Change event (1): interactable:4 -> disabled
+06.12.2023 - 16:07:58 | Change event (1): sight:6 -> disabled
+06.12.2023 - 16:08:01 | Change event (1): interactable:5 -> disabled
+06.12.2023 - 16:08:01 | Change event (1): sight:7 -> disabled
+06.12.2023 - 16:08:04 | Change event (1): interactable:8 -> disabled
+06.12.2023 - 16:08:04 | Change event (1): sight:10 -> disabled
+06.12.2023 - 16:08:06 | Change event (1): interactable:6 -> disabled
+06.12.2023 - 16:08:06 | Change event (1): sight:8 -> disabled
+06.12.2023 - 16:08:09 | Change event (1): interactable:7 -> disabled
+06.12.2023 - 16:08:09 | Change event (1): sight:9 -> disabled
+06.12.2023 - 16:08:19 | Action: activate_flag -> show_hp_num
+06.12.2023 - 16:08:39 | Action: activate_status -> slime
+06.12.2023 - 16:08:43 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 16:08:43 | Change event (2): sight:5 -> enabled
+06.12.2023 - 16:08:43 | Change event (2): sight:4 -> disabled
+06.12.2023 - 16:08:43 | Change event (2): portal:2 -> enabled
+06.12.2023 - 16:08:54 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 16:09:39 | Action: npc_set_hostile -> None
+06.12.2023 - 16:21:45 | Starting game
+06.12.2023 - 16:21:46 | Initializing new game
+06.12.2023 - 16:21:48 | Action: enter_room -> 1
+06.12.2023 - 16:21:48 | Action: change_position -> e
+06.12.2023 - 16:21:52 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 16:21:52 | Change event (2): sight:5 -> enabled
+06.12.2023 - 16:21:52 | Change event (2): sight:4 -> disabled
+06.12.2023 - 16:21:52 | Change event (2): portal:2 -> enabled
+06.12.2023 - 16:22:29 | Starting game
+06.12.2023 - 16:22:30 | Initializing new game
+06.12.2023 - 16:22:31 | Action: enter_room -> 1
+06.12.2023 - 16:22:31 | Action: change_position -> e
+06.12.2023 - 16:22:35 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 16:22:35 | Change event (2): sight:5 -> enabled
+06.12.2023 - 16:22:35 | Change event (2): sight:4 -> disabled
+06.12.2023 - 16:22:35 | Change event (2): portal:2 -> enabled
+06.12.2023 - 16:23:00 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 16:24:24 | Action: npc_set_hostile -> None
+06.12.2023 - 16:24:34 | Action: activate_status -> poison
+06.12.2023 - 17:39:53 | Starting game
+06.12.2023 - 17:39:55 | Initializing new game
+06.12.2023 - 17:39:57 | Action: enter_room -> 1
+06.12.2023 - 17:39:57 | Action: change_position -> e
+06.12.2023 - 17:41:08 | Starting game
+06.12.2023 - 17:41:10 | Initializing new game
+06.12.2023 - 17:41:12 | Action: enter_room -> 1
+06.12.2023 - 17:41:12 | Action: change_position -> e
+06.12.2023 - 17:41:16 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 17:41:16 | Change event (2): sight:5 -> enabled
+06.12.2023 - 17:41:16 | Change event (2): sight:4 -> disabled
+06.12.2023 - 17:41:16 | Change event (2): portal:2 -> enabled
+06.12.2023 - 17:41:27 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 17:41:49 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 17:41:50 | Action: npc_set_hostile -> None
+06.12.2023 - 17:41:58 | Action: activate_status -> poison
+06.12.2023 - 17:42:01 | Action: activate_status -> poison
+06.12.2023 - 17:42:04 | Action: activate_status -> poison
+06.12.2023 - 17:42:06 | Action: activate_status -> poison
+06.12.2023 - 17:42:07 | Action: activate_status -> poison
+06.12.2023 - 17:42:09 | Action: activate_status -> poison
+06.12.2023 - 17:55:06 | Starting game
+06.12.2023 - 17:55:08 | Initializing new game
+06.12.2023 - 17:55:10 | Action: enter_room -> 1
+06.12.2023 - 17:55:10 | Action: change_position -> e
+06.12.2023 - 17:55:16 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 17:55:16 | Change event (2): sight:5 -> enabled
+06.12.2023 - 17:55:16 | Change event (2): sight:4 -> disabled
+06.12.2023 - 17:55:16 | Change event (2): portal:2 -> enabled
+06.12.2023 - 17:55:22 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 17:55:29 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 17:55:35 | Action: npc_set_hostile -> None
+06.12.2023 - 17:58:32 | Starting game
+06.12.2023 - 17:58:33 | Initializing new game
+06.12.2023 - 17:58:34 | Action: enter_room -> 1
+06.12.2023 - 17:58:34 | Action: change_position -> e
+06.12.2023 - 17:58:38 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 17:58:38 | Change event (2): sight:5 -> enabled
+06.12.2023 - 17:58:38 | Change event (2): sight:4 -> disabled
+06.12.2023 - 17:58:38 | Change event (2): portal:2 -> enabled
+06.12.2023 - 17:58:45 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 17:58:47 | Action: npc_set_hostile -> None
+06.12.2023 - 17:58:49 | Action: activate_status -> poison
+06.12.2023 - 18:01:50 | Starting game
+06.12.2023 - 18:03:50 | Initializing new game
+06.12.2023 - 18:03:51 | Action: enter_room -> 1
+06.12.2023 - 18:03:51 | Action: change_position -> e
+06.12.2023 - 18:03:56 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 18:03:56 | Change event (2): sight:5 -> enabled
+06.12.2023 - 18:03:56 | Change event (2): sight:4 -> disabled
+06.12.2023 - 18:03:56 | Change event (2): portal:2 -> enabled
+06.12.2023 - 18:04:03 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:04:05 | Action: npc_set_hostile -> None
+06.12.2023 - 18:04:43 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:04:45 | Action: npc_set_hostile -> None
+06.12.2023 - 18:14:20 | Starting game
+06.12.2023 - 18:14:22 | Initializing new game
+06.12.2023 - 18:14:23 | Action: enter_room -> 1
+06.12.2023 - 18:14:23 | Action: change_position -> e
+06.12.2023 - 18:14:28 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 18:14:28 | Change event (2): sight:5 -> enabled
+06.12.2023 - 18:14:28 | Change event (2): sight:4 -> disabled
+06.12.2023 - 18:14:28 | Change event (2): portal:2 -> enabled
+06.12.2023 - 18:14:45 | Starting game
+06.12.2023 - 18:14:46 | Initializing new game
+06.12.2023 - 18:14:48 | Action: enter_room -> 1
+06.12.2023 - 18:14:48 | Action: change_position -> e
+06.12.2023 - 18:14:52 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 18:14:52 | Change event (2): sight:5 -> enabled
+06.12.2023 - 18:14:52 | Change event (2): sight:4 -> disabled
+06.12.2023 - 18:14:52 | Change event (2): portal:2 -> enabled
+06.12.2023 - 18:14:57 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:14:59 | Action: npc_set_hostile -> None
+06.12.2023 - 18:15:05 | Action: activate_status -> poison
+06.12.2023 - 18:15:53 | Action: npc_set_friendly -> None
+06.12.2023 - 18:16:04 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:16:06 | Action: npc_set_hostile -> None
+06.12.2023 - 18:17:02 | Action: activate_status -> poison
+06.12.2023 - 18:17:04 | Action: activate_status -> poison
+06.12.2023 - 18:17:06 | Action: activate_status -> poison
+06.12.2023 - 18:47:04 | Starting game
+06.12.2023 - 18:47:05 | Initializing new game
+06.12.2023 - 18:47:06 | Action: enter_room -> 1
+06.12.2023 - 18:47:06 | Action: change_position -> e
+06.12.2023 - 18:47:10 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 18:47:10 | Change event (2): sight:5 -> enabled
+06.12.2023 - 18:47:10 | Change event (2): sight:4 -> disabled
+06.12.2023 - 18:47:10 | Change event (2): portal:2 -> enabled
+06.12.2023 - 18:47:22 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:49:38 | Starting game
+06.12.2023 - 18:49:39 | Initializing new game
+06.12.2023 - 18:49:41 | Action: enter_room -> 1
+06.12.2023 - 18:49:41 | Action: change_position -> e
+06.12.2023 - 18:49:44 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 18:49:44 | Change event (2): sight:5 -> enabled
+06.12.2023 - 18:49:44 | Change event (2): sight:4 -> disabled
+06.12.2023 - 18:49:44 | Change event (2): portal:2 -> enabled
+06.12.2023 - 18:49:59 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:50:05 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:50:11 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:50:12 | Action: npc_set_hostile -> None
+06.12.2023 - 18:51:06 | Starting game
+06.12.2023 - 18:51:07 | Initializing new game
+06.12.2023 - 18:51:09 | Action: enter_room -> 1
+06.12.2023 - 18:51:09 | Action: change_position -> e
+06.12.2023 - 18:51:14 | Change event (1): interactable:3 -> disabled
+06.12.2023 - 18:51:14 | Change event (2): sight:5 -> enabled
+06.12.2023 - 18:51:14 | Change event (2): sight:4 -> disabled
+06.12.2023 - 18:51:14 | Change event (2): portal:2 -> enabled
+06.12.2023 - 18:51:20 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:51:23 | Action: npc_set_hostile -> None
+06.12.2023 - 18:51:40 | Action: npc_set_friendly -> None
+06.12.2023 - 18:51:49 | Action: npc_unlock_secret_name -> None
+06.12.2023 - 18:51:50 | Action: npc_set_hostile -> None
+06.12.2023 - 18:52:30 | Action: activate_status -> poison
+06.12.2023 - 18:52:31 | Action: activate_status -> poison
+06.12.2023 - 18:52:33 | Action: activate_status -> poison
+07.12.2023 - 03:08:42 | Starting game
+07.12.2023 - 03:08:43 | Initializing new game
+07.12.2023 - 03:08:45 | Action: enter_room -> 1
+07.12.2023 - 03:08:45 | Action: change_position -> e
+07.12.2023 - 03:09:12 | Change event (1): interactable:1 -> disabled
+07.12.2023 - 03:09:12 | Change event (2): sight:2 -> enabled
+07.12.2023 - 03:09:12 | Change event (2): sight:1 -> disabled
+07.12.2023 - 03:09:12 | Change event (2): portal:1 -> enabled
+07.12.2023 - 03:09:12 | Action: activate_status -> slime
+07.12.2023 - 03:09:17 | Change event (1): interactable:2 -> disabled
+07.12.2023 - 03:09:17 | Change event (1): sight:3 -> disabled
+07.12.2023 - 03:09:22 | Change event (1): interactable:6 -> disabled
+07.12.2023 - 03:09:22 | Change event (1): sight:8 -> disabled
+07.12.2023 - 03:09:24 | Change event (1): interactable:5 -> disabled
+07.12.2023 - 03:09:24 | Change event (1): sight:7 -> disabled
+07.12.2023 - 03:09:26 | Change event (1): interactable:8 -> disabled
+07.12.2023 - 03:09:26 | Change event (1): sight:10 -> disabled
+07.12.2023 - 03:09:29 | Change event (1): interactable:4 -> disabled
+07.12.2023 - 03:09:29 | Change event (1): sight:6 -> disabled
+07.12.2023 - 03:09:31 | Change event (1): interactable:7 -> disabled
+07.12.2023 - 03:09:31 | Change event (1): sight:9 -> disabled
+07.12.2023 - 03:09:43 | Action: activate_status -> slime
+07.12.2023 - 03:09:47 | Change event (1): interactable:3 -> disabled
+07.12.2023 - 03:09:47 | Change event (2): sight:5 -> enabled
+07.12.2023 - 03:09:47 | Change event (2): sight:4 -> disabled
+07.12.2023 - 03:09:47 | Change event (2): portal:2 -> enabled
+07.12.2023 - 03:09:56 | Action: npc_unlock_secret_name -> None
+07.12.2023 - 03:10:06 | Action: npc_set_hostile -> None
+07.12.2023 - 03:10:32 | Action: activate_flag -> show_hp_num
+07.12.2023 - 03:10:35 | Action: activate_status -> poison
+07.12.2023 - 03:10:46 | Action: npc_set_friendly -> None
+07.12.2023 - 03:10:55 | Action: npc_unlock_secret_name -> None
+07.12.2023 - 03:10:56 | Action: npc_set_hostile -> None
+07.12.2023 - 03:25:01 | Starting game
+07.12.2023 - 03:25:02 | Initializing new game
+07.12.2023 - 03:25:05 | Action: enter_room -> 1
+07.12.2023 - 03:25:05 | Action: change_position -> e
+07.12.2023 - 03:25:10 | Change event (1): interactable:1 -> disabled
+07.12.2023 - 03:25:10 | Change event (2): sight:2 -> enabled
+07.12.2023 - 03:25:10 | Change event (2): sight:1 -> disabled
+07.12.2023 - 03:25:10 | Change event (2): portal:1 -> enabled
+07.12.2023 - 03:25:10 | Action: activate_status -> slime
+07.12.2023 - 03:25:18 | Change event (1): interactable:9 -> disabled
+07.12.2023 - 03:25:18 | Change event (1): sight:11 -> disabled
+07.12.2023 - 03:25:25 | Change event (1): interactable:10 -> disabled
+07.12.2023 - 03:25:25 | Change event (1): sight:12 -> disabled
+07.12.2023 - 03:25:33 | Change event (1): interactable:2 -> disabled
+07.12.2023 - 03:25:33 | Change event (1): sight:3 -> disabled
+07.12.2023 - 03:43:45 | Starting game
+07.12.2023 - 03:43:46 | Initializing new game
+07.12.2023 - 03:43:48 | Action: enter_room -> 1
+07.12.2023 - 03:43:48 | Action: change_position -> e
+07.12.2023 - 03:43:52 | Change event (1): interactable:1 -> disabled
+07.12.2023 - 03:43:52 | Change event (2): sight:2 -> enabled
+07.12.2023 - 03:43:52 | Change event (2): sight:1 -> disabled
+07.12.2023 - 03:43:52 | Change event (2): portal:1 -> enabled
+07.12.2023 - 03:43:52 | Action: activate_status -> slime
+07.12.2023 - 03:48:41 | Starting game
+07.12.2023 - 03:48:42 | Initializing new game
+07.12.2023 - 03:48:43 | Action: enter_room -> 1
+07.12.2023 - 03:48:43 | Action: change_position -> e
+07.12.2023 - 03:48:50 | Change event (1): interactable:1 -> disabled
+07.12.2023 - 03:48:50 | Change event (2): sight:2 -> enabled
+07.12.2023 - 03:48:50 | Change event (2): sight:1 -> disabled
+07.12.2023 - 03:48:50 | Change event (2): portal:1 -> enabled
+07.12.2023 - 03:48:50 | Action: activate_status -> slime
+07.12.2023 - 03:48:54 | Change event (1): interactable:10 -> disabled
+07.12.2023 - 03:48:54 | Change event (1): sight:12 -> disabled
+07.12.2023 - 03:48:56 | Change event (1): interactable:2 -> disabled
+07.12.2023 - 03:48:56 | Change event (1): sight:3 -> disabled
+07.12.2023 - 03:48:58 | Change event (1): interactable:9 -> disabled
+07.12.2023 - 03:48:58 | Change event (1): sight:11 -> disabled
+07.12.2023 - 03:49:05 | Change event (1): interactable:5 -> disabled
+07.12.2023 - 03:49:05 | Change event (1): sight:7 -> disabled
+07.12.2023 - 03:49:07 | Change event (1): interactable:4 -> disabled
+07.12.2023 - 03:49:07 | Change event (1): sight:6 -> disabled
+07.12.2023 - 03:49:09 | Change event (1): interactable:6 -> disabled
+07.12.2023 - 03:49:09 | Change event (1): sight:8 -> disabled
+07.12.2023 - 03:49:11 | Change event (1): interactable:7 -> disabled
+07.12.2023 - 03:49:11 | Change event (1): sight:9 -> disabled
+07.12.2023 - 03:49:13 | Change event (1): interactable:8 -> disabled
+07.12.2023 - 03:49:13 | Change event (1): sight:10 -> disabled
+07.12.2023 - 03:49:17 | Action: activate_status -> slime
+07.12.2023 - 03:49:23 | Change event (1): interactable:3 -> disabled
+07.12.2023 - 03:49:23 | Change event (2): sight:5 -> enabled
+07.12.2023 - 03:49:23 | Change event (2): sight:4 -> disabled
+07.12.2023 - 03:49:23 | Change event (2): portal:2 -> enabled
+07.12.2023 - 03:49:28 | Action: npc_unlock_secret_name -> None
+07.12.2023 - 03:49:29 | Action: npc_set_hostile -> None
+07.12.2023 - 03:49:30 | Action: activate_status -> poison
+07.12.2023 - 03:58:11 | Starting game
+07.12.2023 - 03:58:12 | Initializing new game
+07.12.2023 - 03:58:13 | Action: enter_room -> 1
+07.12.2023 - 03:58:13 | Action: change_position -> e
+07.12.2023 - 03:58:19 | Change event (1): interactable:1 -> disabled
+07.12.2023 - 03:58:19 | Change event (2): sight:2 -> enabled
+07.12.2023 - 03:58:19 | Change event (2): sight:1 -> disabled
+07.12.2023 - 03:58:19 | Change event (2): portal:1 -> enabled
+07.12.2023 - 03:58:19 | Action: activate_status -> slime
+07.12.2023 - 03:58:22 | Change event (1): interactable:10 -> disabled
+07.12.2023 - 03:58:22 | Change event (1): sight:12 -> disabled
+07.12.2023 - 03:58:24 | Change event (1): interactable:2 -> disabled
+07.12.2023 - 03:58:24 | Change event (1): sight:3 -> disabled
+07.12.2023 - 03:58:26 | Change event (1): interactable:9 -> disabled
+07.12.2023 - 03:58:26 | Change event (1): sight:11 -> disabled
+07.12.2023 - 03:58:32 | Change event (1): interactable:4 -> disabled
+07.12.2023 - 03:58:32 | Change event (1): sight:6 -> disabled
+07.12.2023 - 03:58:34 | Change event (1): interactable:6 -> disabled
+07.12.2023 - 03:58:34 | Change event (1): sight:8 -> disabled
+07.12.2023 - 03:58:36 | Change event (1): interactable:5 -> disabled
+07.12.2023 - 03:58:36 | Change event (1): sight:7 -> disabled
+07.12.2023 - 03:58:38 | Change event (1): interactable:8 -> disabled
+07.12.2023 - 03:58:38 | Change event (1): sight:10 -> disabled
+07.12.2023 - 03:58:40 | Change event (1): interactable:7 -> disabled
+07.12.2023 - 03:58:40 | Change event (1): sight:9 -> disabled
+07.12.2023 - 03:58:44 | Action: activate_status -> slime
+07.12.2023 - 03:58:48 | Change event (1): interactable:3 -> disabled
+07.12.2023 - 03:58:48 | Change event (2): sight:5 -> enabled
+07.12.2023 - 03:58:48 | Change event (2): sight:4 -> disabled
+07.12.2023 - 03:58:48 | Change event (2): portal:2 -> enabled
+07.12.2023 - 03:58:58 | Action: npc_unlock_secret_name -> None
+07.12.2023 - 03:58:59 | Action: npc_set_hostile -> None
+07.12.2023 - 03:59:02 | Action: activate_status -> poison
+07.12.2023 - 03:59:13 | Action: activate_status -> poison
+07.12.2023 - 03:59:32 | Action: deactivate_status -> poison
+07.12.2023 - 03:59:39 | Action: activate_flag -> show_hp_num
+07.12.2023 - 04:00:45 | Starting game
+07.12.2023 - 04:00:46 | Initializing new game
+07.12.2023 - 04:00:48 | Action: enter_room -> 1
+07.12.2023 - 04:00:48 | Action: change_position -> e
+07.12.2023 - 04:00:51 | Change event (1): interactable:1 -> disabled
+07.12.2023 - 04:00:51 | Change event (2): sight:2 -> enabled
+07.12.2023 - 04:00:51 | Change event (2): sight:1 -> disabled
+07.12.2023 - 04:00:51 | Change event (2): portal:1 -> enabled
+07.12.2023 - 04:00:51 | Action: activate_status -> slime
+07.12.2023 - 04:00:55 | Change event (1): interactable:2 -> disabled
+07.12.2023 - 04:00:55 | Change event (1): sight:3 -> disabled
+07.12.2023 - 04:00:57 | Change event (1): interactable:10 -> disabled
+07.12.2023 - 04:00:57 | Change event (1): sight:12 -> disabled
+07.12.2023 - 04:01:00 | Change event (1): interactable:9 -> disabled
+07.12.2023 - 04:01:00 | Change event (1): sight:11 -> disabled
+07.12.2023 - 04:01:05 | Action: heal_player -> 15
+07.12.2023 - 04:03:03 | Starting game
+07.12.2023 - 04:03:04 | Initializing new game
+07.12.2023 - 04:03:05 | Action: enter_room -> 1
+07.12.2023 - 04:03:05 | Action: change_position -> e
+07.12.2023 - 04:03:09 | Change event (1): interactable:1 -> disabled
+07.12.2023 - 04:03:09 | Change event (2): sight:2 -> enabled
+07.12.2023 - 04:03:09 | Change event (2): sight:1 -> disabled
+07.12.2023 - 04:03:09 | Change event (2): portal:1 -> enabled
+07.12.2023 - 04:03:09 | Action: activate_status -> slime
+07.12.2023 - 04:03:16 | Change event (1): interactable:10 -> disabled
+07.12.2023 - 04:03:16 | Change event (1): sight:12 -> disabled
+07.12.2023 - 04:03:20 | Change event (1): interactable:2 -> disabled
+07.12.2023 - 04:03:20 | Change event (1): sight:3 -> disabled
+07.12.2023 - 04:03:22 | Change event (1): interactable:9 -> disabled
+07.12.2023 - 04:03:22 | Change event (1): sight:11 -> disabled
+07.12.2023 - 04:03:28 | Change event (1): interactable:5 -> disabled
+07.12.2023 - 04:03:28 | Change event (1): sight:7 -> disabled
+07.12.2023 - 04:03:31 | Change event (1): interactable:8 -> disabled
+07.12.2023 - 04:03:31 | Change event (1): sight:10 -> disabled
+07.12.2023 - 04:03:33 | Change event (1): interactable:4 -> disabled
+07.12.2023 - 04:03:33 | Change event (1): sight:6 -> disabled
+07.12.2023 - 04:03:36 | Change event (1): interactable:6 -> disabled
+07.12.2023 - 04:03:36 | Change event (1): sight:8 -> disabled
+07.12.2023 - 04:03:39 | Change event (1): interactable:7 -> disabled
+07.12.2023 - 04:03:39 | Change event (1): sight:9 -> disabled
+07.12.2023 - 04:03:43 | Action: activate_status -> slime
+07.12.2023 - 04:03:47 | Change event (1): interactable:3 -> disabled
+07.12.2023 - 04:03:47 | Change event (2): sight:5 -> enabled
+07.12.2023 - 04:03:47 | Change event (2): sight:4 -> disabled
+07.12.2023 - 04:03:47 | Change event (2): portal:2 -> enabled
+07.12.2023 - 04:03:54 | Action: npc_unlock_secret_name -> None
+07.12.2023 - 04:03:56 | Action: npc_set_hostile -> None
+07.12.2023 - 04:03:57 | Action: activate_status -> poison
+07.12.2023 - 04:04:42 | Action: activate_status -> poison
+07.12.2023 - 04:04:42 | Action: activate_flag -> show_hp_num
+07.12.2023 - 04:04:42 | Action: deactivate_status -> poison
+07.12.2023 - 04:04:42 | Action: heal_player -> 15
+07.12.2023 - 04:09:15 | Starting game
+07.12.2023 - 04:09:16 | Initializing new game
+07.12.2023 - 04:09:17 | Action: enter_room -> 1
+07.12.2023 - 04:09:17 | Action: change_position -> e
+07.12.2023 - 04:09:21 | Change event (1): interactable:1 -> disabled
+07.12.2023 - 04:09:21 | Change event (2): sight:2 -> enabled
+07.12.2023 - 04:09:21 | Change event (2): sight:1 -> disabled
+07.12.2023 - 04:09:21 | Change event (2): portal:1 -> enabled
+07.12.2023 - 04:09:21 | Action: activate_status -> slime
+07.12.2023 - 04:09:25 | Change event (1): interactable:10 -> disabled
+07.12.2023 - 04:09:25 | Change event (1): sight:12 -> disabled
+07.12.2023 - 04:09:27 | Change event (1): interactable:2 -> disabled
+07.12.2023 - 04:09:27 | Change event (1): sight:3 -> disabled
+07.12.2023 - 04:09:29 | Change event (1): interactable:9 -> disabled
+07.12.2023 - 04:09:29 | Change event (1): sight:11 -> disabled
+07.12.2023 - 04:09:33 | Change event (1): interactable:6 -> disabled
+07.12.2023 - 04:09:33 | Change event (1): sight:8 -> disabled
+07.12.2023 - 04:09:35 | Change event (1): interactable:4 -> disabled
+07.12.2023 - 04:09:35 | Change event (1): sight:6 -> disabled
+07.12.2023 - 04:09:37 | Change event (1): interactable:5 -> disabled
+07.12.2023 - 04:09:37 | Change event (1): sight:7 -> disabled
+07.12.2023 - 04:09:39 | Change event (1): interactable:8 -> disabled
+07.12.2023 - 04:09:39 | Change event (1): sight:10 -> disabled
+07.12.2023 - 04:09:41 | Change event (1): interactable:7 -> disabled
+07.12.2023 - 04:09:41 | Change event (1): sight:9 -> disabled
+07.12.2023 - 04:09:47 | Action: activate_status -> slime
+07.12.2023 - 04:09:51 | Change event (1): interactable:3 -> disabled
+07.12.2023 - 04:09:51 | Change event (2): sight:5 -> enabled
+07.12.2023 - 04:09:51 | Change event (2): sight:4 -> disabled
+07.12.2023 - 04:09:51 | Change event (2): portal:2 -> enabled
+07.12.2023 - 04:09:56 | Action: npc_unlock_secret_name -> None
+07.12.2023 - 04:09:57 | Action: npc_set_hostile -> None
+07.12.2023 - 04:10:23 | Action: activate_flag -> show_hp_num
+07.12.2023 - 04:10:29 | Action: activate_status -> poison
+07.12.2023 - 04:10:56 | Action: heal_player -> 15
+07.12.2023 - 04:10:56 | Action: deactivate_status -> poison
+07.12.2023 - 04:11:17 | Action: activate_status -> poison
+07.12.2023 - 04:11:17 | Action: activate_status -> slime
+07.12.2023 - 04:12:12 | Action: activate_status -> poison
+07.12.2023 - 04:12:17 | Action: activate_status -> poison

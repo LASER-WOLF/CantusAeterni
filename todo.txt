@@ -1,42 +1,55 @@
 # TODO:
-  # npcs: dialogue
-  # add dialogue system
-  # combat: npc health stages
-  # combat: flag - accurate npc hp remaining in log - npc_hp_num
-  # magical ring to activate npc_hp_num
-  # char creation, skills / settings:
+  # add character screen / stats
+  # add char creation with skills / settings:
     # skill: unarmed combat (attack_melee)
     # skill: combat (attack_skill)
     # skill: ranged combat (attack_skill_ranged)
     # setting: enable minimap
-  # sound: player attack npc
-  # replace sound: portal_blocked
+  # combat: npc health stages
+  # combat: flag - accurate npc hp remaining in log - npc_hp_num
+  # add quests
+  # npc: holds items, can give you as a reward for completing task or drop when killed
+  # enable / disable id tied to room?
+  # portal placement stored in portals and room file (duplicate data)
+  # map mode: store room data in selection
+  # item: add magical ring to activate npc_hp_num
+  # item: add magical ring to activate show_def_num
   # npcs: actions
-  # npcs: friendly (dialogue) / hostile (dialogue & combat)
+  # inventory: colored text in inventory
   # minimap: multicolor if multiple things on same tile
+  # sound: player attack npc
+  # sound: no sound when player and oponent miss in batte
   # combat: fx when npc misses attack on player
+  # replace sound: portal_blocked
+  # audio fx: replace move sound fx
   # game over screen: audio fx
   # game over screen: music
-  # add character screen / stats
-  # ▲ ▼ arrows for scroll on log
-  # portal placement stored in portals and room file (duplicate data)
-  # enable / disable id tied to room?
-  # map mode: store room data in selection
-  # audio fx: replace move sound fx
   # play sound later (sound queueing?) for: move / discover portal / pick up item / change room
+  # support for saving / loading game  
+  # cool logo and background for main menu
+
+# BUGS
   # BUG: Black screen after minimize
+  # BUG (FIXED?): audio not playing when music is off and audio volume is same as music volume (sometimes)
+
+# MAYBE?
+  # better minimap in map mode?
+  # ▲ ▼ arrows for scroll on log?
   # dynamic color scheme?
     # apprentice -> default
     # ibm -> cave
     # solarized -> forest
-  # remove line color?
-  # better inventory screen
-  # better minimap in map mode
-  # support for saving / loading game
-  # BUG (FIXED?): audio not playing when music is off and audio volume is same as music volume (sometimes)
-  # cool logo and background for main menu
 
 # DONE:
+  # better inventory screen
+  # npcs: friendly (dialogue) / hostile (dialogue & combat)
+  # change equipment use turn
+  # item: add antidote to poison
+  # item: add healing item
+  # dialogue use turn
+  # keep track of stats: turns, times moved, times entered portal, number of enemies killed
+  # add dialogue system for talking with npcs
+  # npc: secret_name (unlocks during dialogue)
   # add equipment system
   # add equipable items
   # combat: player ranged attack

@@ -317,6 +317,7 @@ TAG_COLOR_MAP_INACTIVE = TAG_COLOR_DARK
 TAG_COLOR_MAP_SELECTED = TAG_COLOR_FG
 TAG_COLOR_LOG_OLD = TAG_COLOR_UI_INACTIVE
 TAG_COLOR_LOG_DAMAGE = TAG_COLOR_HEALTH_1
+TAG_COLOR_LOG_HEAL = TAGS['green']
 
 # SET HEALTH STAGES
 health_stages = {
@@ -403,6 +404,7 @@ game = {
     'game_over_text': None,
 }
 player = {
+    'health_points_max': None,
     'health_points': None,
     'health_stage': None,
     'health_status': None,
@@ -423,11 +425,30 @@ equipment = {
 
 rings = []
 
+stats = {
+    'times_moved': None,
+    'portals_entered': None,
+    'npcs_killed': None,
+    'times_player_attack': None,
+    'times_player_attack_ranged': None,
+    'times_npc_attack': None,
+    'times_npc_attack_ranged': None,
+    'damage_dealt': None,
+    'damage_received': None,
+    'damage_defended': None,
+    'health_healed': None,
+    'times_player_missed': None,
+    'times_npc_missed': None,
+}
+
 flags = {
     'show_hp_num': None,
     'show_def_num': None,
     'hide_minimap': None,
 }
+
+def add_to_stats(stat, num):
+    stats[stat] += num
 
 def initialize_new_game():
     global game
@@ -435,12 +456,15 @@ def initialize_new_game():
     game['turn'] = 1
     game['game_over'] = False
     game['game_over_text'] = None
+    player['health_points_max'] = 100
     player['health_points'] = 100
     player['health_stage'] = 0
     player['health_status'] = None
     player['attack_skill'] = 2
     player['attack_skill_ranged'] = 1
     player['damage_melee'] = 5
+    for key in stats:
+        stats[key] = 0
     rings = []
     for key in flags:
         flags[key] = False

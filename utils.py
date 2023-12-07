@@ -113,11 +113,53 @@ def format_portal(text):
 def format_log_damage(text):
     return add_tag(text, fg = config.TAG_COLOR_LOG_DAMAGE)
 
-def format_log_npc(name, proper_noun):
-    name = format_npc(name)
-    if proper_noun is False:
+def format_log_heal(text):
+    return add_tag(text, fg = config.TAG_COLOR_LOG_HEAL)
+
+def format_npc_name(npc, format_name = True):
+    name = npc['name']
+    if npc['secret_name_unlocked']:
+        name = npc['secret_name']
+    if format_name is True:
+        name = format_npc(name)
+    if (npc['proper_noun'] is False and npc['secret_name_unlocked'] is False) or (npc['secret_name_proper_noun'] is False and npc['secret_name_unlocked'] is True):
         name = 'the ' + name
     return name
+
+def format_npc_pronoun(npc, form):
+    pronoun = npc['pronoun']
+    if npc['secret_name_unlocked']:
+        pronoun = npc['secret_name_pronoun']
+    if pronoun == 'it':
+        if form == 'possesive': 
+            pronoun = 'its'
+        elif form == 'reflexive': 
+            pronoun = 'itself'
+    elif pronoun == 'he':
+        if form == 'object': 
+            pronoun = 'him'
+        elif form == 'possesive': 
+            pronoun = 'his'
+        elif form == 'reflexive': 
+            pronoun = 'himself'
+    elif pronoun == 'she':
+        if form == 'object': 
+            pronoun = 'her'
+        elif form == 'possesive': 
+            pronoun = 'hers'
+        elif form == 'reflexive': 
+            pronoun = 'herself'
+    elif pronoun == 'they' or pronoun == 'they_plural':
+        if form == 'object': 
+            pronoun = 'them'
+        elif form == 'possesive': 
+            pronoun = 'theirs'
+        elif form == 'reflexive': 
+            if pronoun == 'they_plural':
+                pronoun = 'themselves'
+            else:
+                pronoun = 'themself'
+    return pronoun
 
 def format_health(stage, status):
     def add_color(text, color):

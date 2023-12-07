@@ -175,7 +175,7 @@ def main(target_list):
     result = make_lines_multi(content_upper + content_center + content_lower)
     return (config.LAYER_TYPE_MAIN, result, None, None)
 
-def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg_color = 'foreground', bg_color = 'black', border_color = 'foreground', centered = False, margin = 1, min_width = 50):
+def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg_color = 'foreground', bg_color = 'black', border_color = 'foreground', centered = False, margin = 1, min_width = 100):
     result = []
     height = len(content)
     width = utils.list_longest_entry_length([utils.remove_tag(line) for line in content])

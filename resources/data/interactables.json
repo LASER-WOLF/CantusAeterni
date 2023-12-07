@@ -173,5 +173,49 @@
       }
     ],
     "on_interact": []
+  },
+  "9": {
+    "type": "item",
+    "link": "11",
+    "enable": null,
+    "disable": "11",
+    "log_text": "<i>a bottle of antidote</i>.",
+    "examine_text": [
+      "On closer inspection the object is revealed to be <i>a bottle of antidote</i>.",
+      "A medical drink that cures poisoning."
+    ],
+    "examine_options": [
+      {
+        "text": "Pick up the bottle",
+        "type": "confirm"
+      },
+      {
+        "text": "Leave it",
+        "type": "cancel"
+      }
+    ],
+    "on_interact": []
+  },
+  "10": {
+    "type": "item",
+    "link": "12",
+    "enable": null,
+    "disable": "12",
+    "log_text": "<i>a bottle of health potion</i>.",
+    "examine_text": [
+      "On closer inspection the object is revealed to be <i>a bottle of health potion</i>.",
+      "A remarkable magick drink with healing properties."
+    ],
+    "examine_options": [
+      {
+        "text": "Pick up the health potion",
+        "type": "confirm"
+      },
+      {
+        "text": "Leave it",
+        "type": "cancel"
+      }
+    ],
+    "on_interact": []
   }
 }

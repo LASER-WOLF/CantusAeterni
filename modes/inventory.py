@@ -5,7 +5,21 @@ import system
 import utils
 import windows
 
+init_done = False
+equipment_changed = None
+item_consumed = None
+
+def init():
+    global init_done
+    global equipments_changed
+    global items_consumed
+    init_done = True
+    equipments_changed = 0
+    items_consumed = 0
+
 def run():
+    if init_done is False:
+        init()
     layers = []
     # MAIN LAYER
     if system.main_content is None or system.popup_content is None:
@@ -25,6 +39,20 @@ def run():
         )
     return layers
 
+def exit_inventory_screen():
+    system.change_mode(config.previous_mode)
+    if equipments_changed > 0:
+        system.add_log('You change your equipment.')
+    if items_consumed > 0:
+        items_consumed_text = 'an item'
+        if items_consumed > 1:
+            items_consumed_text = 'multiple items'
+        system.add_log('You consume ' + items_consumed_text +'.')
+    system.run_queued_actions()
+    if equipments_changed > 0 or items_consumed > 0:
+        global init_done
+        init_done = False
+        system.end_turn('inventory')
 
 def input_popup(key, mod = None):
     selected_option = config.ui_selection_current
@@ -56,12 +84,16 @@ def input_popup(key, mod = None):
                 unequip(selected_option.link)
                 config.trigger_animation(config.ANIMATION_FADE)
                 system.unset_popup_content()
+            elif selected_option.name == "consume":
+                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                consume(selected_option.link)
 
 def input_main(key, mod = None):
     selected_option = config.ui_selection_current
     if key == 'escape' or key == 'mouse3':
         audio.ui_back()
-        system.change_mode(config.previous_mode)
+        exit_inventory_screen()
     elif selected_option is not None:
         if key == 'up':
             system.ui_selection_y_prev()
@@ -137,6 +169,7 @@ def examine(item_id):
     elif item['type'] == 'upper_body' or item['type'] == 'lower_body' or item['type'] == 'head' or item['type'] == 'feet' or item['type'] == 'hands' or item['type'] == 'shield':
         defence_num = utils.format_defence_num(item['defence'])
         popup_lines.append('Defence: ' + defence_num.capitalize())
+        popup_lines.append('* This item grants you defence against damage in combat *')
     if item_equippable and item['on_equip']:
         text_powers = 'This item is infused with magicks'
         if item['identified'] is True:
@@ -153,10 +186,14 @@ def examine(item_id):
         popup_options[0].append(system.SelectionOption("unequip", 'Unequip item', item_id))
     elif item_equippable:
         popup_options[0].append(system.SelectionOption("equip", 'Equip item', item_id))
+    elif item['type'] == 'consumable':
+        popup_options[0].append(system.SelectionOption("consume", 'Consume item', item_id))
     popup_options[0].append(system.SelectionOption("cancel", 'Go back'))
     system.set_popup_content(popup_lines, popup_options)
 
 def equip(item_id):
+    global equipments_changed
+    equipments_changed += 1
     item = system.items[item_id]
     if item['type'] in config.equipment and config.equipment[item['type']] is not None:
         unequip(config.equipment[item['type']])
@@ -191,15 +228,31 @@ def equip(item_id):
         for line in item['on_equip_text']:
             popup_lines.append(line)
     for action in item['on_equip']:
-        system.execute_action(action)
+        system.queue_action(action)
     system.set_popup_content(popup_lines)
 
 def unequip(item_id):
+    global equipments_changed
+    equipments_changed += 1
     item = system.items[item_id]
     if item['type'] == 'ring':
         config.rings.remove(item_id)
     else:
         config.equipment[item['type']] = None
     for action in item['on_unequip']:
-        system.execute_action(action)
+        system.queue_action(action)
     system.inventory_list.append(item_id)
+
+def consume(item_id):
+    global items_consumed
+    items_consumed += 1
+    item = system.items[item_id]
+    system.inventory_list.remove(item_id)
+    popup_lines = []
+    popup_lines.append('You consume the ' + item['name'] + '.')
+    if item['on_consume_text']:
+        for line in item['on_consume_text']:
+            popup_lines.append(line)
+    for action in item['on_consume']:
+        system.queue_action(action)
+    system.set_popup_content(popup_lines)

@@ -1,26 +1,23 @@
+# BUILT-IN
+import random
+
 # PROJECT
 import audio
 import config
 import system
-import random
 import utils
 import windows
 
 # SET VARS
 room_id = None
 room = None
-npcs = None
 
 def set_room():
     global room_id
     global room
-    global npcs
     room_id = system.active_room
     room = system.rooms[room_id]
-    npcs = {}
-    for npc_id, npc in system.npcs.items():
-        if npc['disabled'] == False and npc['room'] == room_id:
-            npcs[npc_id] = npc
+    system.update_active_npcs()
 
 def run():
     set_room()
@@ -52,16 +49,18 @@ def run():
 
 def action_attack(link):
     player_attack_npc(link)
-    system.end_turn('attack', npcs)
+    system.end_turn('attack')
+    config.add_to_stats('times_player_attack', 1)
 
 def action_attack_ranged(link):
     player_attack_npc(link, ranged = True)
-    system.end_turn('attack_ranged', npcs)
+    system.end_turn('attack_ranged')
+    config.add_to_stats('times_player_attack_ranged', 1)
 
 def action_portal(link):
     block_action = False
     blocking_npc = None
-    for npc in npcs.values():
+    for npc in system.active_npcs.values():
         if npc['hostile'] is True:
             if npc['position'] == system.current_position:
                 block_action = random.choice([False, True, True, True])
@@ -72,18 +71,20 @@ def action_portal(link):
                 break
     if block_action is False:
         enter_portal(link)
-        system.end_turn('portal', npcs)
+        system.end_turn('portal')
+        config.add_to_stats('portals_entered', 1)
     else:
         system.add_log(system.format_npc_log_text('<name> blocks you from leaving.', blocking_npc))
-        system.end_turn('portal_blocked', npcs)
+        system.end_turn('portal_blocked')
 
 def action_move(link):
     system.player_change_position(link, logging = True)
-    system.end_turn('move', npcs)
+    system.end_turn('move')
+    config.add_to_stats('times_moved', 1)
 
 def action_pickup(link):
     add_to_inventory(link)
-    system.end_turn('pickup', npcs)
+    system.end_turn('pickup')
 
 def input_popup(key, mod = None):
     selected_option = config.ui_selection_current
@@ -113,6 +114,10 @@ def input_popup(key, mod = None):
                 ui_action_restart_game()
             elif selected_option.name == "quit_game":
                 system.quit_game()
+            elif selected_option.name == "dialogue_response":
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                audio.ui_confirm()
+                dialogue_response(selected_option.link)
 
 
 def ui_action_restart_game():
@@ -217,6 +222,10 @@ def input_main(key, mod = None):
             elif selected_option.name == "attack_ranged":
                 config.trigger_animation(config.ANIMATION_UI_SELECTION)
                 action_attack_ranged(selected_option.link)
+            elif selected_option.name == "dialogue_load":
+                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                audio.ui_confirm()
+                dialogue_load(selected_option.link[0], selected_option.link[1])
 
 def input(key, mod = None):
     if system.popup_content:
@@ -277,7 +286,7 @@ def window_lower():
         selection_options_display[0].insert(0, 'ARE YOU SURE?')
     else:
         if config.flags['hide_minimap'] is False:
-            ui_blocks.append(windows.block_minimap(room, npcs, system.current_position, check_move_options(True)))
+            ui_blocks.append(windows.block_minimap(room, system.active_npcs, system.current_position, check_move_options(True)))
         option_titles = ["MOVE / WAIT:", "INTERACT:", "OTHER:", "SYSTEM:"]
         selection_options_display = windows.format_selection_options_display_add_titles(selection_options_display, option_titles)
     ui_blocks.extend(selection_options_display)
@@ -313,14 +322,16 @@ def check_move_options(minimap_mode = False):
 
 def check_interact_options():
     result = []
-    for npc in npcs.values():
+    for npc_id, npc in system.active_npcs.items():
         if npc['hostile'] is True:
             if npc['position'] == system.current_position:
-                result.append(system.SelectionOption("attack", "(ATTACK) " + npc['name'].upper(), npc))
+                if npc['dialogue_hostile'] is not None:
+                    result.append(system.SelectionOption("dialogue_load", "(TALK) " + utils.format_npc_name(npc, False).upper(), (npc['dialogue_hostile'], npc)))
+                result.append(system.SelectionOption("attack", "(ATTACK) " + utils.format_npc_name(npc, False).upper(), npc))
             elif npc['position'] != system.current_position and config.equipment['attack_ranged'] is not None:
-                result.append(system.SelectionOption("attack_ranged", "(RANGED ATTACK) " + npc['name'].upper(), npc))
-        elif npc['position'] == system.current_position:
-            result.append(system.SelectionOption("talk", "(TALK) " + npc['name'].upper(), npc))
+                result.append(system.SelectionOption("attack_ranged", "(RANGED ATTACK) " + utils.format_npc_name(npc, False).upper(), npc))
+        elif npc['position'] == system.current_position and npc['dialogue'] is not None:
+            result.append(system.SelectionOption("dialogue_load", "(TALK) " + utils.format_npc_name(npc, False).upper(), (npc['dialogue'], npc)))
     for entry in room['interactable']:
         if entry['position'] == system.current_position and not entry['disabled']:
             result.append(system.SelectionOption("examine", "(EXAMINE) " + entry['content'].upper(), entry['link']))
@@ -416,7 +427,7 @@ def sense_scan(sense, sense_text, position_mode = False):
                 result.append(sense_text + content)
             elif (position_mode and line['position'] == system.current_position):
                 result.append(sense_text + content)
-    for npc in npcs.values():
+    for npc in system.active_npcs.values():
         sense_text_list = []
         if not position_mode and npc['position'] != system.current_position:
             sense_text_list.append(npc[sense + '_far_always'])
@@ -558,4 +569,54 @@ def player_attack_npc(npc, ranged = False):
             for action in on_attack:
               system.execute_action(action)
     else:
+        config.add_to_stats('times_player_missed', 1)
         system.add_log(miss_text)
+
+def dialogue_load(dialogue_id, npc = None):
+    dialogue_start = False
+    if npc is not None:
+        system.current_target = npc
+        system.current_target_info = npc['hostile']
+        dialogue_start = True
+    else:
+        npc = system.current_target
+    dialogue = system.dialogues[dialogue_id]
+    popup_lines = []
+    popup_options = [[]]
+    npc_name = utils.format_npc_name(npc)
+    popup_lines.append('Talking to ' + npc_name + ':')
+    if dialogue_start:
+        system.add_dialogue_log('Started conversation with ' + npc_name)
+    for line in dialogue['text']:
+        dialogue_line = utils.format_color_tags(line)
+        popup_lines.append(dialogue_line)
+        system.add_dialogue_log(dialogue_line)
+    for response in dialogue['responses']:
+        popup_options[0].append(system.SelectionOption('dialogue_response', response['text'], response))
+    system.set_popup_content(popup_lines, popup_options)
+
+def dialogue_unload():
+    config.trigger_animation(config.ANIMATION_FADE)
+    system.unset_popup_content()
+    npc = system.current_target
+    hostile = system.current_target_info
+    system.add_log(system.format_npc_log_text('You have a conversation with <name>', npc))
+    if hostile != npc['hostile']:
+        hostile_text = 'hostile'
+        if npc['hostile'] is False:
+            hostile_text = 'friendly'
+        hostile_log_text = system.format_npc_log_text('<name> becomes ' + hostile_text + '.', npc)
+        system.add_log(hostile_log_text)
+        system.add_dialogue_log(hostile_log_text)
+    system.current_target = None
+    system.current_target_info = None
+    system.end_turn('dialogue')
+
+def dialogue_response(link):
+    system.add_dialogue_log('You responded: ' + link['text'])
+    for action in link['on_response']:
+        system.execute_action(action)
+    if link['next'] is None:
+        dialogue_unload()
+    else:
+        dialogue_load(link['next'])

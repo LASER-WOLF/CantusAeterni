@@ -182,5 +182,38 @@
     "text": [
       "Not in a very good conition. The gauntlets are detroyed by rust and doesn't function very well."
     ]
+  },
+  "11": {
+    "name": "antidote",
+    "type": "consumable",
+    "text": [
+      "It is a bottle made of slightly green glass with a label covering it. The label reads \"Antidote for poisoning\"."
+    ],
+    "on_consume": [
+      {
+        "type": "deactivate_status",
+        "link": "poison"
+      }
+    ],
+    "on_consume_text": [
+      "The antidote heals you of the poisoning!"
+    ]
+  },
+  "12": {
+    "name": "health potion",
+    "type": "consumable",
+    "text": [
+      "It is a finely made glass bottle of remarkable quality. Inside is a mysterious liquid. The label on the bottle reads \"Refreshing magick health drink, cures wounds and such\"."
+    ],
+    "on_consume": [
+      {
+        "type": "heal_player",
+        "link": 15,
+        "link2": "the potion"
+      }
+    ],
+    "on_consume_text": [
+      "The magicks of the potion has a wonderful effect on your health! You feel great!"
+    ]
   }
 }

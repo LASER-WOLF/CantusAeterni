@@ -2,6 +2,11 @@
   "1": {
     "name": "big toad",
     "proper_noun": false,
+    "pronoun": "it",
+    "secret_name": "Ghyle",
+    "secret_name_unlocked": false,
+    "secret_name_proper_noun": true,
+    "secret_name_pronoun": "he",
     "disabled": false,
     "room": "3",
     "position": "s",
@@ -13,9 +18,10 @@
     "speed": 3,
     "immobile": false,
     "always_moving": false,
-    "hostile": true,
+    "hostile": false,
     "ranged": true,
     "dialogue": "1",
+    "dialogue_hostile": "4",
     "sight_near_always": null,
     "sight_near_hostile": "You see <n>a big toad</n> in front of you. The toad appears unfriendly and stares at you with unnerving intensity.",
     "sight_near_friendly": "You see <n>a big toad</n> in front of you. The toad appears friendly and stares at you from time to time.",
@@ -35,9 +41,9 @@
     "sound_far_hostile": null,
     "sound_far_friendly": null,
     "attack_text": [
-      "<name> opens it's mouth and whips you with it's poisonous tongue.",
-      "<name> unleashes a fierce and painful attack with it's poisonous tongue.",
-      "<name> whips it's deadly poisonous tongue at you."
+      "<name> opens <pronoun_pos> mouth and whips you with <pronoun_pos> poisonous tongue.",
+      "<name> unleashes a fierce and painful attack with <pronoun_pos> poisonous tongue.",
+      "<name> whips <pronoun_pos> deadly poisonous tongue at you."
     ],
     "attack_text_ranged": [
       "<name> spits a nasty ball of poisonous slime at you from the <pos>.",
@@ -57,9 +63,9 @@
       "<name> jumps away, successfully avoiding your attack."
     ],
     "game_over_text": [
-      "<name> murdered you with it's poisonous tongue.",
-      "<name> smacked you to death with it's tongue.",
-      "<name> mortally slammed you with it's deadly tongue."
+      "<name> murdered you with <pronoun_pos> poisonous tongue.",
+      "<name> smacked you to death with <pronoun_pos> tongue.",
+      "<name> mortally slammed you with <pronoun_pos> deadly tongue."
     ],
     "game_over_text_ranged": [
       "<name> killed you with a deadly ball of poisonous slime.",

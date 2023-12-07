@@ -141,6 +141,18 @@
     "interactable": [
       {
         "position": "sw",
+        "link": "9",
+        "content": "Something glinting in the darkness",
+        "disabled": false
+      },
+      {
+        "position": "sw",
+        "link": "10",
+        "content": "Something glinting in the darkness",
+        "disabled": false
+      },
+      {
+        "position": "sw",
         "link": "2",
         "content": "Something glinting in the darkness",
         "disabled": false
@@ -180,6 +192,18 @@
       {
         "position": "sw",
         "link": "3",
+        "content": "You see <i>something glinting</i> in the darkness in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "sw",
+        "link": "11",
+        "content": "You see <i>something glinting</i> in the darkness in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "sw",
+        "link": "12",
         "content": "You see <i>something glinting</i> in the darkness in front of you.",
         "disabled": false
       },

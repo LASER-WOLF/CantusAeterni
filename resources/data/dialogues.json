@@ -1,0 +1,124 @@
+{
+  "1": {
+    "text": [
+      "You see a big toad, it is standing on it's two hind legs and looks at you intently.",
+      "It is wearing a white shirt on it's upper body and has a strange necklace around it's neck.",
+      "* In a loud chirping voice, the toad calls out: *",
+      "Oh, jeez, oh boy.",
+      "* The toad seems quite nervous *",
+      "A hah, heh, hello hello. My name is Ghyle of Nhula.",
+      "* The big toad lowers his head in a respectful bow and strethes out a long slimy hand in a friendly manner *"
+    ],
+    "responses": [
+      {
+        "text": "* Grab the hand and give it a gentle shake * Greetings!",
+        "next": "2",
+        "on_response": [
+          {
+            "type": "npc_unlock_secret_name",
+            "link": null
+          }
+        ]
+      },
+      {
+        "text": "End conversation",
+        "next": null,
+        "on_response": [
+        ]
+      }
+    ]
+  },
+  "2": {
+    "text": [
+      "Oh heh, even though I certainly would wish to meet under different circumstances, heh he, STILL, it is a fine pleasure to make your acquaintance!",
+      "* The toad leans in with a big smile and stares at you, at an almost uncomfortably close range *",
+      "Please, if you'll allow me, let me burden you with the terrible tale of what unfortunate distasters befell me these past days, and how I ended up here."
+    ],
+    "responses": [
+      {
+        "text": "LET'S FIGHT!",
+        "next": "3",
+        "on_response": [
+          {
+            "type": "npc_set_hostile",
+            "link": null
+          }
+        ]
+      },
+      {
+        "text": "End conversation",
+        "next": null,
+        "on_response": [
+        ]
+      }
+    ]
+  },
+  "3": {
+    "text": [
+      "You bloody bastard!"
+    ],
+    "responses": [
+      {
+        "text": "End conversation",
+        "next": null,
+        "on_response": [
+        ]
+      }
+    ]
+  },
+  "4": {
+    "text": [
+      "You god damn bastard!"
+    ],
+    "responses": [
+      {
+        "text": "PLEASE CALM DOWN!",
+        "next": "5",
+        "on_response": [
+        ]
+      },
+      {
+        "text": "End conversation",
+        "next": null,
+        "on_response": [
+        ]
+      }
+    ]
+  },
+  "5": {
+    "text": [
+      "All right! I'll seize hostilites if you agree to do the same."
+    ],
+    "responses": [
+      {
+        "text": "AGREED!",
+        "next": "6",
+        "on_response": [
+          {
+            "type": "npc_set_friendly",
+            "link": null
+          }
+        ]
+      },
+      {
+        "text": "NO WAY!",
+        "next": null,
+        "on_response": [
+        ]
+      }
+    ]
+  },
+  "6": {
+    "text": [
+      "Fine!"
+    ],
+    "responses": [
+      {
+        "text": "Good!",
+        "next": null,
+        "on_response": [
+        ]
+      }
+    ]
+  }
+}
