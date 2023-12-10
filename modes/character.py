@@ -117,39 +117,84 @@ def input(key, mod = None):
 
 def window_center():
     ui_blocks = []
+    just_num = 30
+    equipment_merged = config.equipped_armor | config.equipped_weapons
+    empty_text = utils.add_tag('Nothing', fg = config.TAG_COLOR_UI_INACTIVE)
+    # COMBAT STATUS
+    combat_status = []
+    damage = config.player['damage_melee']
+    if config.equipped_weapons['attack'] is not None:
+        damage = system.items[config.equipped_weapons['attack']]['damage']
+    damage = utils.format_damage_num(damage)
+    damage_ranged = 0
+    if config.equipped_weapons['attack_ranged'] is not None:
+        damage_ranged = system.items[config.equipped_weapons['attack_ranged']]['damage']
+    damage_ranged = utils.format_damage_num(damage_ranged)
+    defence = utils.format_defence_num(system.check_player_defence(), 6)
+    attack_skill = utils.format_skill_num(config.player['attack_skill'])
+    attack_skill_ranged = utils.format_skill_num(config.player['attack_skill_ranged'])
+    combat_status.append('COMBAT STATUS:')
+    combat_status.append(' Weapon expertise: '.ljust(just_num) + str(attack_skill))
+    combat_status.append(' Ranged weapon expertise: '.ljust(just_num) + str(attack_skill_ranged))
+    combat_status.append(' Attack damage: '.ljust(just_num) + str(damage))
+    combat_status.append(' Ranged attack damage: '.ljust(just_num) + str(damage_ranged))
+    combat_status.append(' Defence: '.ljust(just_num) + str(defence))
+    combat_status.append('')
     sel_options = [[],[]]
-    for item_type, item_id in config.equipment.items():
+    # EQUIPPED ARMOR / WEAPONS
+    for item_type, item_id in equipment_merged.items():
         if item_id is None:
             sel_options[0].append(None)
         else:
             item = system.items[item_id]
-            sel_options[0].append(system.SelectionOption("item", item['name'].upper(), item_id))
+            sel_options[0].append(system.SelectionOption("item", utils.format_item_name(item['name'], item['type']), item_id))
+    # EQUIPPED RINGS
     if not config.rings:
         sel_options[0].append(None)
     else:
         for item_id in config.rings:
             item = system.items[item_id]
-            sel_options[0].append(system.SelectionOption("item", item['name'].upper(), item_id))
-    if system.inventory_list:
-        for item_id in system.inventory_list:
-            item = system.items[item_id]
-            sel_options[1].append(system.SelectionOption("item", item['name'].upper(), item_id))
+            sel_options[0].append(system.SelectionOption("item", utils.format_item_name(item['name'], item['type']), item_id))
+    # ITEMS IN INVENTORY
+    item_sel_options = []
+    for item_id in system.inventory_list:
+        sort_num = 0
+        item = system.items[item_id]
+        if item['type'] == 'ring':
+            sort_num = 1
+        elif item['type'] in config.equipped_armor:
+            sort_num = 2
+        elif item['type'] in config.equipped_weapons:
+            sort_num = 3
+        elif item['type'] in config.item_type_consumable:
+            sort_num = 4
+        elif item['type'] == 'key':
+            sort_num = 5
+        item_sel_options.append((sort_num, item['type'], item['name'], item_id))
+    for sort_num, item_type, item_name, item_id in sorted(item_sel_options):
+        sel_options[1].append(system.SelectionOption("item", utils.format_item_name(item_name, item_type, type_abr = True), item_id))
+    # FORMAT SELECTION OPTIONS
     system.set_selection_options(sel_options)
-    equipment_just_num = 30
-    selection_options_display = windows.format_selection_options_display(system.ui_selection_options, min_size = equipment_just_num)
-    for num, (item_type, item_id) in enumerate(config.equipment.items()):
+    selection_options_display = windows.format_selection_options_display(system.ui_selection_options)
+    # FORMAT EQUIPPED ITEMS
+    for num, (item_type, item_id) in enumerate(equipment_merged.items()):
         item_content = selection_options_display[0][num]
         if item_id is None:
-            item_content = '(NONE)'.ljust(equipment_just_num)
-        selection_options_display[0][num] = (utils.format_item_type(item_type).upper() + ':').ljust(20) + ' ' + item_content
+            item_content = ' ' + empty_text
+        selection_options_display[0][num] = (' ' + utils.format_item_type(item_type, colored = False) + ':').ljust(just_num - 2) + ' ' + item_content
+    # FORMAT RINGS
     if not config.rings:
-        selection_options_display[0].insert(len(config.equipment), '(NONE)')
-    selection_options_display[0].insert(len(config.equipment), 'EQUIPPED RINGS:')
-    selection_options_display[0].insert(len(config.equipment), '')
-    selection_options_display[0].insert(0, 'EQUIPPED ARMOR / WEAPONS:')
+        selection_options_display[0].insert(len(equipment_merged), ' ' + empty_text)
+    selection_options_display[0].insert(len(equipment_merged), 'EQUIPPED RINGS:')
+    selection_options_display[0].insert(len(equipment_merged), '')
+    # ADD TITLES AND MERGE COMBAT STATS
+    selection_options_display[0].insert(len(config.equipped_armor), 'EQUIPPED WEAPONS:')
+    selection_options_display[0].insert(len(config.equipped_armor), '')
+    selection_options_display[0].insert(0, 'EQUIPPED ARMOR:')
     selection_options_display[1].insert(0, 'ITEMS:')
+    selection_options_display[0] = combat_status + selection_options_display[0]
     ui_blocks.extend(selection_options_display)
-    return windows.Content(windows.WINDOW_CENTER, windows.combine_blocks(ui_blocks))
+    return windows.Content(windows.WINDOW_CENTER, windows.combine_blocks(ui_blocks, min_size_list = [60]))
 
 def window_lower():
     lines = [windows.press_to_go_back_text()]
@@ -157,19 +202,21 @@ def window_lower():
 
 def examine(item_id):
     item = system.items[item_id]
-    item_equipped = item_id in config.rings or item_id in config.equipment.values()
-    item_equippable = item['type'] == 'ring' or item['type'] in config.equipment
+    item_equipped = item_id in config.rings or item_id in config.equipped_armor.values() or item_id in config.equipped_weapons.values()
+    item_equippable = item['type'] == 'ring' or item['type'] in config.equipped_armor or item['type'] in config.equipped_weapons
     popup_lines = []
     popup_options = [[]]
-    popup_lines.append(item['name'].upper())
-    popup_lines.append('Type: ' + utils.format_item_type(item['type']).capitalize())
+    item_name = '« ' + item['name'].upper() + ' »'
+    popup_lines.append(item_name)
+    popup_lines.append('Type: ' + utils.format_item_type(item['type']))
     if item['type'] == 'attack' or item['type'] == 'attack_ranged':
         damage_num = utils.format_damage_num(item['damage'])
-        popup_lines.append('Damage: ' + damage_num.capitalize())
+        popup_lines.append('Damage: ' + damage_num)
     elif item['type'] == 'upper_body' or item['type'] == 'lower_body' or item['type'] == 'head' or item['type'] == 'feet' or item['type'] == 'hands' or item['type'] == 'shield':
         defence_num = utils.format_defence_num(item['defence'])
-        popup_lines.append('Defence: ' + defence_num.capitalize())
-        popup_lines.append('* This item grants you defence against damage in combat *')
+        popup_lines.append('Defence: ' + defence_num)
+        if item['defence'] > 0:
+            popup_lines.append('* This item grants you defence against damage in combat *')
     if item_equippable and item['on_equip']:
         text_powers = 'This item is infused with magicks'
         if item['identified'] is True:
@@ -179,15 +226,24 @@ def examine(item_id):
             text_powers = 'This item seems to be infused with some mysterious magicks'
             if item['text_unidentified'] is not None:
                 text_powers = item['text_unidentified']
-        popup_lines.append('* ' + text_powers + ' *')
+        text_powers = utils.add_tag('* ' + text_powers + ' *', fg = config.TAG_COLOR_ITEM_MAGICAL)
+        popup_lines.append(text_powers)
     for line in item['text']:
         popup_lines.append(utils.format_color_tags(line))
     if item_equipped:
         popup_options[0].append(system.SelectionOption("unequip", 'Unequip item', item_id))
     elif item_equippable:
         popup_options[0].append(system.SelectionOption("equip", 'Equip item', item_id))
-    elif item['type'] == 'consumable':
-        popup_options[0].append(system.SelectionOption("consume", 'Consume item', item_id))
+    elif item['type'] in config.item_type_consumable:
+        consume_text = 'Consume'
+        if item['type'] == 'drink':
+            consume_text = 'Drink'
+        elif item['type'] == 'food':
+            consume_text = 'Eat'
+        consume_text += ' item'
+        if item['consume_text']:
+            consume_text = item['consume_text']
+        popup_options[0].append(system.SelectionOption("consume", consume_text, item_id))
     popup_options[0].append(system.SelectionOption("cancel", 'Go back'))
     system.set_popup_content(popup_lines, popup_options)
 
@@ -195,13 +251,17 @@ def equip(item_id):
     global equipments_changed
     equipments_changed += 1
     item = system.items[item_id]
-    if item['type'] in config.equipment and config.equipment[item['type']] is not None:
-        unequip(config.equipment[item['type']])
+    if item['type'] in config.equipped_armor and config.equipped_armor[item['type']] is not None:
+        unequip(config.equipped_armor[item['type']])
+    elif item['type'] in config.equipped_weapons and config.equipped_weapons[item['type']] is not None:
+        unequip(config.equipped_weapons[item['type']])
     item['identified'] = True
     if item['type'] == 'ring':
         config.rings.append(item_id)
-    else:
-        config.equipment[item['type']] = item_id
+    elif item['type'] in config.equipped_armor:
+        config.equipped_armor[item['type']] = item_id
+    elif item['type'] in config.equipped_weapons:
+        config.equipped_weapons[item['type']] = item_id
     system.inventory_list.remove(item_id)
     popup_lines = []
     equip_text = ''
@@ -228,7 +288,7 @@ def equip(item_id):
         for line in item['on_equip_text']:
             popup_lines.append(line)
     for action in item['on_equip']:
-        system.queue_action(action)
+        handle_item_action(action)
     system.set_popup_content(popup_lines)
 
 def unequip(item_id):
@@ -237,15 +297,18 @@ def unequip(item_id):
     item = system.items[item_id]
     if item['type'] == 'ring':
         config.rings.remove(item_id)
-    else:
-        config.equipment[item['type']] = None
+    elif item['type'] in config.equipped_armor:
+        config.equipped_armor[item['type']] = None
+    elif item['type'] in config.equipped_weapons:
+        config.equipped_weapons[item['type']] = None
     for action in item['on_unequip']:
-        system.queue_action(action)
+        handle_item_action(action)
     system.inventory_list.append(item_id)
 
 def consume(item_id):
     global items_consumed
     items_consumed += 1
+    config.add_to_stats('items_consumed', 1)
     item = system.items[item_id]
     system.inventory_list.remove(item_id)
     popup_lines = []
@@ -254,5 +317,11 @@ def consume(item_id):
         for line in item['on_consume_text']:
             popup_lines.append(line)
     for action in item['on_consume']:
-        system.queue_action(action)
+        handle_item_action(action)
     system.set_popup_content(popup_lines)
+
+def handle_item_action(action):
+    if action['type'] == 'activate_flag' or action['type'] == 'deactivate_flag':
+        system.execute_action(action)
+    else:
+        system.queue_action(action)

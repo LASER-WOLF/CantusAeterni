@@ -3,6 +3,7 @@ import math
 import re
 
 # PROJECT
+import audio
 import config
 import utils
 
@@ -439,7 +440,9 @@ def fill_init(fill):
         fill = fill_list[fill_num]
     return fill, fill_list, fill_num
 
-def format_selection_options_display(target_list, min_size_list = None, min_size = 10):
+def format_selection_options_display(target_list, min_size_list = None, min_size = 10, empty_text = None):
+    if empty_text is None:
+        empty_text = utils.add_tag('Nothing', fg = config.TAG_COLOR_UI_INACTIVE)
     pre_line = "> "
     pre_line_empty = " "
     result = []
@@ -455,12 +458,12 @@ def format_selection_options_display(target_list, min_size_list = None, min_size
         for y, option_entry in enumerate(option_list):
             entry = ""
             if len(utils.list_none_filter(option_list)) == 0 and y == 0:
-                entry = pre_line_empty + "(EMPTY)"
+                entry = pre_line_empty + empty_text
             if option_entry:
                 entry = option_entry.display_name
                 if x == config.ui_selection_x and y == config.ui_selection_y and config.ui_scroll_log == 0:
                     entry = utils.add_ui_tag(entry, x, y, config.UI_TAGS['return'])
-                    entry = utils.add_tag(pre_line + entry, config.TAG_COLOR_UI_SEL_FG)
+                    entry = pre_line + entry
                 else:
                     entry = utils.add_ui_tag(entry, x, y, config.UI_TAGS['return'])
                     entry = pre_line_empty + entry
@@ -540,7 +543,7 @@ def window_upper():
     if config.settings['debug_mode']:
         if config.mode != config.MODE_DEBUG:
             content.append("DEBUG MODE")
-    if config.mode == config.MODE_SETTINGS:
+    elif config.mode == config.MODE_SETTINGS:
         content.append("SETTINGS")
     elif config.mode == config.MODE_DEBUG:
         content.append("DEBUG SCREEN")
@@ -548,12 +551,16 @@ def window_upper():
         content.append("HELP")
     elif config.mode == config.MODE_CUTSCENE or config.mode == config.MODE_GAME:
         content.append('ADVENTURE')
-        if config.flags['show_hp_num']:
+        if config.flags['show_player_hp']:
             content.append('HEALTH POINTS: ' + str(config.player['health_points']))
     elif config.mode == config.MODE_MAP:
         content.append("MAP")
     elif config.mode == config.MODE_INVENTORY:
         content.append("INVENTORY")
+    elif config.mode == config.MODE_CHARACTER:
+        content.append("CHARACTER")
+    if config.settings['enable_music'] and config.settings['enable_music_now_playing']:
+        content.append('♫ NOW PLAYING: ' + str(audio.music_title).upper() + ' ♫')
     upper_window_string = ""
     for num, item in enumerate(content):
         if num != 0:
@@ -566,13 +573,15 @@ def window_upper():
 def window_lower_empty():
     return Content(WINDOW_LOWER, min_height = 0)
 
-def combine_blocks(blocks, margin_size = 4, r_align = None):
+def combine_blocks(blocks, margin_size = 4, r_align = None, min_size_list = None):
     margin = fill_empty_space("", margin_size)
     lines = []
     height = utils.list_longest_entry_length([utils.remove_tag_list(utils.list_none_filter(single_block)) for single_block in utils.list_none_filter(blocks)])
     block_length = []
-    for block in blocks:
+    for block_num, block in enumerate(blocks):
         just_num = utils.list_longest_entry_length(utils.remove_tag_list(utils.list_none_filter(block)))
+        if min_size_list is not None and len(min_size_list) > block_num:
+            just_num = max(min_size_list[block_num], just_num)
         block_length.append(just_num)
     if r_align is not None:
         l_length = sum(block_length[:r_align:])
@@ -601,7 +610,7 @@ def combine_blocks(blocks, margin_size = 4, r_align = None):
 def block_minimap(room, npcs = None, position = None, ui_tags = None):
     lines = []
     if config.mode == config.MODE_GAME:
-        lines.append("MEMORY (LOCAL):".ljust(15))
+        lines.append("MEMORY:".ljust(15))
     for y in range(3):
         line_top = ""
         line_mid = ""

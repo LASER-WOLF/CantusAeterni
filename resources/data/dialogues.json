@@ -3,21 +3,22 @@
     "text": [
       "You see a big toad, it is standing on it's two hind legs and looks at you intently.",
       "It is wearing a white shirt on it's upper body and has a strange necklace around it's neck.",
-      "* In a loud chirping voice, the toad calls out: *",
-      "Oh, jeez, oh boy.",
+      "<name_default>: (In a loud chirping voice) Oh, jeez, oh boy.",
       "* The toad seems quite nervous *",
-      "A hah, heh, hello hello. My name is Ghyle of Nhula.",
+      "<name_default>: A hah, heh, hello hello. My name is Ghyle of Nhula.",
       "* The big toad lowers his head in a respectful bow and strethes out a long slimy hand in a friendly manner *"
+    ],
+    "on_load": [
+      {
+        "type": "npc_unlock_secret_name",
+        "link": null
+      }
     ],
     "responses": [
       {
         "text": "* Grab the hand and give it a gentle shake * Greetings!",
         "next": "2",
         "on_response": [
-          {
-            "type": "npc_unlock_secret_name",
-            "link": null
-          }
         ]
       },
       {
@@ -30,9 +31,11 @@
   },
   "2": {
     "text": [
-      "Oh heh, even though I certainly would wish to meet under different circumstances, heh he, STILL, it is a fine pleasure to make your acquaintance!",
+      "<name>: Oh heh, even though I certainly would wish to meet under different circumstances, heh he, STILL, it is a fine pleasure to make your acquaintance!",
       "* The toad leans in with a big smile and stares at you, at an almost uncomfortably close range *",
-      "Please, if you'll allow me, let me burden you with the terrible tale of what unfortunate distasters befell me these past days, and how I ended up here."
+      "<name>: Please, if you'll allow me, let me burden you with the terrible tale of what unfortunate disasters befell me these past days, and how I ended up here."
+    ],
+    "on_load": [
     ],
     "responses": [
       {
@@ -55,7 +58,9 @@
   },
   "3": {
     "text": [
-      "You bloody bastard!"
+      "<name>: You bloody bastard!"
+    ],
+    "on_load": [
     ],
     "responses": [
       {
@@ -68,7 +73,9 @@
   },
   "4": {
     "text": [
-      "You god damn bastard!"
+      "<name>: You god damn bastard!"
+    ],
+    "on_load": [
     ],
     "responses": [
       {
@@ -87,7 +94,9 @@
   },
   "5": {
     "text": [
-      "All right! I'll seize hostilites if you agree to do the same."
+      "<name>: All right! I'll seize hostilites if you agree to do the same."
+    ],
+    "on_load": [
     ],
     "responses": [
       {
@@ -110,7 +119,9 @@
   },
   "6": {
     "text": [
-      "Fine!"
+      "<name>: Fine!"
+    ],
+    "on_load": [
     ],
     "responses": [
       {

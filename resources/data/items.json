@@ -10,6 +10,7 @@
     "name": "rusty sword",
     "type": "attack",
     "damage": 8,
+    "interact_text": "Swing your sword at",
     "on_attack": [
     ],
     "attack_text": [
@@ -32,9 +33,10 @@
     ]
   },
   "3": {
-    "name": "bow",
+    "name": "old bow",
     "type": "attack_ranged",
     "damage": 6,
+    "interact_text": "Shoot an arrow at",
     "on_attack": [
     ],
     "attack_text": [
@@ -68,13 +70,13 @@
     "on_equip": [
       {
         "type": "activate_flag",
-        "link": "show_hp_num"
+        "link": "show_battle_num"
       }
     ],
     "on_unequip": [
       {
         "type": "deactivate_flag",
-        "link": "show_hp_num"
+        "link": "show_battle_num"
       }
     ],
     "text": [
@@ -185,7 +187,8 @@
   },
   "11": {
     "name": "antidote",
-    "type": "consumable",
+    "type": "drink",
+    "consume_text": "Drink antidote",
     "text": [
       "It is a bottle made of slightly green glass with a label covering it. The label reads \"Antidote for poisoning\"."
     ],
@@ -201,15 +204,18 @@
   },
   "12": {
     "name": "health potion",
-    "type": "consumable",
+    "type": "drink",
+    "consume_text": "Drink potion",
     "text": [
       "It is a finely made glass bottle of remarkable quality. Inside is a mysterious liquid. The label on the bottle reads \"Refreshing magick health drink, cures wounds and such\"."
     ],
     "on_consume": [
       {
         "type": "heal_player",
-        "link": 15,
-        "link2": "the potion"
+        "link": {
+          "health_points": 15,
+          "source": "the potion"
+        }
       }
     ],
     "on_consume_text": [

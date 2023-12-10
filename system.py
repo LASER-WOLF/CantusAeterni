@@ -50,7 +50,6 @@ def end_turn(action):
         audio.fx_pick_up_item()
     elif action == 'portal_blocked':
         audio.fx_portal_blocked()
-    update_health_status()
     config.game['turn'] += 1
     config.ui_scroll_log = 0
     config.ui_scroll_center = 0
@@ -62,7 +61,9 @@ def update_active_npcs():
         if npc['disabled'] == False and npc['room'] == active_room:
             active_npcs[npc_id] = npc
 
-def heal_player(heal, heal_source = None):
+def heal_player(link):
+    heal = link['health_points']
+    heal_source = link['source']
     original_heal = heal
     old_hp = config.player['health_points']
     new_hp = min(config.player['health_points_max'], old_hp + heal)
@@ -78,7 +79,7 @@ def heal_player(heal, heal_source = None):
     elif diff > 20:
         heal_num_txt = 'major health'
     heal_text = utils.format_log_heal(heal_num_txt)
-    if config.flags['show_hp_num']:
+    if config.flags['show_battle_num']:
         s = ''
         if heal != 1:
             s = 's'
@@ -86,46 +87,72 @@ def heal_player(heal, heal_source = None):
     add_log('You regain ' + heal_text + ' from ' + heal_source +'.')
     config.player['health_points'] = new_hp
 
-def update_health_status():
+def update_npc_health_status(npc):
+    health_percent = int((npc['health_points'] / npc['health_points_max']) * 100)
     health_stage = 0
-    if config.player['health_points'] <= 0:
-        health_stage = 8
-    elif config.player['health_points'] < 10:
-        health_stage = 7
-    elif config.player['health_points'] < 26:
-        health_stage = 6
-    elif config.player['health_points'] < 42:
-        health_stage = 5
-    elif config.player['health_points'] < 58:
+    if health_percent <= 0:
         health_stage = 4
-    elif config.player['health_points'] < 74:
+    elif health_percent < 25:
         health_stage = 3
-    elif config.player['health_points'] < 90:
+    elif health_percent < 50:
         health_stage = 2
-    elif config.player['health_points'] < 100:
+    elif health_percent < 75:
+        health_stage = 1
+    if npc['health_stage'] != health_stage:
+        if health_stage == 0:
+            npc['health_status'] = None
+        else:
+            health_status = random.choice(config.npc_health_stages[health_stage])
+            health_status = utils.format_npc_health(health_stage, health_status)
+            if health_stage > npc['health_stage'] and npc['health_points'] > 0:
+                add_log(format_npc_log_text(health_status, npc))
+            npc['health_status'] = health_status
+        npc['health_stage'] = health_stage
+    if config.flags['show_npc_hp']:
+        s = ''
+        if npc['health_points'] != 1:
+            s = 's'
+            add_log(format_npc_log_text('<name> has ' + npc['health_points'] + ' (' + health_percent + '%) health point' + s + ' left.', npc))
+
+def update_player_health_status():
+    health_percent = int((config.player['health_points'] / config.player['health_points_max']) * 100)
+    health_stage = 0
+    if health_percent <= 0:
+        health_stage = 8
+    elif health_percent < 10:
+        health_stage = 7
+    elif health_percent < 26:
+        health_stage = 6
+    elif health_percent < 42:
+        health_stage = 5
+    elif health_percent < 58:
+        health_stage = 4
+    elif health_percent < 74:
+        health_stage = 3
+    elif health_percent < 90:
+        health_stage = 2
+    elif health_percent < 100:
         health_stage = 1
     if config.player['health_stage'] != health_stage:
         if health_stage == 0:
             config.player['health_status'] = None
         else:
-            health_status = random.choice(config.health_stages[health_stage])
-            health_status = utils.format_health(health_stage, health_status)
+            health_status = random.choice(config.player_health_stages[health_stage])
+            health_status = utils.format_player_health(health_stage, health_status)
             if health_stage > config.player['health_stage'] and config.player['health_points'] > 0:
                 add_log(health_status)
             config.player['health_status'] = health_status
         config.player['health_stage'] = health_stage
 
-def npc_set_hostile(npc = None, hostile = True):
-    if npc is None:
-        npc = current_target
+def npc_set_hostile(npc_id, hostile = True):
+    npc = npcs[npc_id]
     npc['hostile'] = hostile
 
-def npc_set_friendly(npc = None):
-    npc_set_hostile(npc, False)
+def npc_set_friendly(npc_id):
+    npc_set_hostile(npc_id, False)
 
-def npc_unlock_secret_name(npc = None):
-    if npc is None:
-        npc = current_target
+def npc_unlock_secret_name(npc_id):
+    npc = npcs[npc_id]
     npc['secret_name_unlocked'] = True
 
 def npc_check_move(npc):
@@ -142,7 +169,7 @@ def dmg_from_statuses():
 def dmg_from_wounds():
     if config.player['health_stage'] == 6 or config.player['health_stage'] == 7:
         if random_chance(config.player['health_stage'] - 4):
-            player_take_damage(randomize_damage(1), 'wounds', 'You died from wounds.')
+            player_take_damage(randomize_damage(1), 'your wounds', 'You died from your wounds.')
 
 def random_chance(level):
     random_options = [False, False, False, False, True]
@@ -153,9 +180,9 @@ def random_chance(level):
     if level == 4:
         random_options = [False, True, True, True]
     if level == 5:
-        random_options = [True]
+        random_options = [False, True, True, True, True, True, True]
     if level == 0:
-        random_options = [False]
+        random_options = [False, False, False, False ,False, False, False, False, False, False, False, False ,False, False, False, False, False, False, False, True]
     return random.choice(random_options)
 
 def npc_behaviour():
@@ -179,22 +206,16 @@ def npc_behaviour():
 def npc_action_move(npc, link):
     npc_change_position(link, npc)
 
-def format_npc_log_text(text, npc):
+def format_npc_log_text(text, npc, colored = True):
     text = text.replace('<pos>', utils.format_position_text_room(npc['position'], rooms[active_room]['noun']))
-    text = text.replace('<name>', utils.format_npc_name(npc))
+    text = text.replace('<name>', utils.format_npc_name(npc, colored = colored))
+    text = text.replace('<name_default>', utils.format_npc_name(npc, colored = colored, force_default = True))
+    text = text.replace('<name_secret>', utils.format_npc_name(npc, colored = colored, force_secret = True))
     text = text.replace('<pronoun_sub>', utils.format_npc_pronoun(npc, 'subject'))
     text = text.replace('<pronoun_obj>', utils.format_npc_pronoun(npc, 'object'))
     text = text.replace('<pronoun_pos>', utils.format_npc_pronoun(npc, 'possesive'))
     text = text.replace('<pronoun_ref>', utils.format_npc_pronoun(npc, 'reflexive'))
-    char_in_tag = False
-    for num, character in enumerate(text):
-        if character == '<':
-            char_in_tag = True
-        elif char_in_tag is False:
-            text = text[:num] + character.upper() + text[num + 1:]
-            break
-        elif character == '>':
-            char_in_tag = False
+    text = utils.capitalize(text)
     return text
 
 def player_take_damage(dmg, dmg_source, game_over_text = None, defence_num = 0):
@@ -213,7 +234,7 @@ def player_take_damage(dmg, dmg_source, game_over_text = None, defence_num = 0):
         elif diff > 20:
             dmg_num_txt = 'major damage'
         damage_text = 'take ' + utils.format_log_damage(dmg_num_txt)
-        if config.flags['show_hp_num']:
+        if config.flags['show_battle_num']:
             s = ''
             if dmg != 1:
                 s = 's'
@@ -230,7 +251,7 @@ def player_take_damage(dmg, dmg_source, game_over_text = None, defence_num = 0):
                 defence_text = 'a very good amount'
             elif defence_precent > 80:
                 defence_text = 'almost all'
-            if config.flags['show_def_num']:
+            if config.flags['show_battle_num']:
                 defence_text = str(defence_precent) + '%'
             add_log('Your equipment protects you from ' + defence_text + ' of the damage from ' + dmg_source + '.')
         add_log('You ' + damage_text + ' from ' + dmg_source +'.')
@@ -239,6 +260,7 @@ def player_take_damage(dmg, dmg_source, game_over_text = None, defence_num = 0):
             add_log('You die from ' + dmg_source + '.')
             if game_over_text:
                 config.game['game_over_text'] = game_over_text
+        update_player_health_status()
 
 def npc_take_damage(dmg, dmg_source, npc, killed_text):
     if dmg > 0 and npc['health_points'] > 0:
@@ -254,7 +276,7 @@ def npc_take_damage(dmg, dmg_source, npc, killed_text):
         elif diff > 20:
             dmg_num_txt = 'major damage'
         damage_text = 'takes ' + utils.format_log_damage(dmg_num_txt)
-        if config.flags['show_hp_num']:
+        if config.flags['show_battle_num']:
             s = ''
             if dmg != 1:
                 s = 's'
@@ -270,6 +292,7 @@ def npc_take_damage(dmg, dmg_source, npc, killed_text):
                 popup_lines = []
                 popup_lines.append(format_npc_log_text(killed_text, npc))
                 set_popup_content(popup_lines)
+        update_npc_health_status(npc)
 
 def player_death():
     config.game['game_over'] = True
@@ -295,6 +318,8 @@ def player_death():
     if config.game['game_over_text']:
         popup_lines.append(config.game['game_over_text'])
     popup_lines.append('You played for ' + str(config.game['turn']) + ' turns.')
+    if config.stats['npcs_killed'] > 0:
+        popup_lines.append('You commited ' + str(config.stats['npcs_killed']) + ' murders.')
     popup_options = [[
         SelectionOption('restart_game', 'Return to title screen'),
         SelectionOption('quit_game', 'Quit game')
@@ -353,18 +378,18 @@ def npc_action_attack_player(npc, ranged = False):
 
 def check_player_defence():
     defence_num = 0
-    if config.equipment['upper_body'] is not None:
-        defence_num += items[config.equipment['upper_body']]['defence']
-    if config.equipment['lower_body'] is not None:
-        defence_num += items[config.equipment['lower_body']]['defence']
-    if config.equipment['head'] is not None:
-        defence_num += items[config.equipment['head']]['defence']
-    if config.equipment['hands'] is not None:
-        defence_num += items[config.equipment['hands']]['defence']
-    if config.equipment['feet'] is not None:
-        defence_num += items[config.equipment['feet']]['defence']
-    if config.equipment['shield'] is not None:
-        defence_num += items[config.equipment['shield']]['defence']
+    if config.equipped_armor['upper_body'] is not None:
+        defence_num += items[config.equipped_armor['upper_body']]['defence']
+    if config.equipped_armor['lower_body'] is not None:
+        defence_num += items[config.equipped_armor['lower_body']]['defence']
+    if config.equipped_armor['head'] is not None:
+        defence_num += items[config.equipped_armor['head']]['defence']
+    if config.equipped_armor['hands'] is not None:
+        defence_num += items[config.equipped_armor['hands']]['defence']
+    if config.equipped_armor['feet'] is not None:
+        defence_num += items[config.equipped_armor['feet']]['defence']
+    if config.equipped_armor['shield'] is not None:
+        defence_num += items[config.equipped_armor['shield']]['defence']
     return defence_num
 
 def npc_move_to_player(npc):
@@ -504,7 +529,7 @@ def enter_room(room_id, logging = False):
     if logging:
         add_log("You enter the " + rooms[active_room]['noun'])
 
-def execute_action(action, target = None):
+def execute_action(action):
     if action['type'] == 'enter_room':
         enter_room(action['link'])
     elif action['type'] == 'change_position':
@@ -526,7 +551,7 @@ def execute_action(action, target = None):
     elif action['type'] == 'npc_unlock_secret_name':
         npc_unlock_secret_name(action['link'])
     elif action['type'] == 'heal_player':
-        heal_player(action['link'], action['link2'])
+        heal_player(action['link'])
     config.add_debug_log("Action: " + action['type'] + " -> " + str(action['link']))
 
 def queue_action(action):
@@ -683,7 +708,8 @@ def ui_selection_none():
     ui_selection_options = None
     config.ui_selection_x = 0
     config.ui_selection_y = 0
-    config.ui_log_scroll_pos = 0
+    config.ui_scroll_log = 0
+    config.ui_scroll_center = 0
     config.ui_selection_current = None
 
 def change_mode(new_mode):
@@ -717,7 +743,6 @@ def initialize_new_game():
     global active_npcs
     global current_position
     global current_target
-    global current_target_info
     rooms = json.load(open('resources/data/rooms.json','r')) 
     cutscenes = json.load(open('resources/data/cutscenes.json','r')) 
     interactables = json.load(open('resources/data/interactables.json','r')) 
@@ -734,7 +759,6 @@ def initialize_new_game():
     active_npcs = None
     current_position = "c"
     current_target = None
-    current_target_info = None
     config.initialize_new_game()
     change_mode(config.MODE_CUTSCENE)
 

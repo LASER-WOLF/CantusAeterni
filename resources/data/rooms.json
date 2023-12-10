@@ -18,13 +18,13 @@
       {
         "position": "c",
         "link": "1",
-        "content": "Dive into the deep pool of slime",
+        "content": "Dive into the deep pool of slime leading north",
         "disabled": true
       },
       {
         "position": "s",
         "link": "2",
-        "content": "Climb into the cave",
+        "content": "Climb into the cave leading south",
         "disabled": true
       }
     ],
@@ -32,13 +32,13 @@
       {
         "position": "c",
         "link": "1",
-        "content": "A deep pool of slime on the grotto floor",
+        "content": "Examine the deep pool of slime on the grotto floor",
         "disabled": false
       },
       {
         "position": "s",
         "link": "3",
-        "content": "A narrow cave entrance on the grotto wall",
+        "content": "Examine the narrow cave entrance on the grotto wall",
         "disabled": false
       }
     ],
@@ -134,7 +134,7 @@
       {
         "position": "c",
         "link": "1",
-        "content": "Dive into the deep pool of slime leading back to the grotto",
+        "content": "Dive into the deep pool of slime leading south",
         "disabled": true
       }
     ],
@@ -142,55 +142,55 @@
       {
         "position": "sw",
         "link": "9",
-        "content": "Something glinting in the darkness",
+        "content": "Examine the glinting object",
         "disabled": false
       },
       {
-        "position": "sw",
+        "position": "w",
         "link": "10",
-        "content": "Something glinting in the darkness",
+        "content": "Examine the glinting object",
         "disabled": false
       },
       {
-        "position": "sw",
+        "position": "nw",
         "link": "2",
-        "content": "Something glinting in the darkness",
+        "content": "Examine the glinting object",
         "disabled": false
       },
       {
         "position": "se",
         "link": "7",
-        "content": "A helmet",
+        "content": "Examine the helmet",
         "disabled": false
       },
       {
         "position": "se",
         "link": "6",
-        "content": "A ring",
+        "content": "Examine the ring",
         "disabled": false
       },
       {
         "position": "se",
         "link": "4",
-        "content": "An unknown object",
+        "content": "Examine the unknown object",
         "disabled": false
       },
       {
         "position": "se",
         "link": "5",
-        "content": "An unknown object",
+        "content": "Examine the unknown object",
         "disabled": false
       },
       {
         "position": "se",
         "link": "8",
-        "content": "An unknown object",
+        "content": "Examine the unknown object",
         "disabled": false
       }
     ],
     "sight": [
       {
-        "position": "sw",
+        "position": "nw",
         "link": "3",
         "content": "You see <i>something glinting</i> in the darkness in front of you.",
         "disabled": false
@@ -202,7 +202,7 @@
         "disabled": false
       },
       {
-        "position": "sw",
+        "position": "w",
         "link": "12",
         "content": "You see <i>something glinting</i> in the darkness in front of you.",
         "disabled": false
@@ -228,19 +228,19 @@
       {
         "position": "se",
         "link": "6",
-        "content": "You see <i>an unknown object</i> in the darkness in front of you.",
+        "content": "You see <i>an unknown object</i> next to the skelleton in the darkness in front of you.",
         "disabled": false
       },
       {
         "position": "se",
         "link": "7",
-        "content": "You see <i>an unknown object</i> in the darkness in front of you.",
+        "content": "You see <i>an unknown object</i> next to the skelleton in the darkness in front of you.",
         "disabled": false
       },
       {
         "position": "se",
         "link": "10",
-        "content": "You see <i>an unknown object</i> in the darkness in front of you.",
+        "content": "You see <i>an unknown object</i> next to the skelleton in the darkness in front of you.",
         "disabled": false
       },
       {
@@ -304,7 +304,7 @@
 	  {
         "position": "w",
         "link": "3",
-        "content": "Head westwards through the trees",
+        "content": "Head westwards on the path through the trees",
         "disabled": false
       }
     ],
@@ -370,7 +370,7 @@
       {
         "position": "e",
         "link": "3",
-        "content": "Head eastwards through the trees.",
+        "content": "Head eastwards on the path through the trees",
         "disabled": false
       }
     ],

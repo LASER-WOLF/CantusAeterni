@@ -11,11 +11,11 @@ import pygame
 # PROJECT
 import audio
 import config
+import modes.character
 import modes.cutscene
 import modes.debug
 import modes.game
 import modes.help
-import modes.inventory
 import modes.main_menu
 import modes.map
 import modes.settings
@@ -172,14 +172,14 @@ def run():
                     screen_content = modes.settings.run()
                 elif config.mode == config.MODE_HELP:
                     screen_content = modes.help.run()
-                elif config.mode == config.MODE_INVENTORY:
-                    screen_content = modes.inventory.run()
                 elif config.mode == config.MODE_CUTSCENE:
                     screen_content = modes.cutscene.run()
                 elif config.mode == config.MODE_GAME:
                     screen_content = modes.game.run()
                 elif config.mode == config.MODE_MAP:
                     screen_content = modes.map.run()
+                elif config.mode == config.MODE_CHARACTER:
+                    screen_content = modes.character.run()
                 for layer_num, content_layer in enumerate(screen_content):
                     ui_options = []
                     layer_type = content_layer[0]
@@ -234,11 +234,11 @@ def run():
                                 render_line = font.render(clean_line, False, config.PALETTES[config.settings['palette']][line_color])
                                 screen.blit(render_line, (offset_x + start_x, start_y + pos_y))
                             # FIND UI TAGS
-                            tag_search = re.finditer('<ui=(.{2}):(.{2}):(.{2})>(.*?)</ui>', utils.remove_text_tag(line))
+                            tag_search = re.finditer('<ui=(.{2}):(.{2}):(.{2})>(.*?)</ui>', utils.remove_text_tag(line), flags = re.IGNORECASE)
                             for tag_num, match in enumerate(tag_search):
-                                match_x = match.group(1)
-                                match_y = match.group(2)
-                                match_action = match.group(3)
+                                match_x = match.group(1).lower()
+                                match_y = match.group(2).lower()
+                                match_action = match.group(3).lower()
                                 match_text = match.group(4)
                                 start_adj = 18 * tag_num
                                 match_start = match.start() - start_adj
@@ -250,11 +250,11 @@ def run():
                                 ui_option = (match_text, ui_option_rect,(int(match_x), int(match_y)), match_action)
                                 ui_options.append(ui_option)
                             # FIND TEXT TAGS
-                            tag_search = re.finditer('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>',  utils.remove_ui_tag(line))
+                            tag_search = re.finditer('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>',  utils.remove_ui_tag(line), flags = re.IGNORECASE)
                             for tag_num, match in enumerate(tag_search):
-                                match_fg = match.group(1)
-                                match_bg = match.group(2)
-                                match_other = match.group(3)
+                                match_fg = match.group(1).lower()
+                                match_bg = match.group(2).lower()
+                                match_other = match.group(3).lower()
                                 match_text = match.group(4)
                                 start_adj = 22 * tag_num
                                 match_start = match.start() - start_adj
@@ -391,14 +391,14 @@ def run():
                         modes.settings.input(key, mod)
                     elif config.mode == config.MODE_HELP:
                         modes.help.input(key, mod)
-                    elif config.mode == config.MODE_INVENTORY:
-                        modes.inventory.input(key, mod)
                     elif config.mode == config.MODE_CUTSCENE:
                         modes.cutscene.input(key, mod)
                     elif config.mode == config.MODE_GAME:
                         modes.game.input(key, mod)
                     elif config.mode == config.MODE_MAP:
                         modes.map.input(key, mod)
+                    elif config.mode == config.MODE_CHARACTER:
+                        modes.character.input(key, mod)
         # CHANGE WINDOW MODE / RESOLUTION
         if window_mode != config.settings['window_mode'] or (window_mode == config.WINDOW_MODE_NORMAL and (screen_width != config.settings['screen_width'] or screen_height != config.settings['screen_height'])):
             pygame.display.quit()

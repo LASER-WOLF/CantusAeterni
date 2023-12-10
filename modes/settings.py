@@ -9,6 +9,7 @@ def run():
     return [
         windows.main([
             windows.window_upper(),
+            window_center(),
             window_lower(),
         ])
     ]
@@ -49,6 +50,9 @@ def input(key, mod = None):
                     audio.music_stop()
             elif selected_option.name == "enable_sound":
                 config.settings['enable_sound'] = system.ui_selection_option_change_toggle(config.settings['enable_sound'])
+                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
+            elif selected_option.name == "enable_music_now_playing":
+                config.settings['enable_music_now_playing'] = system.ui_selection_option_change_toggle(config.settings['enable_music_now_playing'])
                 config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
             elif selected_option.name == "enable_sound_ui":
                 config.settings['enable_sound_ui'] = system.ui_selection_option_change_toggle(config.settings['enable_sound_ui'])
@@ -127,33 +131,38 @@ def input(key, mod = None):
 
 def selection_options():
     result = [[]]
-    result[0].append(system.SelectionOption("window_mode", "SCREEN, WINDOW MODE:", str(config.settings['window_mode']).upper(), "multi", [config.WINDOW_MODE_NORMAL, config.WINDOW_MODE_FULLSCREEN]))
+    result[0].append(system.SelectionOption("window_mode", "Screen | Window mode:", str(config.settings['window_mode']).capitalize(), "multi", [config.WINDOW_MODE_NORMAL, config.WINDOW_MODE_FULLSCREEN]))
     if config.settings['window_mode'] == config.WINDOW_MODE_NORMAL:
-        result[0].append(system.SelectionOption("resolution", "SCREEN, RESOLUTION (WINDOWED):", str(config.settings['screen_width']) + "x" + str(config.settings['screen_height']), "multi", config.RESOLUTIONS))
-    result[0].append(system.SelectionOption("font", "SCREEN, FONT:", str(config.settings['font']).upper(), "multi", list(config.FONTS.keys())))
-    result[0].append(system.SelectionOption("palette", "SCREEN, COLOR PALETTE:", str(config.settings['palette']).upper(), "multi", list(config.PALETTES.keys())))
-    result[0].append(system.SelectionOption("enable_mouse", "SYSTEM, ENABLE MOUSE:", str(config.settings['enable_mouse']).upper(), "toggle"))
-    result[0].append(system.SelectionOption("enable_music", "AUDIO, ENABLE MUSIC:", str(config.settings['enable_music']).upper(), "toggle"))
-    result[0].append(system.SelectionOption("enable_sound", "AUDIO, ENABLE SOUND:", str(config.settings['enable_sound']).upper(), "toggle"))
+        result[0].append(system.SelectionOption("resolution", "Screen | Resolution (windowed):", str(config.settings['screen_width']) + "x" + str(config.settings['screen_height']), "multi", config.RESOLUTIONS))
+    result[0].append(system.SelectionOption("font", "Screen | Font:", str(config.settings['font']), "multi", list(config.FONTS.keys())))
+    result[0].append(system.SelectionOption("palette", "Screen | Color palette:", str(config.settings['palette']), "multi", list(config.PALETTES.keys())))
+    result[0].append(system.SelectionOption("enable_mouse", "System | Enable mouse:", str(config.settings['enable_mouse']).capitalize(), "toggle"))
+    result[0].append(system.SelectionOption("enable_music", "Audio | Enable music:", str(config.settings['enable_music']).capitalize(), "toggle"))
+    result[0].append(system.SelectionOption("enable_sound", "Audio | Enable sound:", str(config.settings['enable_sound']).capitalize(), "toggle"))
     if config.settings['enable_sound']:
-        result[0].append(system.SelectionOption("enable_sound_ui", "AUDIO, ENABLE UI SOUND:", str(config.settings['enable_sound_ui']).upper(), "toggle"))
-    result[0].append(system.SelectionOption("master_volume", "AUDIO, MASTER VOLUME:", str(round(config.settings['master_volume'] * 10)).zfill(2) + " / 10", "scale", (0, 10, 1)))
+        result[0].append(system.SelectionOption("enable_sound_ui", "Audio | Enable UI sound:", str(config.settings['enable_sound_ui']).capitalize(), "toggle"))
+    result[0].append(system.SelectionOption("master_volume", "Audio | Master volume:", str(round(config.settings['master_volume'] * 10)).zfill(2) + " / 10", "scale", (0, 10, 1)))
     if config.settings['enable_music']:
-        result[0].append(system.SelectionOption("music_volume", "AUDIO, MUSIC VOLUME:", str(round(config.settings['music_volume'] * 10)).zfill(2) + " / 10", "scale", (0, 10, 1)))
+        result[0].append(system.SelectionOption("music_volume", "Audio | Music volume:", str(round(config.settings['music_volume'] * 10)).zfill(2) + " / 10", "scale", (0, 10, 1)))
     if config.settings['enable_sound']:
-        result[0].append(system.SelectionOption("sound_volume", "AUDIO, SOUND VOLUME:", str(round(config.settings['sound_volume'] * 10)).zfill(2) + " / 10", "scale", (0, 10, 1)))
-    result[0].append(system.SelectionOption("debug_mode", "DEBUG, ENABLE DEBUG MODE:", str(config.settings['debug_mode']).upper(), "toggle"))
+        result[0].append(system.SelectionOption("sound_volume", "Audio | Sound volume:", str(round(config.settings['sound_volume'] * 10)).zfill(2) + " / 10", "scale", (0, 10, 1)))
+    if config.settings['enable_music']:
+        result[0].append(system.SelectionOption("enable_music_now_playing", "Audio | Show title of music track:", str(config.settings['enable_music_now_playing']).capitalize(), "toggle"))
+    result[0].append(system.SelectionOption("debug_mode", "Debug | Enable debug mode:", str(config.settings['debug_mode']).capitalize(), "toggle"))
     if config.settings['debug_mode']:
-        result[0].append(system.SelectionOption("debug_on_start", "DEBUG, DEBUG SCREEN ON START:", str(config.settings['debug_on_start']).upper(), "toggle"))
-        result[0].append(system.SelectionOption("debug_log_to_file", "DEBUG, DEBUG LOG TO FILE:", str(config.settings['debug_log_to_file']).upper(), "toggle"))
-        result[0].append(system.SelectionOption("debug_error_log_to_file", "DEBUG, ERROR LOG TO FILE:", str(config.settings['debug_error_log_to_file']).upper(), "toggle"))
-        result[0].append(system.SelectionOption("debug_info_screen", "DEBUG, SHOW SCREEN INFO:", str(config.settings['debug_info_screen']).upper(), "multi", ['full', 'compact', 'hide']))
-    result[0].append(system.SelectionOption("back", "GO BACK"))
+        result[0].append(system.SelectionOption("debug_on_start", "Debug | Debug screen on start:", str(config.settings['debug_on_start']).capitalize(), "toggle"))
+        result[0].append(system.SelectionOption("debug_log_to_file", "Debug | Debug log to file:", str(config.settings['debug_log_to_file']).capitalize(), "toggle"))
+        result[0].append(system.SelectionOption("debug_error_log_to_file", "Debug | Error log to file:", str(config.settings['debug_error_log_to_file']).capitalize(), "toggle"))
+        result[0].append(system.SelectionOption("debug_info_screen", "Debug | Show screen info:", str(config.settings['debug_info_screen']).capitalize(), "multi", ['full', 'compact', 'hide']))
+    #result[0].append(system.SelectionOption("back", "GO BACK"))
     return result
 
-def window_lower():
+def window_center():
     ui_blocks = []
     selection_options_display = windows.format_selection_options_display_modifiable(system.ui_selection_options)
-    #selection_options_display[0].insert(0, 'SELECT OPTION:')
     ui_blocks.extend(selection_options_display)
-    return windows.Content(windows.WINDOW_LOWER, windows.combine_blocks(ui_blocks))
+    return windows.Content(windows.WINDOW_CENTER, windows.combine_blocks(ui_blocks))
+
+def window_lower():
+    lines = [windows.press_to_go_back_text()]
+    return windows.Content(windows.WINDOW_LOWER, lines, min_height = 0)

@@ -14,6 +14,7 @@ MODE_CUTSCENE = "cutscene"
 MODE_GAME = "game"
 MODE_INVENTORY = "inventory"
 MODE_MAP = "map"
+MODE_CHARACTER = "character"
 WINDOW_MODE_NORMAL = 'windowed'
 WINDOW_MODE_FULLSCREEN = 'fullscreen'
 WINDOW_MODE_BORDERLESS = 'borderless'
@@ -299,13 +300,14 @@ TAG_COLOR_HEALTH_2 = TAGS['yellow']
 TAG_COLOR_FG = TAGS['foreground']
 TAG_COLOR_BG = TAGS['background']
 TAG_COLOR_DARK = TAGS['bright_black']
+TAG_COLOR_FG_WEAK = TAGS['white']
 TAG_COLOR_UI_BG_SEL_FG = TAG_COLOR_BG
 TAG_COLOR_UI_BG_SEL_BG = TAG_COLOR_FG
 TAG_COLOR_UI_SEL_FG = TAG_COLOR_FG
-TAG_COLOR_UI_INACTIVE = TAGS['white']
+TAG_COLOR_UI_INACTIVE = TAG_COLOR_FG_WEAK
 TAG_COLOR_TITLE_SCREEN = TAGS['bright_cyan']
 TAG_COLOR_INTERACTABLE = TAGS['bright_green']
-TAG_COLOR_PORTAL = TAGS['bright_cyan']
+TAG_COLOR_PORTAL = TAG_COLOR_INTERACTABLE
 TAG_COLOR_DIRECTION = TAGS['bright_blue']
 TAG_COLOR_NPC = TAGS['bright_yellow']
 TAG_COLOR_STATUS = TAGS['bright_magenta']
@@ -318,9 +320,19 @@ TAG_COLOR_MAP_SELECTED = TAG_COLOR_FG
 TAG_COLOR_LOG_OLD = TAG_COLOR_UI_INACTIVE
 TAG_COLOR_LOG_DAMAGE = TAG_COLOR_HEALTH_1
 TAG_COLOR_LOG_HEAL = TAGS['green']
+TAG_COLOR_ITEM_TYPE_RING = TAGS['bright_red']
+TAG_COLOR_ITEM_TYPE_ARMOR = TAGS['bright_green']
+TAG_COLOR_ITEM_TYPE_WEAPON = TAGS['bright_cyan']
+TAG_COLOR_ITEM_TYPE_CONSUMABLE = TAGS['bright_magenta']
+TAG_COLOR_ITEM_TYPE_KEY = TAGS['bright_blue']
+TAG_COLOR_ITEM_MAGICAL = TAGS['bright_yellow']
+TAG_COLOR_STAGE_0 = TAG_COLOR_FG_WEAK
+TAG_COLOR_STAGE_1 = TAGS['red']
+TAG_COLOR_STAGE_2 = TAGS['yellow']
+TAG_COLOR_STAGE_3 = TAGS['green']
 
 # SET HEALTH STAGES
-health_stages = {
+player_health_stages = {
     1: [
     'You have received some <color>minor scratches</color>.',
     'You are <color>slighty bruised</color>.'
@@ -346,6 +358,20 @@ health_stages = {
     ],
     8: [
     'You are <color>dead</color>.',
+    ]
+}
+npc_health_stages = {
+    1: [
+    '<name> is slighty <color>wounded</color>.',
+    ],
+    2: [
+    '<name> is <color>injured</color>.',
+    ],
+    3: [
+    '<name> is badly <color>wounded</color>.',
+    ],
+    4: [
+    '<name> is <color>dead</color>.'
     ]
 }
 
@@ -399,6 +425,7 @@ ui_scroll_center = 0
 ui_scroll_lower = 0
 animation_queue = []
 game = {
+    'game_init': None,
     'turn': None,
     'game_over': None,
     'game_over_text': None,
@@ -412,16 +439,38 @@ player = {
     'attack_skill_ranged': None,
     'damage_melee': None,
 }
-equipment = {
+equipped_armor = {
     'head': None,
     'upper_body': None,
     'lower_body': None,
     'hands': None,
     'feet': None,
-    'attack': None,
-    'attack_ranged': None,
     'shield': None,
 }
+
+equipped_weapons = {
+    'attack': None,
+    'attack_ranged': None,
+}
+
+item_type_weapon = [
+'attack',
+'attack_ranged',
+]
+
+item_type_armor = [
+'head',
+'upper_body',
+'lower_body',
+'hands',
+'feet',
+'shield',
+]
+
+item_type_consumable = [
+'drink',
+'food',
+]
 
 rings = []
 
@@ -439,11 +488,13 @@ stats = {
     'health_healed': None,
     'times_player_missed': None,
     'times_npc_missed': None,
+    'items_consumed': None,
 }
 
 flags = {
-    'show_hp_num': None,
-    'show_def_num': None,
+    'show_battle_num': None,
+    'show_player_hp': None,
+    'show_npc_hp': None,
     'hide_minimap': None,
 }
 
@@ -454,25 +505,28 @@ def initialize_new_game():
     global game
     global player
     game['turn'] = 1
+    game['game_init'] = True
     game['game_over'] = False
     game['game_over_text'] = None
     player['health_points_max'] = 100
     player['health_points'] = 100
     player['health_stage'] = 0
     player['health_status'] = None
-    player['attack_skill'] = 2
-    player['attack_skill_ranged'] = 1
+    player['attack_skill'] = 1
+    player['attack_skill_ranged'] = 0
     player['damage_melee'] = 5
     for key in stats:
         stats[key] = 0
     rings = []
     for key in flags:
         flags[key] = False
-    for key in equipment:
-        equipment[key] = None
-    equipment['upper_body'] = '5'
-    equipment['lower_body'] = '6'
-    equipment['feet'] = '7'
+    for key in equipped_armor:
+        equipped_armor[key] = None
+    for key in equipped_weapons:
+        equipped_weapons[key] = None
+    equipped_armor['upper_body'] = '5'
+    equipped_armor['lower_body'] = '6'
+    equipped_armor['feet'] = '7'
     add_debug_log("Initializing new game")
 
 def initialize():

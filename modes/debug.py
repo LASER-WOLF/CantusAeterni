@@ -9,7 +9,6 @@ import windows
 debug_input_char = None
 
 def run():
-    system.set_selection_options(selection_options())
     return [
         windows.main([
             windows.window_upper(),
@@ -23,50 +22,60 @@ def input(key, mod = None):
     global debug_input_char
     debug_input_char = key
     selected_option = config.ui_selection_current
-    if selected_option is not None:
-        if(key == 'up'):
-            system.ui_log_or_selection_up()
-        elif(key == 'down'):
-            system.ui_log_or_selection_down()
-        elif(key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == "back"  and config.ui_scroll_log == 0)):
-            if config.ui_scroll_log > 0:
-                config.ui_scroll_log = 0
-            else:
-                if key == 'return' and selected_option.name == 'back':
-                    config.trigger_animation(config.ANIMATION_UI_SELECTION)
-                audio.ui_back()
-                system.change_mode(config.previous_mode)
-        elif(key == 'return' and config.ui_scroll_log == 0):
-            config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST)
-            if selected_option.name == "music_next":
-                audio.music_stop()
-
-def selection_options():
-    result = [[]]
-    if config.settings['enable_music']:
-        result[0].append(system.SelectionOption("music_next", "NEXT SONG"))
-    result[0].append(system.SelectionOption("back", "GO BACK"))
-    return result
+    if key == 'escape' or key == 'mouse3':
+        audio.ui_back()
+        system.change_mode(config.previous_mode)
+    elif key == 'up' and (mod == 'shift' or mod == 'scroll_center'):
+        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST, config.UI_TAGS['scroll_center_up'])
+        system.ui_scroll_center_up()
+    elif key == 'down' and (mod == 'shift' or mod == 'scroll_center'):
+        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST, config.UI_TAGS['scroll_center_down'])
+        system.ui_scroll_center_down()
+    elif key == 'up' or (key == 'up' and mod == 'scroll_log'):
+        system.ui_log_scroll_up()
+    elif key == 'down' or (key == 'down' and mod == 'scroll_log'):
+        system.ui_log_scroll_down()
 
 def window_center():
     lines = []
-    justnum = 20
-    lines.append('COLOR PALETTE: '.ljust(justnum) + '"' + config.settings['palette'].upper() + '"')
-    lines.append('FOREGROUND: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['foreground']) + '        ' + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['foreground']))
-    lines.append('RED: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['red']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_red']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['red']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_red']))
-    lines.append('GREEN: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['green']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_red']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['red']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_red']))
-    lines.append('YELLOW: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['yellow']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_yellow']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['yellow']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_yellow']))
-    lines.append('BLUE: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['blue']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_blue']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['blue']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_blue']))
-    lines.append('MAGENTA: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['magenta']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_magenta']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['magenta']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_magenta']))
-    lines.append('CYAN: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['cyan']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_cyan']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['cyan']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_cyan']))
-    lines.append('WHITE: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['white']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_white']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['white']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_white']))
-    lines.append('BLACK: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['black']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_black']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['black']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_black']))
+    justnum = 40
+    lines.append('Color palette: '.ljust(justnum) + '"' + config.settings['palette'] + '"')
+    lines.append('Foreground: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['foreground']) + '        ' + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['foreground']))
+    lines.append('Red: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['red']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_red']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['red']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_red']))
+    lines.append('Green: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['green']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_red']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['red']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_red']))
+    lines.append('Yellow: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['yellow']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_yellow']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['yellow']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_yellow']))
+    lines.append('Blue: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['blue']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_blue']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['blue']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_blue']))
+    lines.append('Magenta: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['magenta']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_magenta']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['magenta']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_magenta']))
+    lines.append('Cyan: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['cyan']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_cyan']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['cyan']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_cyan']))
+    lines.append('White: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['white']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_white']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['white']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_white']))
+    lines.append('Black: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['black']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_black']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['black']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_black']))
     lines.append("")
-    lines.append('LAST INPUT: '.ljust(justnum) + '"' + str(debug_input_char)  + '"')
-    lines.append('TURN #: '.ljust(justnum) + str(config.game['turn']))
-    lines.append('HEALTH: '.ljust(justnum) + str(config.player['health_points'])  + ' (' + str(config.player['health_stage']) +')')
+    lines.append('Last input: '.ljust(justnum) + '"' + str(debug_input_char)  + '"')
+    lines.append('Music status: '.ljust(justnum) + 'Playing: ' + str(audio.music_status()) + ' | Volume: ' + str(config.settings['music_volume']) + ' | Mode: ' + str(audio.music_type) + ' | Title: ' + str(audio.music_title))
     lines.append('')
-    lines.append('MUSIC STATUS: '.ljust(justnum) + 'PLAYING: ' + str(audio.music_status()).upper() + ' | VOL: ' + str(config.settings['music_volume']) + ' | MODE: ' + str(audio.music_type).upper() + ' | TITLE: ' + str(audio.music_title).upper())
+    lines.append('Statistics:')
+    lines.append('Turn #: '.ljust(justnum) + str(config.game['turn']))
+    lines.append('Health: '.ljust(justnum) + str(config.player['health_points'])  + ' (' + str(config.player['health_stage']) +')')
+    lines.append('Times player has moved: '.ljust(justnum) + str(config.stats['times_moved']))
+    lines.append('Times player has entered portal: '.ljust(justnum) + str(config.stats['portals_entered']))
+    lines.append('Number of NPCs player has killed: '.ljust(justnum) + str(config.stats['npcs_killed']))
+    lines.append('Times player has attacked: '.ljust(justnum) + str(config.stats['times_player_attack']))
+    lines.append('Times player has attacked ranged: '.ljust(justnum) + str(config.stats['times_player_attack_ranged']))
+    lines.append('Times player has missed: '.ljust(justnum) + str(config.stats['times_player_missed']))
+    lines.append('Times player has been attacked: '.ljust(justnum) + str(config.stats['times_npc_attack']))
+    lines.append('Times player has been attacked ranged: '.ljust(justnum) + str(config.stats['times_npc_attack_ranged']))
+    lines.append('Times attacks has missed player: '.ljust(justnum) + str(config.stats['times_npc_missed']))
+    lines.append('Damage player has dealt: '.ljust(justnum) + str(config.stats['damage_dealt']))
+    lines.append('Damage player has defended: '.ljust(justnum) + str(config.stats['damage_defended']))
+    lines.append('Damage player has received: '.ljust(justnum) + str(config.stats['damage_received']))
+    lines.append('Health poits player has healed: '.ljust(justnum) + str(config.stats['health_healed']))
+    lines.append('Number of items player has consumed: '.ljust(justnum) + str(config.stats['items_consumed']))
+    lines.append('')
+    lines.append('Flags:')
+    lines.append('show_battle_num: '.ljust(justnum) + str(config.flags['show_battle_num']))
+    lines.append('show_player_hp: '.ljust(justnum) + str(config.flags['show_player_hp']))
+    lines.append('show_npc_hp: '.ljust(justnum) + str(config.flags['show_npc_hp']))
+    lines.append('hide_minimap: '.ljust(justnum) + str(config.flags['hide_minimap']))
     return windows.Content(windows.WINDOW_CENTER, lines)
 
 def window_log():
@@ -75,8 +84,5 @@ def window_log():
     return windows.Content(windows.WINDOW_LOG, lines)
 
 def window_lower():
-    ui_blocks = []
-    selection_options_display = windows.format_selection_options_display(system.ui_selection_options)
-    selection_options_display[0].insert(0, 'SELECT OPTION:')
-    ui_blocks.extend(selection_options_display)
-    return windows.Content(windows.WINDOW_LOWER, windows.combine_blocks(ui_blocks))
+    lines = [windows.press_to_go_back_text()]
+    return windows.Content(windows.WINDOW_LOWER, lines, min_height = 0)

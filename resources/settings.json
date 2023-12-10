@@ -9,6 +9,7 @@
   "enable_music": false,
   "enable_sound": true,
   "enable_sound_ui": true,
+  "enable_music_now_playing": false,
   "master_volume": 1.0,
   "music_volume": 1.0,
   "sound_volume": 0.5,

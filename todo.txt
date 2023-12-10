@@ -1,19 +1,17 @@
 # TODO:
-  # add character screen / stats
-  # add char creation with skills / settings:
+  #npc: dead bool and sight/sound/smell
+  #popup window: min and max size + word wrapping and text scrolling
+  # skill progression:
     # skill: unarmed combat (attack_melee)
     # skill: combat (attack_skill)
     # skill: ranged combat (attack_skill_ranged)
+  # new game settings:
     # setting: enable minimap
-  # combat: npc health stages
-  # combat: flag - accurate npc hp remaining in log - npc_hp_num
   # add quests
   # npc: holds items, can give you as a reward for completing task or drop when killed
   # enable / disable id tied to room?
   # portal placement stored in portals and room file (duplicate data)
   # map mode: store room data in selection
-  # item: add magical ring to activate npc_hp_num
-  # item: add magical ring to activate show_def_num
   # npcs: actions
   # inventory: colored text in inventory
   # minimap: multicolor if multiple things on same tile
@@ -25,8 +23,14 @@
   # game over screen: audio fx
   # game over screen: music
   # play sound later (sound queueing?) for: move / discover portal / pick up item / change room
+  #z levels
   # support for saving / loading game  
   # cool logo and background for main menu
+  # editor mode
+    # import json -> python
+    # save python data as file
+    # when starting game import python data files
+    # ability to edit all data files
 
 # BUGS
   # BUG: Black screen after minimize
@@ -41,6 +45,13 @@
     # solarized -> forest
 
 # DONE:
+  # added dialogue fail (unsuccesfully try to talk to hostile npc)
+  # numerous fixes / changes to dialogue / examine / combat
+  # redone popup design
+  # redone inventory system
+  # combat: npc health stages
+  # combat: flag - accurate npc hp remaining in log - show_npc_hp
+  # add character screen / stats
   # better inventory screen
   # npcs: friendly (dialogue) / hostile (dialogue & combat)
   # change equipment use turn
