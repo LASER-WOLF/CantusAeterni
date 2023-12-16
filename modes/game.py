@@ -42,200 +42,156 @@ def run():
     if system.popup_content is not None:
         system.set_selection_options(system.popup_content['options'])
         layers.append(
-            windows.popup(system.popup_content['lines'], options = system.ui_selection_options, centered = system.popup_content['centered'])
+            windows.popup(system.popup_content['lines'], options = system.ui_selection_options, centered = system.popup_content['centered'], border_color = system.popup_content['border_color'], fg_color = system.popup_content['fg_color'], bg_color = system.popup_content['bg_color'])
         )
-
     return layers
 
-def action_attack(link):
-    player_attack_npc(link)
-    system.end_turn('attack')
-    config.add_to_stats('times_player_attack', 1)
-
-def action_attack_ranged(link):
-    player_attack_npc(link, ranged = True)
-    system.end_turn('attack_ranged')
-    config.add_to_stats('times_player_attack_ranged', 1)
-
-def action_portal(link):
-    block_action = False
-    blocking_npc = None
-    for npc in system.active_npcs.values():
-        if npc['hostile'] is True:
-            if npc['position'] == system.current_position:
-                block_action = random.choice([False, True, True, True])
-            elif npc['ranged'] is True:
-                block_action = random.choice([False, True])
-            if block_action is True:
-                blocking_npc = npc
-                break
-    if block_action is False:
-        enter_portal(link)
-        system.end_turn('portal')
-        config.add_to_stats('portals_entered', 1)
-    else:
-        system.add_log(system.format_npc_log_text('<name> blocks you from leaving.', blocking_npc))
-        system.end_turn('portal_blocked')
-
-def action_move(link):
-    system.player_change_position(link, logging = True)
-    system.end_turn('move')
-    config.add_to_stats('times_moved', 1)
-
-def action_pickup(link):
-    add_to_inventory(link)
-    system.end_turn('pickup')
+def ui_action_restart_game():
+    config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_back')
+    system.restart_game()
 
 def input_popup(key, mod = None):
+    valid_input = False
     selected_option = config.ui_selection_current
     if selected_option is None:
-        if key == 'return' or key == 'mouse1':
-            config.trigger_animation(config.ANIMATION_UI_SELECTION_FG)
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_FADE)
+        if key in config.controls['action']:
+            valid_input = True
+            config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
             system.unset_popup_content()
     else:
-        if(key == 'up'):
-            system.ui_selection_y_prev()
-        elif(key == 'down'):
-            system.ui_selection_y_next()
-        elif not config.game['game_over'] and (key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == 'examine-cancel')):
-            if key == 'return' and selected_option.name == 'examine-cancel':
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            audio.ui_back()
-            config.trigger_animation(config.ANIMATION_FADE)
+        if key in config.controls['up']:
+            valid_input = system.ui_selection_up()
+        elif key in config.controls['down']:
+            valid_input = system.ui_selection_down()
+        elif not config.game['game_over'] and (key in config.controls['back'] or (key in config.controls['action'] and selected_option.name == 'examine-cancel')):
+            valid_input = True
+            if key in config.controls['action'] and selected_option.name == 'examine-cancel':
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT)
+            audio.sound_play('ui_back', 'ui')
             system.unset_popup_content()
-        elif key == 'return':
+        elif key in config.controls['action']:
+            valid_input = True
             if selected_option.name == "examine-confirm":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 examine_confirm(selected_option.link)
-                system.unset_popup_content()
+                system.unset_popup_content(False)
             elif selected_option.name == "restart_game":
                 ui_action_restart_game()
             elif selected_option.name == "quit_game":
                 system.quit_game()
             elif selected_option.name == "dialogue_response":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
-                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 dialogue_response(selected_option.link)
-
-
-def ui_action_restart_game():
-    audio.ui_back()
-    config.trigger_animation(config.ANIMATION_UI_SELECTION)
-    system.restart_game()
+    return valid_input
 
 def input_main(key, mod = None):
+    valid_input = False
     selected_option = config.ui_selection_current
-    if key == 'up' and (mod == 'shift' or mod == 'scroll_center'):
-        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST, config.UI_TAGS['scroll_center_up'])
-        system.ui_scroll_center_up()
-    elif key == 'down' and (mod == 'shift' or mod == 'scroll_center'):
-        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST, config.UI_TAGS['scroll_center_down'])
-        system.ui_scroll_center_down()
-    elif key == 'up' and mod == 'scroll_log':
-        system.ui_log_scroll_up()
-    elif key == 'down' and mod == 'scroll_log':
-        system.ui_log_scroll_down()
+    if key in config.controls['scroll_center_up'] or (key in config.controls['up'] and (mod in config.controls['mod_scroll_center'])):
+        valid_input = system.ui_scroll_minus('center')
+    elif key in config.controls['scroll_center_down'] or (key in config.controls['down'] and (mod in config.controls['mod_scroll_center'])):
+        valid_input = system.ui_scroll_plus('center')
+    elif key in config.controls['scroll_log_up']:
+        valid_input = system.ui_scroll_plus('log')
+    elif key in config.controls['scroll_log_down']:
+        valid_input = system.ui_scroll_minus('log')
     elif selected_option is not None:
-        if(key == 'up'):
-            system.ui_log_or_selection_up()
-        elif(key == 'down'):
-            system.ui_log_or_selection_down()
-        elif(key == 'left'):
-            system.ui_log_or_selection_left()
-        elif(key == 'right'):
-            system.ui_log_or_selection_right()
-        elif(key == 'escape' or key == 'mouse3'):
-            if config.ui_scroll_log > 0:
-                config.ui_scroll_log = 0
+        if key in config.controls['up']:
+            valid_input = system.ui_selection_up_or_scroll_plus('log')
+        elif key in config.controls['down']:
+            valid_input = system.ui_selection_down_or_scroll_minus('log')
+        elif key in config.controls['left']:
+            valid_input = system.ui_selection_left_or_scroll('log')
+        elif key in config.controls['right']:
+            valid_input = system.ui_selection_right_or_scroll('log')
+        elif key in config.controls['back']:
+            if config.ui_scroll['log']['pos'] > 0:
+                valid_input = True
+                config.ui_scroll['log']['pos'] = 0
             elif system.ui_pre_quit_prompt:
-                audio.ui_back()
+                valid_input = True
+                audio.sound_play('ui_back', 'ui')
                 system.pre_quit_prompt()
             elif system.ui_restart_prompt:
-                audio.ui_back()
+                valid_input = True
+                audio.sound_play('ui_back', 'ui')
                 system.restart_game_prompt()
             elif system.ui_quit_prompt:
-                audio.ui_back()
+                valid_input = True
+                audio.sound_play('ui_back', 'ui')
                 system.quit_game_prompt()
-        elif(key == 'return' and config.ui_scroll_log == 0):
+        elif key in config.controls['action'] and config.ui_scroll['log']['pos'] == 0:
+            valid_input = True
             if selected_option.name == "pre_quit_prompt":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation('ui_sel_5')
                 if system.ui_pre_quit_prompt:
-                    audio.ui_back()
+                    audio.sound_play('ui_back', 'ui')
                 else:
-                    audio.ui_confirm()
+                    audio.sound_play('ui_confirm', 'ui')
                 system.pre_quit_prompt()
             elif selected_option.name == "restart_game_prompt":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT)
                 if system.ui_pre_quit_prompt:
                     system.pre_quit_prompt()
-                    audio.ui_confirm()
+                    audio.sound_play('ui_confirm', 'ui')
                 else:
-                    audio.ui_back()
+                    audio.sound_play('ui_back', 'ui')
                 system.restart_game_prompt()
             elif selected_option.name == "quit_game_prompt":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT)
                 if system.ui_pre_quit_prompt:
                     system.pre_quit_prompt()
-                    audio.ui_confirm()
+                    audio.sound_play('ui_confirm', 'ui')
                 else:
-                    audio.ui_back()
+                    audio.sound_play('ui_back', 'ui')
                 system.quit_game_prompt()
             elif selected_option.name == "restart_game":
                 ui_action_restart_game()
             elif selected_option.name == "quit_game":
                 system.quit_game()
             elif selected_option.name == "help":
-                audio.ui_confirm()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 system.change_mode(config.MODE_HELP)
             elif selected_option.name == "settings":
-                audio.ui_confirm()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 system.change_mode(config.MODE_SETTINGS)
             elif selected_option.name == "debug":
-                audio.ui_confirm()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 system.change_mode(config.MODE_DEBUG)
             elif selected_option.name == "map":
-                audio.ui_confirm()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 system.change_mode(config.MODE_MAP)
             elif selected_option.name == "character":
-                audio.ui_confirm()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 system.change_mode(config.MODE_CHARACTER)
             elif selected_option.name == "move":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORT)
+                config.trigger_animation('ui_sel_1')
                 action_move(selected_option.link)
             elif selected_option.name == "examine":
-                audio.ui_confirm()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 examine(selected_option.link[0], selected_option.link[1])
             elif selected_option.name == "portal":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION_LONG)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 action_portal(selected_option.link)
             elif selected_option.name == "attack":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT)
                 action_attack(selected_option.link)
             elif selected_option.name == "attack_ranged":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT)
                 action_attack_ranged(selected_option.link)
             elif selected_option.name == "dialogue_load":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
-                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 dialogue_load(selected_option.link[0], selected_option.link[1], selected_option.link[2])
             elif selected_option.name == "dialogue_fail":
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
-                audio.ui_confirm()
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 dialogue_fail(selected_option.link)
+    return valid_input
 
 def input(key, mod = None):
     if system.popup_content:
-        input_popup(key, mod)
+        return input_popup(key, mod)
     else:
-        input_main(key, mod)
+        return input_main(key, mod)
 
 def selection_options():
     result = []
@@ -277,7 +233,7 @@ def window_center():
     if config.player['health_points'] > 0:
         lines.extend(show_active_status())
         if lines:
-            lines.append("")
+            lines.append('')
         lines.extend(load_room())
     return windows.Content(windows.WINDOW_CENTER, lines)
 
@@ -289,7 +245,7 @@ def window_lower():
     elif system.ui_quit_prompt or system.ui_restart_prompt:
         selection_options_display[0].insert(0, 'ARE YOU SURE?')
     else:
-        if config.flags['hide_minimap'] is False:
+        if config.game_settings['show_minimap']:
             ui_blocks.append(windows.block_minimap(room, system.active_npcs, system.current_position, check_move_options(True)))
         option_titles = ["MOVE OR WAIT:", "INTERACT:", "OTHER:", "SYSTEM:"]
         selection_options_display = windows.format_selection_options_display_add_titles(selection_options_display, option_titles)
@@ -297,9 +253,46 @@ def window_lower():
     return windows.Content(windows.WINDOW_LOWER, windows.combine_blocks(ui_blocks, r_align = 2))
 
 def window_log():
-    lines = []
-    lines.extend(windows.log_content(system.log_list))
-    return windows.Content(windows.WINDOW_LOG, lines)
+    return windows.Content(windows.WINDOW_LOG, windows.log_content(system.log_list))
+
+def action_move(link):
+    system.player_change_position(link, logging = True)
+    system.end_turn('move')
+    config.add_to_stats('times_moved', 1)
+
+def action_portal(link):
+    block_action = False
+    blocking_npc = None
+    for npc in system.active_npcs.values():
+        if npc['hostile'] is True:
+            if npc['position'] == system.current_position:
+                block_action = random.choice([False, True, True, True])
+            elif npc['ranged'] is True:
+                block_action = random.choice([False, True])
+            if block_action is True:
+                blocking_npc = npc
+                break
+    if block_action is False:
+        enter_portal(link)
+        system.end_turn('portal')
+        config.add_to_stats('portals_entered', 1)
+    else:
+        system.add_log(system.format_npc_log_text('<name> blocks you from leaving.', blocking_npc))
+        system.end_turn('portal_blocked')
+
+def action_attack(link):
+    player_attack_npc(link)
+    system.end_turn('attack')
+    config.add_to_stats('times_player_attack', 1)
+
+def action_attack_ranged(link):
+    player_attack_npc(link, ranged = True)
+    system.end_turn('attack_ranged')
+    config.add_to_stats('times_player_attack_ranged', 1)
+
+def action_pickup(link):
+    add_to_inventory(link)
+    system.end_turn('pickup')
 
 def check_move_options(minimap_mode = False):
     result = []
@@ -522,6 +515,7 @@ def examine(link, header_text):
     popup_lines = []
     popup_options = None
     popup_lines.append('« ' + utils.format_color_tags(header_text).upper() +  ' »')
+    popup_lines.append('<vertical_spacer>')
     for line in interactable['examine_text']:
         popup_lines.append(utils.format_color_tags(line))
     if interactable['examine_options']:
@@ -549,12 +543,12 @@ def examine_confirm(link):
         execute_action(line)
 
 def player_attack_npc(npc, ranged = False):
-    attack_text = config.player_attack_text
-    miss_text = config.npc_dodge_text
+    attack_text = config.PLAYER_ATTACK_TEXT
+    miss_text = config.NPC_DODGE_TEXT
     player_miss_text = npc['player_attack_miss_text']
     killed_text = 'You have murdered <name>.'
     attack_skill = config.player['attack_skill']
-    damage = config.player['damage_melee']
+    damage = config.player['damage_unarmed']
     on_attack = None
     player_attack_text = None
     if config.equipped_weapons['attack'] is not None:
@@ -562,7 +556,7 @@ def player_attack_npc(npc, ranged = False):
         on_attack = system.items[config.equipped_weapons['attack']]['on_attack']
         player_attack_text = system.items[config.equipped_weapons['attack']]['attack_text']
     if ranged:
-        attack_text = config.player_attack_text_ranged
+        attack_text = config.PLAYER_ATTACK_TEXT_RANGED
         killed_text = 'You have murdered <name> from a distance.'
         attack_skill = config.player['attack_skill_ranged']
         damage = system.items[config.equipped_weapons['attack_ranged']]['damage']
@@ -579,7 +573,7 @@ def player_attack_npc(npc, ranged = False):
     attack_text = system.format_npc_log_text(attack_text, npc)
     system.add_log(attack_text)
     if hit:
-        system.npc_take_damage(system.randomize_damage(damage), 'the attack', npc, killed_text)
+        system.npc_take_damage(utils.randomize_damage(damage), 'the attack', npc, killed_text)
         if npc['health_points'] > 0 and on_attack:
             for action in on_attack:
               system.execute_action(action)
@@ -601,6 +595,7 @@ def dialogue_load(dialogue_id, header_text = None, npc_id = None):
     if header_text is None:
         header_text = 'In conversation with ' + utils.format_npc_name(npc, False)
     popup_lines.append('« ' + header_text.upper() +  ' »')
+    popup_lines.append('<vertical_spacer>')
     if dialogue_start:
         system.add_dialogue_log('Started conversation with ' + utils.format_npc_name(npc))
     for line in dialogue['text']:
@@ -615,7 +610,7 @@ def dialogue_load(dialogue_id, header_text = None, npc_id = None):
         handle_dialogue_action(action)
 
 def dialogue_unload():
-    config.trigger_animation(config.ANIMATION_FADE)
+    config.trigger_animation('fade')
     system.unset_popup_content()
     npc = system.current_target[1]
     hostile = system.current_target[2]

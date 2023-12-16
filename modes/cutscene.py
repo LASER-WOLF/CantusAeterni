@@ -8,36 +8,32 @@ import windows
 cutscene = None
 
 def run():
-    system.run_queued_actions()
     return [
         windows.main([
             windows.window_upper(),
             window_center(),
-            window_lower(),
+            windows.window_lower_continue()
         ])
     ]
 
 def input(key, mod = None):
-    if key == 'return' or key == 'mouse1':
-        audio.ui_confirm()
-        config.trigger_animation(config.ANIMATION_UI_SELECTION_FG)
+    valid_input = False
+    if key in config.controls['action']:
+        valid_input = True
+        config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
         for line in cutscene['on_exit']:
-            system.queue_action(line)
+            system.execute_action(line)
+    return valid_input
 
 def window_center():
-    lines = load_cutscene(system.active_cutscene)
-    return windows.Content(windows.WINDOW_CENTER, lines)
-
-def window_lower():
-    lines = [windows.press_to_continue_text()]
-    return windows.Content(windows.WINDOW_LOWER, lines, min_height = 0)
+    return windows.Content(windows.WINDOW_CENTER, load_cutscene(system.active_cutscene))
 
 def load_cutscene(cutscene_id):
     global cutscene
+    cutscene = system.cutscenes[cutscene_id]
     result = []
     if(config.settings['debug_mode']):
         result.append("DEBUG: Running cutscene " + str(cutscene_id))
-    cutscene = system.cutscenes[cutscene_id]
     for line in cutscene['on_enter']:
         system.execute_action(line)
     for line in cutscene['text']:

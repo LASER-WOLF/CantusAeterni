@@ -1,14 +1,41 @@
 # BUILT-IN
 import json
+import random
 import re
 
 # PROJECT
 import config
 
-# SET CONSTANTS
+# SET CONSTANTS, DIRECTIONS
 DIRECTION_ABR = {'nw': 'north-west', 'n': 'north', 'ne': 'north-east', 'w': 'west', 'c': 'center', 'e': 'east', 'sw': 'south-west', 's': 'south', 'se': 'south-east' }
 DIRECTION_TO_COORD = {'nw': {'x': -1, 'y': -1}, 'n': {'x': 0, 'y': -1}, 'ne': {'x': 1, 'y': -1}, 'w': {'x': -1, 'y': 0}, 'c': {'x': 0, 'y': 0}, 'e': {'x': 1, 'y': 0}, 'sw': {'x': -1, 'y': 1}, 's': {'x': 0, 'y': 1}, 'se': {'x': 1, 'y': 1} }
 DIRECTION_REVERSE = {'nw': 'se', 'n': 's', 'ne': 'sw', 'w': 'e', 'c': 'c', 'e': 'w', 'sw': 'ne', 's': 'n', 'se': 'nw' }
+
+def coords_to_pos(x,y):
+    pos = ""
+    if y == 1 and x == 1:
+        pos = "c"
+    elif y == 0:
+        pos += "n"
+    elif y == 2:
+        pos += "s"
+    if x == 0:
+        pos += "w"
+    elif x == 2:
+        pos += "e"
+    return pos
+
+def capitalize(text):
+    char_in_tag = False
+    for num, character in enumerate(text):
+        if character == '<':
+            char_in_tag = True
+        elif char_in_tag is False:
+            text = text[:num] + character.upper() + text[num + 1:]
+            break
+        elif character == '>':
+            char_in_tag = False
+    return text
 
 def import_json(filename):
     return json.load(open(filename + '.json','r'))
@@ -17,29 +44,59 @@ def export_json(name, content):
     with open(name + ".json", "w") as outfile:
             json.dump(content, outfile, indent = 2)
 
-def add_ui_tag(string, x = 0, y = 0, action = "00"):
-    return "<ui=" + str(x).zfill(2) + ":" + str(y).zfill(2) + ":" + str(action) + ">" + string + "</ui>"
-
-def add_tag(string, fg = "fg", bg = "bg", other = "00"):
+def add_text_tag(string, fg = 'fg', bg = 'bg', other = '00'):
     return "<text=" + str(fg) + ":" + str(bg) + ":" + str(other) + ">" + string + "</text>"
 
-def remove_tag(target_line):
-    target_line = remove_text_tag(target_line)
-    target_line = remove_ui_tag(target_line)
-    return target_line
+def add_ui_tag(string, tag_type, tag_data = 'none'):
+    return '<ui=' + str(tag_type) + ':' + str(tag_data) + '>' + string + '</ui>'
 
-def remove_text_tag(target_line):
+def add_ui_tag_sel_none(string, x = 0, y = 0):
+    return add_ui_tag(string, config.UI_TAGS['none'], str(x) + '-' + str(y))
+
+def add_ui_tag_sel_action(string, x = 0, y = 0):
+    return add_ui_tag(string, config.UI_TAGS['action'], str(x) + '-' + str(y))
+
+def add_ui_tag_sel_left(string, x = 0, y = 0):
+    return add_ui_tag(string, config.UI_TAGS['left'], str(x) + '-' + str(y))
+
+def add_ui_tag_sel_right(string, x = 0, y = 0):
+    return add_ui_tag(string, config.UI_TAGS['right'], str(x) + '-' + str(y))
+
+def add_ui_tag_scroll_center_up(string):
+    return add_ui_tag(string, config.UI_TAGS['scroll'], config.UI_TAGS['data_center_up'])
+
+def add_ui_tag_scroll_center_down(string):
+    return add_ui_tag(string, config.UI_TAGS['scroll'], config.UI_TAGS['data_center_down'])
+
+def add_ui_tag_scroll_log_up(string):
+    return add_ui_tag(string, config.UI_TAGS['scroll'], config.UI_TAGS['data_log_up'])
+
+def add_ui_tag_scroll_log_down(string):
+    return add_ui_tag(string, config.UI_TAGS['scroll'], config.UI_TAGS['data_log_up'])
+
+def add_ui_tag_continue(string):
+    return add_ui_tag(string, config.UI_TAGS['continue'])
+
+def add_ui_tag_link(string, link):
+    return add_ui_tag(string, config.UI_TAGS['link'], link)
+
+def remove_text_tags(target_line):
     target_line = re.sub('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>', r"\4", target_line, flags = re.IGNORECASE)
     return target_line
 
-def remove_ui_tag(target_line):
-    target_line = re.sub('<ui=(.{2}):(.{2}):(.{2})>(.*?)</ui>', r"\4", target_line, flags = re.IGNORECASE)
+def remove_ui_tags(target_line):
+    target_line = re.sub('<ui=(.{2}):(.*?)>(.*?)</ui>', r"\3", target_line, flags = re.IGNORECASE)
     return target_line
 
-def remove_tag_list(target_list):
+def remove_all_tags(target_line):
+    target_line = remove_text_tags(target_line)
+    target_line = remove_ui_tags(target_line)
+    return target_line
+
+def remove_all_tags_multi(target_list):
     new_list = []
     for line in target_list:
-        new_list.append(remove_tag(line))
+        new_list.append(remove_all_tags(line))
     return new_list
 
 def increment_number_loop(num, max_num):
@@ -72,19 +129,13 @@ def dict_key_by_value(target_dict, target_value):
 def dict_swap_key_val(target_dict):
     return {v: k for k, v in target_dict.items()}
 
-def coords_to_pos(x,y):
-    pos = ""
-    if y == 1 and x == 1:
-        pos = "c"
-    elif y == 0:
-        pos += "n"
-    elif y == 2:
-        pos += "s"
-    if x == 0:
-        pos += "w"
-    elif x == 2:
-        pos += "e"
-    return pos
+def format_color_tags(content):
+    content = re.sub("<i>(.*?)</i>", format_interactable(r"\1"), content)
+    content = re.sub("<s>(.*?)</s>", format_status(r"\1"), content)
+    content = re.sub("<d>(.*?)</d>", format_direction(r"\1"), content)
+    content = re.sub("<p>(.*?)</p>", format_portal(r"\1"), content)
+    content = re.sub("<n>(.*?)</n>", format_npc(r"\1"), content)
+    return content
 
 def format_position_text(abr):
     position_string = format_direction(DIRECTION_ABR[abr])
@@ -96,25 +147,92 @@ def format_position_text_room(abr, room_noun):
     return format_position_text(abr) + ' of the ' + room_noun
 
 def format_status(text):
-    return add_tag(text, fg = config.TAG_COLOR_STATUS)
+    return add_text_tag(text, fg = config.TAG_COLOR_STATUS)
 
 def format_interactable(text):
-    return add_tag(text, fg = config.TAG_COLOR_INTERACTABLE)
+    return add_text_tag(text, fg = config.TAG_COLOR_INTERACTABLE)
 
 def format_npc(text):
-    return add_tag(text, fg = config.TAG_COLOR_NPC)
+    return add_text_tag(text, fg = config.TAG_COLOR_NPC)
 
 def format_direction(text):
-    return add_tag(text, fg = config.TAG_COLOR_DIRECTION)
+    return add_text_tag(text, fg = config.TAG_COLOR_DIRECTION)
 
 def format_portal(text):
-    return add_tag(text, fg = config.TAG_COLOR_PORTAL)
+    return add_text_tag(text, fg = config.TAG_COLOR_PORTAL)
 
 def format_log_damage(text):
-    return add_tag(text, fg = config.TAG_COLOR_LOG_DAMAGE)
+    return add_text_tag(text, fg = config.TAG_COLOR_LOG_DAMAGE)
 
 def format_log_heal(text):
-    return add_tag(text, fg = config.TAG_COLOR_LOG_HEAL)
+    return add_text_tag(text, fg = config.TAG_COLOR_LOG_HEAL)
+
+def format_item_name(name, item_type, capitalized = True, colored = True, type_abr = False):
+    name_formatted = name
+    if capitalized:
+        name_formatted = name_formatted.capitalize()
+    if type_abr:
+        name_formatted = abbreviate_item_type(item_type) + ' ' + name_formatted
+    if colored:
+        name_formatted = format_item_type_color(name_formatted, item_type)
+    return name_formatted
+
+def format_item_type(name, capitalized = True, colored = True):
+    name_formatted = name
+    if name == 'attack':
+        name_formatted = 'weapon'
+    elif name == 'attack_ranged':
+        name_formatted = 'ranged weapon'
+    elif name == 'hands':
+        name_formatted = 'gloves'
+    elif name == 'head':
+        name_formatted = 'headgear'
+    elif name == 'upper_body':
+        name_formatted = 'upper body armor'
+    elif name == 'lower_body':
+        name_formatted = 'lower body armor'
+    elif name == 'feet':
+        name_formatted = 'footwear'
+    if capitalized:
+        name_formatted = name_formatted.capitalize()
+    if colored:
+        name_formatted = format_item_type_color(name_formatted, name)
+    return name_formatted
+
+def format_item_type_color(text, item_type):
+    text_formatted = text
+    if item_type == 'ring':
+        text_formatted = add_text_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_RING)
+    elif item_type in config.equipped_armor:
+        text_formatted = add_text_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_ARMOR)
+    elif item_type in config.equipped_weapons:
+        text_formatted = add_text_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_WEAPON)
+    elif item_type in config.item_type_consumable:
+        text_formatted = add_text_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_CONSUMABLE)
+    elif item_type == 'key':
+        text_formatted = add_text_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_KEY)
+    return text_formatted
+
+def abbreviate_item_type(item_type):
+    item_type_formatted = item_type
+    if item_type == 'upper_body':
+        item_type_formatted = 'uppr'
+    elif item_type == 'lower_body':
+        item_type_formatted = 'lowr'
+    elif item_type == 'hands':
+        item_type_formatted = 'hand'
+    elif item_type == 'shield':
+        item_type_formatted = 'shld'
+    elif item_type == 'attack':
+        item_type_formatted = 'weap'
+    elif item_type == 'attack_ranged':
+        item_type_formatted = 'rang'
+    elif item_type == 'drink':
+        item_type_formatted = 'drnk'
+    item_type_formatted = '[' + item_type_formatted + ']'.upper()
+    item_type_formatted = item_type_formatted.upper()
+    item_type_formatted = item_type_formatted.ljust(6)
+    return item_type_formatted
 
 def format_npc_name(npc, colored = True, force_default = False, force_secret = False):
     use_secret_name = False
@@ -167,7 +285,7 @@ def format_npc_pronoun(npc, form):
 def format_health(stage, status, color1_stage, color2_stage):
     def add_color(text, color):
         if color:
-            text = add_tag(text, fg = color)
+            text = add_text_tag(text, fg = color)
         return text
     color = None
     if stage >= color2_stage:
@@ -183,13 +301,15 @@ def format_player_health(stage, status):
 def format_npc_health(stage, status):
     return format_health(stage, status, 2, 3)
 
-def format_color_tags(content):
-    content = re.sub("<i>(.*?)</i>", format_interactable(r"\1"), content)
-    content = re.sub("<s>(.*?)</s>", format_status(r"\1"), content)
-    content = re.sub("<d>(.*?)</d>", format_direction(r"\1"), content)
-    content = re.sub("<p>(.*?)</p>", format_portal(r"\1"), content)
-    content = re.sub("<n>(.*?)</n>", format_npc(r"\1"), content)
-    return content
+def format_color_stage(text, stage):
+    color = config.TAG_COLOR_STAGE_2
+    if stage <= 0:
+        color = config.TAG_COLOR_STAGE_0
+    elif stage <= 1:
+        color = config.TAG_COLOR_STAGE_1
+    elif stage >= 4:
+        color = config.TAG_COLOR_STAGE_3
+    return add_text_tag(text, fg = color)
 
 def format_damage_num(damage, capitalized = True, colored = True):
     damage_level = 3
@@ -268,91 +388,22 @@ def format_skill_num(num, capitalized = True, colored = True):
         num_text = format_color_stage(num_text, num)
     return num_text
 
-def format_color_stage(text, stage):
-    color = config.TAG_COLOR_STAGE_2
-    if stage <= 0:
-        color = config.TAG_COLOR_STAGE_0
-    elif stage <= 1:
-        color = config.TAG_COLOR_STAGE_1
-    elif stage >= 4:
-        color = config.TAG_COLOR_STAGE_3
-    return add_tag(text, fg = color)
+def random_chance(level):
+    random_options = [False, False, False, False, True]
+    if level == 2:
+        random_options = [False, False, True]
+    if level == 3:
+        random_options = [False, True]
+    if level == 4:
+        random_options = [False, True, True, True]
+    if level == 5:
+        random_options = [False, True, True, True, True, True, True]
+    if level == 0:
+        random_options = [False, False, False, False ,False, False, False, False, False, False, False, False ,False, False, False, False, False, False, False, True]
+    return random.choice(random_options)
 
-def format_item_name(name, item_type, capitalized = True, colored = True, type_abr = False):
-    name_formatted = name
-    if capitalized:
-        name_formatted = name_formatted.capitalize()
-    if type_abr:
-        name_formatted = abbreviate_item_type(item_type) + ' ' + name_formatted
-    if colored:
-        name_formatted = format_item_type_color(name_formatted, item_type)
-    return name_formatted
-
-def format_item_type(name, capitalized = True, colored = True):
-    name_formatted = name
-    if name == 'attack':
-        name_formatted = 'weapon'
-    elif name == 'attack_ranged':
-        name_formatted = 'ranged weapon'
-    elif name == 'hands':
-        name_formatted = 'gloves'
-    elif name == 'head':
-        name_formatted = 'headgear'
-    elif name == 'upper_body':
-        name_formatted = 'upper body armor'
-    elif name == 'lower_body':
-        name_formatted = 'lower body armor'
-    elif name == 'feet':
-        name_formatted = 'footwear'
-    if capitalized:
-        name_formatted = name_formatted.capitalize()
-    if colored:
-        name_formatted = format_item_type_color(name_formatted, name)
-    return name_formatted
-
-def format_item_type_color(text, item_type):
-    text_formatted = text
-    if item_type == 'ring':
-        text_formatted = add_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_RING)
-    elif item_type in config.item_type_armor:
-        text_formatted = add_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_ARMOR)
-    elif item_type in config.item_type_weapon:
-        text_formatted = add_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_WEAPON)
-    elif item_type in config.item_type_consumable:
-        text_formatted = add_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_CONSUMABLE)
-    elif item_type == 'key':
-        text_formatted = add_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_KEY)
-    return text_formatted
-
-def abbreviate_item_type(item_type):
-    item_type_formatted = item_type
-    if item_type == 'upper_body':
-        item_type_formatted = 'uppr'
-    elif item_type == 'lower_body':
-        item_type_formatted = 'lowr'
-    elif item_type == 'hands':
-        item_type_formatted = 'hand'
-    elif item_type == 'shield':
-        item_type_formatted = 'shld'
-    elif item_type == 'attack':
-        item_type_formatted = 'weap'
-    elif item_type == 'attack_ranged':
-        item_type_formatted = 'rang'
-    elif item_type == 'drink':
-        item_type_formatted = 'drnk'
-    item_type_formatted = '[' + item_type_formatted + ']'.upper()
-    item_type_formatted = item_type_formatted.upper()
-    item_type_formatted = item_type_formatted.ljust(6)
-    return item_type_formatted
-
-def capitalize(text):
-    char_in_tag = False
-    for num, character in enumerate(text):
-        if character == '<':
-            char_in_tag = True
-        elif char_in_tag is False:
-            text = text[:num] + character.upper() + text[num + 1:]
-            break
-        elif character == '>':
-            char_in_tag = False
-    return text
+def randomize_damage(dmg):
+    dmg_min = int(dmg * 0.75)
+    dmg_max = int(dmg * 1.25)
+    dmg_result = random.randrange(dmg_min, dmg_max + 1)
+    return dmg_result

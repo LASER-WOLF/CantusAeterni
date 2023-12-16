@@ -83,18 +83,21 @@ def music_change_type(new_type):
         make_playlist()
         music_play(0)
 
-def change_master_volume(new_volume = 1):
+def change_master_volume(new_volume = 10):
     global master_volume
+    new_volume = round(new_volume / 10, 1)
     master_volume = new_volume
     change_sound_volume(config.settings['sound_volume'])
     change_music_volume(config.settings['music_volume'])
 
-def change_sound_volume(new_volume = 1):
+def change_sound_volume(new_volume = 10):
     global sound_volume
+    new_volume = round(new_volume / 10, 1)
     sound_volume = new_volume * master_volume
 
-def change_music_volume(new_volume = 1):
+def change_music_volume(new_volume = 10):
     global music_volume
+    new_volume = round(new_volume / 10, 1)
     music_volume = new_volume * master_volume
     pygame.mixer.music.set_volume(music_volume)
 
@@ -128,45 +131,12 @@ def music_stop():
     pygame.mixer.music.stop()
     pygame.mixer.music.unload()
 
-def sound_play(sound_file):
-    if config.settings['enable_sound']:
-        sound = pygame.mixer.Sound(SOUNDS[sound_file])
-        sound.set_volume(sound_volume)
-        pygame.mixer.find_channel(True).play(sound)
-
-def sound_ui(sound):
-    if config.settings['enable_sound_ui']:
-            sound_play(sound)
-
-def sound_fx(sound):
-    sound_play(sound)
-
 def music_status():
     return pygame.mixer.music.get_busy()
 
-def ui_sel():
-    sound_ui('ui_sel')
-
-def ui_confirm():
-    sound_ui('ui_confirm')
-
-def ui_confirm_big():
-    sound_ui('ui_confirm_big')
-
-def ui_back():
-    sound_ui('ui_back')
-
-def fx_change_room():
-    sound_fx('fx_change_room')
-
-def fx_move():
-    sound_fx('fx_move')
-
-def fx_npc_hit():
-    sound_fx('fx_npc_hit')
-
-def fx_pick_up_item():
-    sound_fx('fx_pick_up_item')
-
-def fx_portal_blocked():
-    sound_fx('ui_back')
+def sound_play(sound_file, sound_type = None):
+    if config.settings['enable_sound'] and (sound_type is None or (sound_type == 'ui' and config.settings['enable_sound_ui'])):
+        sound = pygame.mixer.Sound(SOUNDS[sound_file])
+        sound.set_volume(sound_volume)
+        length = int(sound.get_length() * 1000)
+        pygame.mixer.find_channel(True).play(sound)

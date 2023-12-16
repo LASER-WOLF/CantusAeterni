@@ -5,52 +5,47 @@ import system
 import utils
 import windows
 
-# SET VARS
-debug_input_char = None
-
 def run():
     return [
         windows.main([
             windows.window_upper(),
             window_center(),
             window_log(),
-            window_lower(),
+            windows.window_lower_back(),
         ])
     ]
 
 def input(key, mod = None):
-    global debug_input_char
-    debug_input_char = key
+    valid_input = False
     selected_option = config.ui_selection_current
-    if key == 'escape' or key == 'mouse3':
-        audio.ui_back()
-        system.change_mode(config.previous_mode)
-    elif key == 'up' and (mod == 'shift' or mod == 'scroll_center'):
-        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST, config.UI_TAGS['scroll_center_up'])
-        system.ui_scroll_center_up()
-    elif key == 'down' and (mod == 'shift' or mod == 'scroll_center'):
-        config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORTEST, config.UI_TAGS['scroll_center_down'])
-        system.ui_scroll_center_down()
-    elif key == 'up' or (key == 'up' and mod == 'scroll_log'):
-        system.ui_log_scroll_up()
-    elif key == 'down' or (key == 'down' and mod == 'scroll_log'):
-        system.ui_log_scroll_down()
+    if key in config.controls['back']:
+        valid_input = system.change_mode_previous()
+    elif key in config.controls['scroll_center_up'] or (key in config.controls['up'] and (mod in config.controls['mod_scroll_center'])):
+        valid_input = system.ui_scroll_minus('center')
+    elif key in config.controls['scroll_center_down'] or (key in config.controls['down'] and (mod in config.controls['mod_scroll_center'])):
+        valid_input = system.ui_scroll_plus('center')
+    elif key in config.controls['scroll_log_up'] or key in config.controls['up']:
+        valid_input = system.ui_scroll_plus('log')
+    elif key in config.controls['scroll_log_down'] or key in config.controls['down']:
+        valid_input = system.ui_scroll_minus('log')
+    return True
 
 def window_center():
-    lines = []
     justnum = 40
+    lines = []
     lines.append('Color palette: '.ljust(justnum) + '"' + config.settings['palette'] + '"')
-    lines.append('Foreground: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['foreground']) + '        ' + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['foreground']))
-    lines.append('Red: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['red']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_red']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['red']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_red']))
-    lines.append('Green: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['green']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_red']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['red']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_red']))
-    lines.append('Yellow: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['yellow']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_yellow']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['yellow']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_yellow']))
-    lines.append('Blue: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['blue']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_blue']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['blue']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_blue']))
-    lines.append('Magenta: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['magenta']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_magenta']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['magenta']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_magenta']))
-    lines.append('Cyan: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['cyan']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_cyan']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['cyan']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_cyan']))
-    lines.append('White: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['white']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_white']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['white']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_white']))
-    lines.append('Black: '.ljust(justnum) + utils.add_tag(' NORMAL ', config.TAGS['black']) + utils.add_tag(' BRIGHT ', config.TAGS['bright_black']) + utils.add_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['black']) + ' ' + utils.add_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_black']))
+    lines.append('Foreground: '.ljust(justnum) + utils.add_text_tag(' NORMAL ', config.TAGS['foreground']) + '        ' + utils.add_text_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['foreground']))
+    lines.append('Red: '.ljust(justnum) + utils.add_text_tag(' NORMAL ', config.TAGS['red']) + utils.add_text_tag(' BRIGHT ', config.TAGS['bright_red']) + utils.add_text_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['red']) + ' ' + utils.add_text_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_red']))
+    lines.append('Green: '.ljust(justnum) + utils.add_text_tag(' NORMAL ', config.TAGS['green']) + utils.add_text_tag(' BRIGHT ', config.TAGS['bright_red']) + utils.add_text_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['red']) + ' ' + utils.add_text_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_red']))
+    lines.append('Yellow: '.ljust(justnum) + utils.add_text_tag(' NORMAL ', config.TAGS['yellow']) + utils.add_text_tag(' BRIGHT ', config.TAGS['bright_yellow']) + utils.add_text_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['yellow']) + ' ' + utils.add_text_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_yellow']))
+    lines.append('Blue: '.ljust(justnum) + utils.add_text_tag(' NORMAL ', config.TAGS['blue']) + utils.add_text_tag(' BRIGHT ', config.TAGS['bright_blue']) + utils.add_text_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['blue']) + ' ' + utils.add_text_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_blue']))
+    lines.append('Magenta: '.ljust(justnum) + utils.add_text_tag(' NORMAL ', config.TAGS['magenta']) + utils.add_text_tag(' BRIGHT ', config.TAGS['bright_magenta']) + utils.add_text_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['magenta']) + ' ' + utils.add_text_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_magenta']))
+    lines.append('Cyan: '.ljust(justnum) + utils.add_text_tag(' NORMAL ', config.TAGS['cyan']) + utils.add_text_tag(' BRIGHT ', config.TAGS['bright_cyan']) + utils.add_text_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['cyan']) + ' ' + utils.add_text_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_cyan']))
+    lines.append('White: '.ljust(justnum) + utils.add_text_tag(' NORMAL ', config.TAGS['white']) + utils.add_text_tag(' BRIGHT ', config.TAGS['bright_white']) + utils.add_text_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['white']) + ' ' + utils.add_text_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_white']))
+    lines.append('Black: '.ljust(justnum) + utils.add_text_tag(' NORMAL ', config.TAGS['black']) + utils.add_text_tag(' BRIGHT ', config.TAGS['bright_black']) + utils.add_text_tag(' NORMAL ', fg = config.TAGS['background'], bg = config.TAGS['black']) + ' ' + utils.add_text_tag(' BRIGHT ', fg = config.TAGS['background'], bg = config.TAGS['bright_black']))
     lines.append("")
-    lines.append('Last input: '.ljust(justnum) + '"' + str(debug_input_char)  + '"')
+    lines.append('Last input device: '.ljust(justnum) + str(config.last_input_device))
+    lines.append('Last input: '.ljust(justnum) + str(config.last_input))
     lines.append('Music status: '.ljust(justnum) + 'Playing: ' + str(audio.music_status()) + ' | Volume: ' + str(config.settings['music_volume']) + ' | Mode: ' + str(audio.music_type) + ' | Title: ' + str(audio.music_title))
     lines.append('')
     lines.append('Statistics:')
@@ -75,14 +70,7 @@ def window_center():
     lines.append('show_battle_num: '.ljust(justnum) + str(config.flags['show_battle_num']))
     lines.append('show_player_hp: '.ljust(justnum) + str(config.flags['show_player_hp']))
     lines.append('show_npc_hp: '.ljust(justnum) + str(config.flags['show_npc_hp']))
-    lines.append('hide_minimap: '.ljust(justnum) + str(config.flags['hide_minimap']))
     return windows.Content(windows.WINDOW_CENTER, lines)
 
 def window_log():
-    lines = []
-    lines.extend(windows.log_content(config.debug_log_list, False))
-    return windows.Content(windows.WINDOW_LOG, lines)
-
-def window_lower():
-    lines = [windows.press_to_go_back_text()]
-    return windows.Content(windows.WINDOW_LOWER, lines, min_height = 0)
+    return windows.Content(windows.WINDOW_LOG, windows.log_content(config.debug_log_list, False))

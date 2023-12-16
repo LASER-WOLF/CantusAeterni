@@ -12,29 +12,39 @@ MODE_SETTINGS = "settings_menu"
 MODE_HELP = "help"
 MODE_CUTSCENE = "cutscene"
 MODE_GAME = "game"
-MODE_INVENTORY = "inventory"
 MODE_MAP = "map"
 MODE_CHARACTER = "character"
 WINDOW_MODE_NORMAL = 'windowed'
 WINDOW_MODE_FULLSCREEN = 'fullscreen'
 WINDOW_MODE_BORDERLESS = 'borderless'
-ANIMATION_BOOT = 'boot'
-ANIMATION_FADE = 'fade'
-ANIMATION_FADE_POPUP = 'fade_popup'
-ANIMATION_TAKE_DAMAGE = 'take_damage'
-ANIMATION_CHANGE_ROOM = 'change_room'
-ANIMATION_UI_SELECTION_SHORTEST = 'ui_sel_shortest'
-ANIMATION_UI_SELECTION_SHORT = 'ui_sel_short'
-ANIMATION_UI_SELECTION = 'ui_sel'
-ANIMATION_UI_SELECTION_LONG = 'ui_sel_long'
-ANIMATION_UI_SELECTION_FG_SHORT = 'ui_sel_fg_short'
-ANIMATION_UI_SELECTION_FG = 'ui_sel_fg'
 LAYER_TYPE_MAIN = 'main'
 LAYER_TYPE_POPUP = 'popup'
 RESOLUTIONS = [
+    (1280, 720),
     (1600, 900),
     (1920, 1080),
 ]
+
+START_POSITION = 'c'
+START_ROOM = '1'
+
+# SET CONSTANTS, GAME
+PLAYER_START_HP = 100
+PLAYER_START_ATTACK_SKILL = 1
+PLAYER_START_ATTACK_SKILL_RANGED = 0
+PLAYER_DAMAGE_UNARMED = 5
+PLAYER_START_EQUIPMENT_UPPER_BODY = '5'
+PLAYER_START_EQUIPMENT_LOWER_BODY = '6'
+PLAYER_START_EQUIPMENT_FEET = '7'
+
+# SET CONSTANTS, FILE NAMES
+FOLDER_NAME_RESOURCES = 'resources'
+FOLDER_NAME_IMAGES = 'img'
+FILE_NAME_SETTINGS = 'settings'
+FILE_NAME_ERROR_LOG = 'error_log.txt'
+FILE_NAME_DEBUG_LOG = 'debug_log.txt'
+
+# SET CONSTANTS, TAGS
 TAGS = {
     "black": "01",
     "red": "02",
@@ -57,48 +67,66 @@ TAGS = {
     "underline": "ul",
     "strikethrough": "st",
 }
-TAGS_REVERSE = {
-    "01": "black",
-    "02": "red",
-    "03": "green",
-    "04": "yellow",
-    "05": "blue",
-    "06": "magenta",
-    "07": "cyan",
-    "08": "white",
-    "09": "bright_black",
-    "10": "bright_red",
-    "11": "bright_green",
-    "12": "bright_yellow",
-    "13": "bright_blue",
-    "14": "bright_magenta",
-    "15": "bright_cyan",
-    "16": "bright_white",
-    "fg": "foreground",
-    "bg": "background",
-    "ul": "underline",
-    "st": "strikethrough",
-}
 UI_TAGS = {
     "none": "00",
-    "return": "01",
+    "continue": "01",
+    "action": "02",
+    "scroll": "03",
+    "link": "04",
     "left": "<-",
     "right": "->",
-    "scroll_center_up": "▲c",
-    "scroll_center_down": "▼c",
-    "scroll_log_up": "▲l",
-    "scroll_log_down": "▼l",
+    "data_center_up": "▲c",
+    "data_center_down": "▼c",
+    "data_log_up": "▲l",
+    "data_log_down": "▼l",
 }
-UI_TAGS_REVERSE = {
-    "00": "none",
-    "01": "return",
-    "<-": "left",
-    "->": "right",
-    "▲c": "scroll_center_up",
-    "▼c": "scroll_center_down",
-    "▲l": "scroll_log_up",
-    "▼l": "scroll_log_down",
-}
+TAGS_REVERSE = utils.dict_swap_key_val(TAGS)
+UI_TAGS_REVERSE = utils.dict_swap_key_val(UI_TAGS)
+
+# SET CONSTANTS, DEFAULT COLORS
+DEFAULT_FG_COLOR = 'foreground'
+DEFAULT_FILL_COLOR = 'bright_black'
+
+# SET CONSTANTS, TAG COLORS
+TAG_COLOR_FG = TAGS['foreground']
+TAG_COLOR_BG = TAGS['background']
+TAG_COLOR_DARK = TAGS['bright_black']
+TAG_COLOR_HL = TAGS['bright_white']
+TAG_COLOR_WEAK = TAGS['white']
+TAG_COLOR_TITLE_SCREEN = TAGS['bright_cyan']
+TAG_COLOR_INTERACTABLE = TAGS['bright_green']
+TAG_COLOR_PORTAL = TAG_COLOR_INTERACTABLE
+TAG_COLOR_DIRECTION = TAGS['bright_blue']
+TAG_COLOR_NPC = TAGS['bright_yellow']
+TAG_COLOR_STATUS = TAGS['bright_magenta']
+TAG_COLOR_ITEM_TYPE_RING = TAGS['bright_red']
+TAG_COLOR_ITEM_TYPE_ARMOR = TAGS['bright_green']
+TAG_COLOR_ITEM_TYPE_WEAPON = TAGS['bright_cyan']
+TAG_COLOR_ITEM_TYPE_CONSUMABLE = TAGS['bright_magenta']
+TAG_COLOR_ITEM_TYPE_KEY = TAGS['bright_blue']
+TAG_COLOR_ITEM_MAGICAL = TAGS['bright_yellow']
+TAG_COLOR_STAGE_0 = TAG_COLOR_WEAK
+TAG_COLOR_STAGE_1 = TAGS['red']
+TAG_COLOR_STAGE_2 = TAGS['yellow']
+TAG_COLOR_STAGE_3 = TAGS['green']
+TAG_COLOR_HEALTH_1 = TAG_COLOR_STAGE_1
+TAG_COLOR_HEALTH_2 = TAG_COLOR_STAGE_2
+TAG_COLOR_HEALTH_3 = TAG_COLOR_STAGE_3
+TAG_COLOR_HEALTH_STAGE_3 = TAG_COLOR_HEALTH_2
+TAG_COLOR_HEALTH_STAGE_6 = TAG_COLOR_HEALTH_1
+TAG_COLOR_UI_BG_SEL_FG = TAG_COLOR_BG
+TAG_COLOR_UI_BG_SEL_BG = TAG_COLOR_FG
+TAG_COLOR_UI_SEL_FG = TAG_COLOR_FG
+TAG_COLOR_UI_SEL_HL = TAG_COLOR_HL
+TAG_COLOR_UI_INACTIVE = TAG_COLOR_WEAK
+TAG_COLOR_LOG_DAMAGE = TAG_COLOR_HEALTH_1
+TAG_COLOR_LOG_HEAL = TAG_COLOR_HEALTH_3
+TAG_COLOR_LOG_OLD = TAG_COLOR_UI_INACTIVE
+TAG_COLOR_MAP_INACTIVE = TAG_COLOR_DARK
+TAG_COLOR_MAP_SELECTED = TAG_COLOR_FG
+TAG_COLOR_SCROLLBAR_BG = TAG_COLOR_HL
+
+# SET CONSTANTS, FONTS
 FONTS = {
     'DOS/V re. ANK16': 'Px437_DOS-V_re_ANK16',
     'DOS/V re. JPN16': 'Px437_DOS-V_re_JPN16',
@@ -110,6 +138,8 @@ FONTS = {
     'Telenova Compis': 'Px437_Compis',
     'ToshibaSat': 'Px437_ToshibaSat_8x16',
 }
+
+# SET CONSTANTS, PALETTES
 PALETTES = {
     "Apprentice": {
         "black": (28, 28, 28),
@@ -293,46 +323,92 @@ PALETTES = {
     },
 }
 
-# SET CONSTANTS, TAG COLORS
-TAG_REVERSE_COLOR_FG = 'foreground'
-TAG_COLOR_HEALTH_1 = TAGS['red']
-TAG_COLOR_HEALTH_2 = TAGS['yellow']
-TAG_COLOR_FG = TAGS['foreground']
-TAG_COLOR_BG = TAGS['background']
-TAG_COLOR_DARK = TAGS['bright_black']
-TAG_COLOR_FG_WEAK = TAGS['white']
-TAG_COLOR_UI_BG_SEL_FG = TAG_COLOR_BG
-TAG_COLOR_UI_BG_SEL_BG = TAG_COLOR_FG
-TAG_COLOR_UI_SEL_FG = TAG_COLOR_FG
-TAG_COLOR_UI_INACTIVE = TAG_COLOR_FG_WEAK
-TAG_COLOR_TITLE_SCREEN = TAGS['bright_cyan']
-TAG_COLOR_INTERACTABLE = TAGS['bright_green']
-TAG_COLOR_PORTAL = TAG_COLOR_INTERACTABLE
-TAG_COLOR_DIRECTION = TAGS['bright_blue']
-TAG_COLOR_NPC = TAGS['bright_yellow']
-TAG_COLOR_STATUS = TAGS['bright_magenta']
-TAG_COLOR_HEALTH_STAGE_3 = TAG_COLOR_HEALTH_2
-TAG_COLOR_HEALTH_STAGE_6 = TAG_COLOR_HEALTH_1
-TAG_COLOR_HIGHLIGHT = TAGS['bright_white']
-TAG_COLOR_SCROLLBAR_BG = TAG_COLOR_HIGHLIGHT
-TAG_COLOR_MAP_INACTIVE = TAG_COLOR_DARK
-TAG_COLOR_MAP_SELECTED = TAG_COLOR_FG
-TAG_COLOR_LOG_OLD = TAG_COLOR_UI_INACTIVE
-TAG_COLOR_LOG_DAMAGE = TAG_COLOR_HEALTH_1
-TAG_COLOR_LOG_HEAL = TAGS['green']
-TAG_COLOR_ITEM_TYPE_RING = TAGS['bright_red']
-TAG_COLOR_ITEM_TYPE_ARMOR = TAGS['bright_green']
-TAG_COLOR_ITEM_TYPE_WEAPON = TAGS['bright_cyan']
-TAG_COLOR_ITEM_TYPE_CONSUMABLE = TAGS['bright_magenta']
-TAG_COLOR_ITEM_TYPE_KEY = TAGS['bright_blue']
-TAG_COLOR_ITEM_MAGICAL = TAGS['bright_yellow']
-TAG_COLOR_STAGE_0 = TAG_COLOR_FG_WEAK
-TAG_COLOR_STAGE_1 = TAGS['red']
-TAG_COLOR_STAGE_2 = TAGS['yellow']
-TAG_COLOR_STAGE_3 = TAGS['green']
+# SET CONTANTS, ANIMATIONS
+ANIMATION_UI_DEFAULT = 'ui_sel_3'
+ANIMATION_UI_CONTINUE_DEFAULT = 'ui_sel_3_fg'
+ANIMATIONS = {
+    'boot': {
+        'fps': 8,
+        'block_until_frame': 0,
+        'frames': [
+            'boot1',
+            'boot2',
+            'fade1_fg',
+            'fade1_bg',
+        ]
+    },
+    'fade': {
+        'fps': 16,
+        'block_until_frame': 1,
+        'frames': [
+            'fade1_bg',
+            'fade2_bg',
+            'fade1_bg',
+        ]
+    },
+    'fade_popup': {
+        'fps': 8,
+        'block_until_frame': 0,
+        'frames': [
+            'fade1_bg',
+            'fade2_bg',
+        ]
+    },
+    'take_damage': {
+        'fps': 4,
+        'block_until_frame': 0,
+        'frames': [
+            'fade2_fg',
+            'fade1_fg',
+        ]
+    },
+    'change_room': {
+        'fps': 8,
+        'block_until_frame': 2,
+        'frames': [
+            'fade1_bg',
+            'fade2_bg',
+            'fade3_bg',
+            'fade2_bg',
+            'fade1_bg',
+        ]
+    },
+}
+ANIMATIONS_UI = {
+    'ui_sel_1': {
+        'fps': 30,
+        'length': 1,
+        'highlight': True,
+    },
+    'ui_sel_3': {
+        'fps': 8,
+        'length': 3,
+        'highlight': True,
+    },
+    'ui_sel_5': {
+        'fps': 8,
+        'length': 5,
+        'highlight': True,
+    },
+    'ui_sel_7': {
+        'fps': 8,
+        'length': 7,
+        'highlight': True,
+    },
+    'ui_sel_3_fg': {
+        'fps': 8,
+        'length': 5,
+        'highlight': False,
+    },
+    'ui_sel_5_fg': {
+        'fps': 8,
+        'length': 5,
+        'highlight': False,
+    },
+}
 
-# SET HEALTH STAGES
-player_health_stages = {
+# SET CONSTANTS, HEALTH STAGES
+PLAYER_HEALTH_STAGES = {
     1: [
     'You have received some <color>minor scratches</color>.',
     'You are <color>slighty bruised</color>.'
@@ -360,7 +436,7 @@ player_health_stages = {
     'You are <color>dead</color>.',
     ]
 }
-npc_health_stages = {
+NPC_HEALTH_STAGES = {
     1: [
     '<name> is slighty <color>wounded</color>.',
     ],
@@ -375,40 +451,39 @@ npc_health_stages = {
     ]
 }
 
-# SET ATTACK / DODGE TEXT
-player_dodge_text = [
+# SET CONSTANTS, ATTACK / DODGE TEXT
+PLAYER_DODGE_TEXT = [
 'The attack misses you.',
 'You successfully dodge the attack.',
 'You evade the attack.',
 'You manage to successfully evade the attack.',
 'The attack doesn\'t hit you.',
 ]
-player_attack_text = [
+PLAYER_ATTACK_TEXT = [
 'You attack <name>.',
 'You try to hit <name>.',
 'You strike <name>.',
 ]
-player_attack_text_ranged = [
+PLAYER_ATTACK_TEXT_RANGED = [
 'You attack <name> from a distance.',
 'You try to hit <name> with your ranged weapon.',
 'You strike <name> from afar.',
 ]
-npc_dodge_text = [
+NPC_DODGE_TEXT = [
 'Your attack misses <name>.',
 '<name> successfully dodges your attack.',
 '<name> evades your attack.',
 '<name> successfully evades your attack.',
 ]
-npc_attack_text = [
+NPC_ATTACK_TEXT = [
 '<name> attacks you.',
 '<name> hits you.',
 '<name> strikes you.',
 ]
 
 # SET VARS
+system_error = None
 run_game = True
-refresh_screen = True
-refresh_content = False
 settings = {}
 mode = None
 previous_mode = None
@@ -420,60 +495,35 @@ ui_selection_x = 0
 ui_selection_y = 0
 ui_selection_x_prev = 0
 ui_selection_y_prev = 0
-ui_scroll_log = 0
-ui_scroll_center = 0
-ui_scroll_lower = 0
 animation_queue = []
+last_input = None
+last_input_device = None
+ui_scroll = {
+    'center': {
+        'pos': 0,
+        'max': 0,
+    },
+    'log': {
+        'pos': 0,
+        'max': 0,
+    },
+}
+
+# SET VARS, GAME
 game = {
     'game_init': None,
     'turn': None,
     'game_over': None,
     'game_over_text': None,
 }
-player = {
-    'health_points_max': None,
-    'health_points': None,
-    'health_stage': None,
-    'health_status': None,
-    'attack_skill': None,
-    'attack_skill_ranged': None,
-    'damage_melee': None,
+game_settings = {
+    'show_minimap': None,
 }
-equipped_armor = {
-    'head': None,
-    'upper_body': None,
-    'lower_body': None,
-    'hands': None,
-    'feet': None,
-    'shield': None,
+flags = {
+    'show_battle_num': None,
+    'show_player_hp': None,
+    'show_npc_hp': None,
 }
-
-equipped_weapons = {
-    'attack': None,
-    'attack_ranged': None,
-}
-
-item_type_weapon = [
-'attack',
-'attack_ranged',
-]
-
-item_type_armor = [
-'head',
-'upper_body',
-'lower_body',
-'hands',
-'feet',
-'shield',
-]
-
-item_type_consumable = [
-'drink',
-'food',
-]
-
-rings = []
-
 stats = {
     'times_moved': None,
     'portals_entered': None,
@@ -490,44 +540,97 @@ stats = {
     'times_npc_missed': None,
     'items_consumed': None,
 }
-
-flags = {
-    'show_battle_num': None,
-    'show_player_hp': None,
-    'show_npc_hp': None,
-    'hide_minimap': None,
+player = {
+    'health_points_max': None,
+    'health_points': None,
+    'health_stage': None,
+    'health_status': None,
+    'attack_skill': None,
+    'attack_skill_ranged': None,
+    'damage_unarmed': None,
 }
+equipped_armor = {
+    'head': None,
+    'upper_body': None,
+    'lower_body': None,
+    'hands': None,
+    'feet': None,
+    'shield': None,
+}
+equipped_weapons = {
+    'attack': None,
+    'attack_ranged': None,
+}
+equipped_rings = []
+
+# SET VARS, CONTROLS
+controls = {
+    'up': [
+        'up',
+        'mouse_up',
+        'joy_hat_up',
+        'joy_axis_1_neg',
+    ],
+    'down': [
+        'down',
+        'mouse_down',
+        'joy_hat_down',
+        'joy_axis_1_pos',
+    ],
+    'left': [
+        'left',
+        'mouse_left',
+        'joy_hat_left',
+        'joy_axis_0_neg',
+    ],
+    'right': [
+        'right',
+        'mouse_right',
+        'joy_hat_right',
+        'joy_axis_0_pos',
+    ],
+    'action': [
+        'return',
+        'mouse_action',
+        'joy_0',
+    ],
+    'back': [
+        'escape',
+        'mouse_back',
+        'joy_1',
+    ],
+    'scroll_center_up': [
+        'mouse_scroll_center_up',
+        'joy_axis_3_neg',
+    ],
+    'scroll_center_down': [
+        'mouse_scroll_center_down',
+        'joy_axis_3_pos',
+    ],
+    'scroll_log_up': [
+        'mouse_scroll_log_up',
+    ],
+    'scroll_log_down': [
+        'mouse_scroll_log_down',
+    ],
+    'mod_scroll_center': [
+        'shift',
+    ],
+}
+
+# SET VARS, DEFINE ITEMS
+item_type_consumable = [
+'drink',
+'food',
+]
 
 def add_to_stats(stat, num):
     stats[stat] += num
 
-def initialize_new_game():
-    global game
-    global player
-    game['turn'] = 1
-    game['game_init'] = True
-    game['game_over'] = False
-    game['game_over_text'] = None
-    player['health_points_max'] = 100
-    player['health_points'] = 100
-    player['health_stage'] = 0
-    player['health_status'] = None
-    player['attack_skill'] = 1
-    player['attack_skill_ranged'] = 0
-    player['damage_melee'] = 5
-    for key in stats:
-        stats[key] = 0
-    rings = []
-    for key in flags:
-        flags[key] = False
-    for key in equipped_armor:
-        equipped_armor[key] = None
-    for key in equipped_weapons:
-        equipped_weapons[key] = None
-    equipped_armor['upper_body'] = '5'
-    equipped_armor['lower_body'] = '6'
-    equipped_armor['feet'] = '7'
-    add_debug_log("Initializing new game")
+def ui_scroll_zero():
+    for key in ui_scroll:
+        ui_scroll[key]['pos'] = 0
+        ui_scroll[key]['max'] = 0
 
 def initialize():
     import_settings()
@@ -535,10 +638,10 @@ def initialize():
 
 def import_settings():
     global settings
-    settings = utils.import_json('resources/settings')
+    settings = utils.import_json(FOLDER_NAME_RESOURCES + '/' + FILE_NAME_SETTINGS)
 
 def export_settings():
-    utils.export_json('resources/settings', settings)
+    utils.export_json(FOLDER_NAME_RESOURCES + '/' + FILE_NAME_SETTINGS, settings)
 
 def add_debug_log(item, error = False):
     global debug_log_list
@@ -546,14 +649,51 @@ def add_debug_log(item, error = False):
         item = "ERROR: " + item
     debug_log_list.append(item)
     if settings['debug_error_log_to_file'] and error:
-        with open('resources/error_log.txt', 'a') as file:
+        with open(FOLDER_NAME_RESOURCES + '/' + FILE_NAME_ERROR_LOG, 'a') as file:
             file.write(datetime.datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
     elif settings['debug_log_to_file']:
-        with open('resources/debug_log.txt', 'a') as file:
+        with open(FOLDER_NAME_RESOURCES + '/' + FILE_NAME_DEBUG_LOG, 'a') as file:
             file.write(datetime.datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
 
-def trigger_animation(animation_name, animation_settings = None):
-    global animation_queue
-    if animation_settings is None:
-        animation_settings = (ui_selection_x, ui_selection_y)
-    animation_queue.append((animation_name, animation_settings))
+def raise_system_error(error_name):
+    global run_game
+    global system_error
+    run_game = False
+    system_error = error_name
+    add_debug_log('SYSTEM ERROR! ' + error_name, True)
+
+def trigger_animation(animation_name, sound_name = None, sound_type = None, animation_type = None, animation_data = None):
+    if animation_name in ANIMATIONS_UI:
+        if animation_type is None:
+            animation_type = 'sel'
+        if animation_data is None:
+            animation_data = str(ui_selection_x) + '-' + str(ui_selection_y)
+    animation_queue.append((animation_name, (sound_name, sound_type), (animation_type, animation_data)))
+
+def initialize_new_game():
+    add_debug_log("Initializing new game")
+    game['turn'] = 1
+    game['game_init'] = True
+    game['game_over'] = False
+    game['game_over_text'] = None
+    for key in game_settings:
+        game_settings[key] = True
+    for key in flags:
+        flags[key] = False
+    for key in stats:
+        stats[key] = 0
+    player['health_points_max'] = PLAYER_START_HP
+    player['health_points'] = PLAYER_START_HP
+    player['health_stage'] = 0
+    player['health_status'] = None
+    player['attack_skill'] = PLAYER_START_ATTACK_SKILL
+    player['attack_skill_ranged'] = PLAYER_START_ATTACK_SKILL_RANGED
+    player['damage_unarmed'] = PLAYER_DAMAGE_UNARMED
+    for key in equipped_armor:
+        equipped_armor[key] = None
+    for key in equipped_weapons:
+        equipped_weapons[key] = None
+    equipped_rings = []
+    equipped_armor['upper_body'] = PLAYER_START_EQUIPMENT_UPPER_BODY
+    equipped_armor['lower_body'] = PLAYER_START_EQUIPMENT_LOWER_BODY
+    equipped_armor['feet'] = PLAYER_START_EQUIPMENT_FEET

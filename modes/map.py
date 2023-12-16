@@ -5,18 +5,18 @@ import system
 import utils
 import windows
 
-# MAP TILES
+# SET CONSTANTS, MAP TILES
 MAP_TILES = {
     'empty_top': "   ",
     'empty_low': "   ",
-    'visited_top': utils.add_tag("┌─┐", config.TAG_COLOR_MAP_INACTIVE),
-    'visited_low': utils.add_tag("└─┘", config.TAG_COLOR_MAP_INACTIVE),
-    'selected_top': utils.add_tag("╔═╗", config.TAG_COLOR_MAP_SELECTED),
-    'selected_low': utils.add_tag("╚═╝", config.TAG_COLOR_MAP_SELECTED),
-    'active_top': utils.add_tag("┌↓┐", config.TAG_COLOR_MAP_SELECTED),
-    'active_low': utils.add_tag("└─┘", config.TAG_COLOR_MAP_SELECTED),
-    'active_selected_top': utils.add_tag("╔↓╗", config.TAG_COLOR_MAP_SELECTED),
-    'active_selected_low': utils.add_tag("╚═╝", config.TAG_COLOR_MAP_SELECTED),
+    'visited_top': utils.add_text_tag("┌─┐", config.TAG_COLOR_MAP_INACTIVE),
+    'visited_low': utils.add_text_tag("└─┘", config.TAG_COLOR_MAP_INACTIVE),
+    'selected_top': utils.add_text_tag("╔═╗", config.TAG_COLOR_MAP_SELECTED),
+    'selected_low': utils.add_text_tag("╚═╝", config.TAG_COLOR_MAP_SELECTED),
+    'active_top': utils.add_text_tag("┌↓┐", config.TAG_COLOR_MAP_SELECTED),
+    'active_low': utils.add_text_tag("└─┘", config.TAG_COLOR_MAP_SELECTED),
+    'active_selected_top': utils.add_text_tag("╔↓╗", config.TAG_COLOR_MAP_SELECTED),
+    'active_selected_low': utils.add_text_tag("╚═╝", config.TAG_COLOR_MAP_SELECTED),
 }
 
 # SET VARS
@@ -29,7 +29,6 @@ def check_rooms():
     global max_x
     global max_y
     known_rooms = portal_check({'selected_room': system.active_room, 'current_coords': {'x': 0, 'y': 0}, 'checked_rooms': {}})['checked_rooms']
-    #known_rooms_sorted = sorted(known_rooms.items(), key=lambda room: (room[1]['y'], room[1]['x']))
     zero_x = min(coord['x'] for coord in known_rooms.values())
     zero_y = min(coord['y'] for coord in known_rooms.values())
     for room in known_rooms.values():
@@ -45,24 +44,25 @@ def run():
         windows.main([
             windows.window_upper(),
             window_center(),
-            window_lower(),
+            windows.window_lower_back(),
         ])
     ]
 
 def input(key, mod = None):
+    valid_input = False
     selected_option = config.ui_selection_current
     if selected_option is not None:
-        if(key == 'up'):
-            system.ui_selection_y_prev()
-        elif(key == 'down'):
-            system.ui_selection_y_next()
-        elif(key == 'left'):
-            system.ui_selection_x_prev()
-        elif(key == 'right'):
-            system.ui_selection_x_next()
-        elif(key == 'escape' or key == 'mouse3'):
-            audio.ui_back()
-            system.change_mode(config.previous_mode)
+        if key in config.controls['up']:
+            valid_input = system.ui_selection_up()
+        elif key in config.controls['down']:
+            valid_input = system.ui_selection_down()
+        elif key in config.controls['left']:
+            valid_input = system.ui_selection_left()
+        elif key in config.controls['right']:
+            valid_input = system.ui_selection_right()
+        elif key in config.controls['back'] :
+            valid_input = system.change_mode_previous()
+    return valid_input
 
 def selection_options():
     result = []
@@ -93,10 +93,6 @@ def window_center():
         lines.append("DEBUG: " + str(system.ui_selection_options[config.ui_selection_x][config.ui_selection_y]))
     #lines.extend(windows.block_minimap(system.rooms[config.ui_selection_current], system.current_position))
     return windows.Content(windows.WINDOW_CENTER, lines, None, windows.FILL_PATTERNS['dots1'],None, True, True)
-
-def window_lower():
-    lines = [windows.press_to_go_back_text()]
-    return windows.Content(windows.WINDOW_LOWER, lines, min_height = 0)
 
 def portal_check(portal_check_dict):
     selected_room_root = portal_check_dict['selected_room']
@@ -134,17 +130,17 @@ def map_content():
                 selected_room = system.ui_selection_options[config.ui_selection_x][config.ui_selection_y]
                 if found_room == system.active_room:
                     if found_room == selected_room:
-                        map_line_top += utils.add_ui_tag(MAP_TILES['active_selected_top'], x, y)
-                        map_line_low += utils.add_ui_tag(MAP_TILES['active_selected_low'], x, y)
+                        map_line_top += utils.add_ui_tag_sel_none(MAP_TILES['active_selected_top'], x, y)
+                        map_line_low += utils.add_ui_tag_sel_none(MAP_TILES['active_selected_low'], x, y)
                     else:
-                        map_line_top += utils.add_ui_tag(MAP_TILES['active_top'], x, y)
-                        map_line_low += utils.add_ui_tag(MAP_TILES['active_low'], x, y)
+                        map_line_top += utils.add_ui_tag_sel_none(MAP_TILES['active_top'], x, y)
+                        map_line_low += utils.add_ui_tag_sel_none(MAP_TILES['active_low'], x, y)
                 elif found_room == selected_room:
-                    map_line_top += utils.add_ui_tag(MAP_TILES['selected_top'], x, y)
-                    map_line_low += utils.add_ui_tag(MAP_TILES['selected_low'], x, y)
+                    map_line_top += utils.add_ui_tag_sel_none(MAP_TILES['selected_top'], x, y)
+                    map_line_low += utils.add_ui_tag_sel_none(MAP_TILES['selected_low'], x, y)
                 else:
-                    map_line_top += utils.add_ui_tag(MAP_TILES['visited_top'], x, y)
-                    map_line_low += utils.add_ui_tag(MAP_TILES['visited_low'], x, y)
+                    map_line_top += utils.add_ui_tag_sel_none(MAP_TILES['visited_top'], x, y)
+                    map_line_low += utils.add_ui_tag_sel_none(MAP_TILES['visited_low'], x, y)
             else:
                 map_line_top += MAP_TILES['empty_top']
                 map_line_low += MAP_TILES['empty_low']

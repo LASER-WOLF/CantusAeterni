@@ -1,6 +1,29 @@
 # TODO:
-  #npc: dead bool and sight/sound/smell
-  #popup window: min and max size + word wrapping and text scrolling
+  # write some text in the help section
+  # add setting: visual | enable popup fill
+  # add setting: visual | popup bg color
+  # make new boot animation
+  # add support for 'image' in popup window
+  # make single / multi dimensional version of selection options and selection options display
+  # add support for multiple aspect ratios: 4:3, 16:9, 16:10
+     4:3
+       640x480
+       800x600
+       1024x768
+       1600x1200
+     16:9
+       1280x720
+       1600x900
+       1920x1080
+     16:10
+       1280x800
+       1440x900
+       1680x1050
+       1920x1200
+  # add secret luck skill
+  # npc: dead bool and sight/sound/smell
+  # popup window: min and max size + word wrapping and text scrolling
+  # lower window: word wrapping and text scrolling
   # skill progression:
     # skill: unarmed combat (attack_melee)
     # skill: combat (attack_skill)
@@ -23,7 +46,7 @@
   # game over screen: audio fx
   # game over screen: music
   # play sound later (sound queueing?) for: move / discover portal / pick up item / change room
-  #z levels
+  # z levels
   # support for saving / loading game  
   # cool logo and background for main menu
   # editor mode
@@ -33,18 +56,39 @@
     # ability to edit all data files
 
 # BUGS
-  # BUG: Black screen after minimize
+  # BUG: in character screen, selection jumping to different x dimension after equipping item
+  # BUG: in character screen, unequipping worn pants removes selection
   # BUG (FIXED?): audio not playing when music is off and audio volume is same as music volume (sometimes)
 
 # MAYBE?
+  # custom button mapping?
   # better minimap in map mode?
-  # ▲ ▼ arrows for scroll on log?
   # dynamic color scheme?
     # apprentice -> default
     # ibm -> cave
     # solarized -> forest
 
 # DONE:
+  # (FIXED) BUG (OR FEATURE?): Fill rendered over line in popup window (because of pos_y_mod)
+  # (FIXED) BUG: Black screen after minimize (Sort of fixed: only happens with debug screen overlay enabled)
+  # ▲ ▼ arrows for scroll on log?
+  # (FIXED) BUG: selection options display not showing selected option
+  # remove extra white space in the beginning of debug_print
+  # webbrowser open (open links in the help section)
+  # redone ui_tags and mouse input and ui_tags animations
+  # move joystick add and remove to global?
+  # added setting: enable joystick
+  # moved animation lists to config
+  # added option sounds attached to animation
+  # redone scrolling system
+  # added dynamic button press text (depening on if using joystick or not)
+  # redone input system (check if input is valid, only refresh screen content if valid input)
+  # added joystick support
+  # redone rendering system
+  # redone animation system
+  # cleaned up code
+  # added shadow to popup window
+  # added margins in popup window
   # added dialogue fail (unsuccesfully try to talk to hostile npc)
   # numerous fixes / changes to dialogue / examine / combat
   # redone popup design

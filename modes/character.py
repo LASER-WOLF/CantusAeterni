@@ -5,6 +5,7 @@ import system
 import utils
 import windows
 
+# SET VARS
 init_done = False
 equipment_changed = None
 item_consumed = None
@@ -26,7 +27,7 @@ def run():
         system.main_content = windows.main([
                 windows.window_upper(),
                 window_center(),
-                window_lower(),
+                windows.window_lower_back(),
             ])
     layers.append(
         system.main_content
@@ -40,7 +41,6 @@ def run():
     return layers
 
 def exit_inventory_screen():
-    system.change_mode(config.previous_mode)
     if equipments_changed > 0:
         system.add_log('You change your equipment.')
     if items_consumed > 0:
@@ -53,76 +53,76 @@ def exit_inventory_screen():
         global init_done
         init_done = False
         system.end_turn('inventory')
+    return system.change_mode_previous()
 
 def input_popup(key, mod = None):
+    valid_input = False
     selected_option = config.ui_selection_current
     if selected_option is None:
-        if key == 'return' or key == 'mouse1':
-            config.trigger_animation(config.ANIMATION_UI_SELECTION_FG)
-            audio.ui_confirm()
-            config.trigger_animation(config.ANIMATION_FADE)
+        if key in config.controls['action']:
+            valid_input = True
+            config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
             system.unset_popup_content()
     else:
-        if key == 'up':
-            system.ui_selection_y_prev()
-        elif key == 'down':
-            system.ui_selection_y_next()
-        elif key == 'escape' or key == 'mouse3' or (key == 'return' and selected_option.name == 'cancel'):
-            if key == 'return' and selected_option.name == 'cancel':
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
-            audio.ui_back()
-            config.trigger_animation(config.ANIMATION_FADE)
+        if key in config.controls['up']:
+            valid_input = system.ui_selection_up()
+        elif key in config.controls['down']:
+           valid_input = system.ui_selection_down()
+        elif key in config.controls['back'] or (key in config.controls['action'] and selected_option.name == 'cancel'):
+            valid_input = True
+            if key in config.controls['action'] and selected_option.name == 'cancel':
+                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT)
+            audio.sound_play('ui_back', 'ui')
             system.unset_popup_content()
-        elif key == 'return':
+        elif key in config.controls['action']:
+            valid_input = True
             if selected_option.name == "equip":
-                audio.ui_confirm()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
                 equip(selected_option.link)
             elif selected_option.name == "unequip":
-                audio.ui_back()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
                 unequip(selected_option.link)
-                config.trigger_animation(config.ANIMATION_FADE)
                 system.unset_popup_content()
             elif selected_option.name == "consume":
-                audio.ui_confirm()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION)
+                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
                 consume(selected_option.link)
+    return valid_input
 
 def input_main(key, mod = None):
+    valid_input = False
     selected_option = config.ui_selection_current
-    if key == 'escape' or key == 'mouse3':
-        audio.ui_back()
-        exit_inventory_screen()
+    if key in config.controls['back']:
+        valid_input = exit_inventory_screen()
     elif selected_option is not None:
-        if key == 'up':
-            system.ui_selection_y_prev()
-        elif key == 'down':
-            system.ui_selection_y_next()
-        elif(key == 'left'):
-            system.ui_selection_x_prev()
-        elif(key == 'right'):
-            system.ui_selection_x_next()
-        elif key == 'return':
+        if key in config.controls['up']:
+            valid_input = system.ui_selection_up()
+        elif key in config.controls['down']:
+            valid_input = system.ui_selection_down()
+        elif key in config.controls['left']:
+            valid_input = system.ui_selection_left()
+        elif key in config.controls['right']:
+            valid_input = system.ui_selection_right()
+        elif key in config.controls['action']:
+            valid_input = True
             if selected_option.name == "item":
-                audio.ui_confirm()
-                config.trigger_animation(config.ANIMATION_UI_SELECTION_SHORT)
+                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
                 examine(selected_option.link)
+    return valid_input
 
 def input(key, mod = None):
     if system.popup_content:
-        input_popup(key, mod)
+        return input_popup(key, mod)
     else:
-        input_main(key, mod)
+        return input_main(key, mod)
 
 def window_center():
     ui_blocks = []
     just_num = 30
     equipment_merged = config.equipped_armor | config.equipped_weapons
-    empty_text = utils.add_tag('Nothing', fg = config.TAG_COLOR_UI_INACTIVE)
+    empty_text = utils.add_text_tag('Nothing', fg = config.TAG_COLOR_UI_INACTIVE)
     # COMBAT STATUS
     combat_status = []
-    damage = config.player['damage_melee']
+    damage = config.player['damage_unarmed']
     if config.equipped_weapons['attack'] is not None:
         damage = system.items[config.equipped_weapons['attack']]['damage']
     damage = utils.format_damage_num(damage)
@@ -149,10 +149,10 @@ def window_center():
             item = system.items[item_id]
             sel_options[0].append(system.SelectionOption("item", utils.format_item_name(item['name'], item['type']), item_id))
     # EQUIPPED RINGS
-    if not config.rings:
+    if not config.equipped_rings:
         sel_options[0].append(None)
     else:
-        for item_id in config.rings:
+        for item_id in config.equipped_rings:
             item = system.items[item_id]
             sel_options[0].append(system.SelectionOption("item", utils.format_item_name(item['name'], item['type']), item_id))
     # ITEMS IN INVENTORY
@@ -183,7 +183,7 @@ def window_center():
             item_content = ' ' + empty_text
         selection_options_display[0][num] = (' ' + utils.format_item_type(item_type, colored = False) + ':').ljust(just_num - 2) + ' ' + item_content
     # FORMAT RINGS
-    if not config.rings:
+    if not config.equipped_rings:
         selection_options_display[0].insert(len(equipment_merged), ' ' + empty_text)
     selection_options_display[0].insert(len(equipment_merged), 'EQUIPPED RINGS:')
     selection_options_display[0].insert(len(equipment_merged), '')
@@ -196,18 +196,15 @@ def window_center():
     ui_blocks.extend(selection_options_display)
     return windows.Content(windows.WINDOW_CENTER, windows.combine_blocks(ui_blocks, min_size_list = [60]))
 
-def window_lower():
-    lines = [windows.press_to_go_back_text()]
-    return windows.Content(windows.WINDOW_LOWER, lines, min_height = 0)
-
 def examine(item_id):
     item = system.items[item_id]
-    item_equipped = item_id in config.rings or item_id in config.equipped_armor.values() or item_id in config.equipped_weapons.values()
+    item_equipped = item_id in config.equipped_rings or item_id in config.equipped_armor.values() or item_id in config.equipped_weapons.values()
     item_equippable = item['type'] == 'ring' or item['type'] in config.equipped_armor or item['type'] in config.equipped_weapons
     popup_lines = []
     popup_options = [[]]
     item_name = '« ' + item['name'].upper() + ' »'
     popup_lines.append(item_name)
+    popup_lines.append('<vertical_spacer>')
     popup_lines.append('Type: ' + utils.format_item_type(item['type']))
     if item['type'] == 'attack' or item['type'] == 'attack_ranged':
         damage_num = utils.format_damage_num(item['damage'])
@@ -226,7 +223,7 @@ def examine(item_id):
             text_powers = 'This item seems to be infused with some mysterious magicks'
             if item['text_unidentified'] is not None:
                 text_powers = item['text_unidentified']
-        text_powers = utils.add_tag('* ' + text_powers + ' *', fg = config.TAG_COLOR_ITEM_MAGICAL)
+        text_powers = utils.add_text_tag('* ' + text_powers + ' *', fg = config.TAG_COLOR_ITEM_MAGICAL)
         popup_lines.append(text_powers)
     for line in item['text']:
         popup_lines.append(utils.format_color_tags(line))
@@ -247,6 +244,12 @@ def examine(item_id):
     popup_options[0].append(system.SelectionOption("cancel", 'Go back'))
     system.set_popup_content(popup_lines, popup_options)
 
+def handle_item_action(action):
+    if action['type'] == 'activate_flag' or action['type'] == 'deactivate_flag':
+        system.execute_action(action)
+    else:
+        system.queue_action(action)
+
 def equip(item_id):
     global equipments_changed
     equipments_changed += 1
@@ -257,7 +260,7 @@ def equip(item_id):
         unequip(config.equipped_weapons[item['type']])
     item['identified'] = True
     if item['type'] == 'ring':
-        config.rings.append(item_id)
+        config.equipped_rings.append(item_id)
     elif item['type'] in config.equipped_armor:
         config.equipped_armor[item['type']] = item_id
     elif item['type'] in config.equipped_weapons:
@@ -296,7 +299,7 @@ def unequip(item_id):
     equipments_changed += 1
     item = system.items[item_id]
     if item['type'] == 'ring':
-        config.rings.remove(item_id)
+        config.equipped_rings.remove(item_id)
     elif item['type'] in config.equipped_armor:
         config.equipped_armor[item['type']] = None
     elif item['type'] in config.equipped_weapons:
@@ -319,9 +322,3 @@ def consume(item_id):
     for action in item['on_consume']:
         handle_item_action(action)
     system.set_popup_content(popup_lines)
-
-def handle_item_action(action):
-    if action['type'] == 'activate_flag' or action['type'] == 'deactivate_flag':
-        system.execute_action(action)
-    else:
-        system.queue_action(action)
