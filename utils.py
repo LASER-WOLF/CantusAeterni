@@ -1,5 +1,4 @@
 # BUILT-IN
-import json
 import random
 import re
 
@@ -36,13 +35,6 @@ def capitalize(text):
         elif character == '>':
             char_in_tag = False
     return text
-
-def import_json(filename):
-    return json.load(open(filename + '.json','r'))
-
-def export_json(name, content):
-    with open(name + ".json", "w") as outfile:
-            json.dump(content, outfile, indent = 2)
 
 def add_text_tag(string, fg = 'fg', bg = 'bg', other = '00'):
     return "<text=" + str(fg) + ":" + str(bg) + ":" + str(other) + ">" + string + "</text>"
@@ -398,6 +390,20 @@ def random_chance(level):
         random_options = [False, True, True, True]
     if level == 5:
         random_options = [False, True, True, True, True, True, True]
+    if level == 0:
+        random_options = [False, False, False, False ,False, False, False, False, False, False, False, False ,False, False, False, False, False, False, False, True]
+    return random.choice(random_options)
+
+def random_chance_luck_combat(level):
+    random_options = [False, False, False, False, False, False, False, False, False, True]
+    if level == 2:
+        random_options = [False, False, False, False, False, False, False, False, True, True]
+    if level == 3:
+        random_options = [False, False, False, False, False, False, False, True, True, True]
+    if level == 4:
+        random_options = [False, False, False, False, False, False, True, True, True, True]
+    if level == 5:
+        random_options = [False, True]
     if level == 0:
         random_options = [False, False, False, False ,False, False, False, False, False, False, False, False ,False, False, False, False, False, False, False, True]
     return random.choice(random_options)

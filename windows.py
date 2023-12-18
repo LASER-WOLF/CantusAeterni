@@ -1,5 +1,4 @@
 # BUILT-IN
-import math
 import re
 
 # PROJECT
@@ -177,6 +176,8 @@ def main(target_list):
     return (config.LAYER_TYPE_MAIN, result, None, None)
 
 def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg_color = None, bg_color = None, border_color = None, centered = False, margin = 2, min_width = 36):
+    if config.settings['visual_enable_popup_fill'] is False:
+        fill = None
     if fg_color is None:
         fg_color = 'foreground'
     if bg_color is None:
@@ -279,7 +280,8 @@ def word_wrap(target_list, max_width):
         if len(utils.remove_all_tags(line)) > max_width:
             word = new_line = ''
             tag = tag_search = None
-            for character in line:
+            for character_num, character in enumerate(line):
+                word_finished = False
                 # LOOK FOR TAGS
                 if tag_search is None:
                     tag_search = re.search('<text=(.{2}):(.{2}):(.{2})>',  word)
@@ -289,9 +291,17 @@ def word_wrap(target_list, max_width):
                     tag_search_end = re.search('</text>',  word)
                     if tag_search_end:
                         tag = tag_search = None
-                # END OF WORD
+                # END OF WORD IF CHARACTER IS WHITESPACE
                 if len(word) > 0 and character == ' ':
-                    # ADD WORD TO LINE
+                    word_finished = True
+                # ADD CHARACTER TO WORD
+                else:
+                    word += character
+                # END OF WORD IF FINAL CHARACTER
+                if (character_num + 1)  == len(line):
+                    word_finished = True
+                # ADD WORD TO LINE
+                if word_finished is True:
                     if (len(utils.remove_all_tags(new_line + word)) + 1) <= max_width:
                         new_line, word = add_word(new_line, word)
                     # MAKE NEW LINE WITH WORD
@@ -302,9 +312,6 @@ def word_wrap(target_list, max_width):
                         result.append(new_line)
                         new_line = word
                         word = ''
-                # ADD CHARACTER TO WORD
-                else:
-                    word += character
             # ADD LAST WORD TO LINE
             new_line, word = add_word(new_line, word)
             if new_line != '':
@@ -330,11 +337,17 @@ def scrollable_content_center(target_list, max_num_lines = 10):
         scroll_end_pos = max_num_lines + scroll_pos + scroll_pos_mod
         target_list_shortened = target_list[scroll_start_pos:scroll_end_pos]
         if scroll_pos > 0:
-            result.append(utils.add_ui_tag_scroll_center_up('▲ PRESS [SHIFT] + [UP] TO SCROLL UP'))
+            text = "[SHIFT] + [UP]"
+            if config.last_input_device == 'joystick':
+                text = '[RIGHT STICK UP]'
+            result.append(utils.add_ui_tag_scroll_center_up('▲ PRESS ' + text + ' TO SCROLL UP'))
         for line in target_list_shortened:
             result.append(line)
         if scroll_pos < scroll_max:
-            result.append(utils.add_ui_tag_scroll_center_down('▼ PRESS [SHIFT] + [DOWN] TO SCROLL DOWN'))
+            text = "[SHIFT] + [DOWN]"
+            if config.last_input_device == 'joystick':
+                text = '[RIGHT STICK DOWN]'
+            result.append(utils.add_ui_tag_scroll_center_down('▼ PRESS ' + text + ' TO SCROLL DOWN'))
     else:
         result = target_list
         scroll_pos = 0
@@ -397,7 +410,7 @@ def lower(content):
             fill, fill_num = utils.increment_list_loop(fill_list, fill_num)
             fill_color, fill_color_num = utils.increment_list_loop(fill_color_list, fill_color_num)
     # EMPTY LINES
-    while num == 0 or num == 1 or num < min_height:
+    while num == 0 or num == 1 or num <= min_height:
         lines.append(Line("", None, fill, fill_color))
         num += 1
     return lines
@@ -764,7 +777,7 @@ def make_scrollbar(scrollbar_window_height, scroll_pos, scroll_max):
     scrollbar_style_body_low = utils.add_text_tag(" ", bg = config.TAG_COLOR_SCROLLBAR_BG)
     lines = []
     down_arrow = None
-    if config.settings['visual_scroll_log_arrows']:
+    if config.settings['visual_enable_scroll_log_arrows']:
         if scroll_max > 0:
             up_arrow = '▲'
             scrollbar_window_height -= 1

@@ -26,6 +26,7 @@ def input(key, mod = None):
                 valid_input = True
                 system.quit_game_prompt()
                 config.trigger_animation('fade', 'ui_back', 'ui')
+                system.ui_selection_retrieve()
         elif key in config.controls['action'] :
             valid_input = True
             if selected_option.name == "start":
@@ -43,6 +44,11 @@ def input(key, mod = None):
             elif selected_option.name == "quit_game_prompt":
                 config.trigger_animation('ui_sel_5', 'ui_confirm', 'ui')
                 config.trigger_animation('fade')
+                if system.ui_quit_prompt:
+                    system.ui_selection_retrieve()
+                else:
+                    system.ui_selection_store()
+                    system.ui_selection_none()
                 system.quit_game_prompt()
             elif selected_option.name == "quit_game":
                 system.quit_game()

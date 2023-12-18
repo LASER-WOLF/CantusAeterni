@@ -100,8 +100,12 @@ def input_main(key, mod = None):
             valid_input = system.ui_selection_down()
         elif key in config.controls['left']:
             valid_input = system.ui_selection_left()
+            if valid_input:
+                config.ui_selection_y = 0
         elif key in config.controls['right']:
             valid_input = system.ui_selection_right()
+            if valid_input:
+                config.ui_selection_y = 0
         elif key in config.controls['action']:
             valid_input = True
             if selected_option.name == "item":
@@ -292,7 +296,7 @@ def equip(item_id):
             popup_lines.append(line)
     for action in item['on_equip']:
         handle_item_action(action)
-    system.set_popup_content(popup_lines)
+    system.set_popup_content(popup_lines, selection_memory = False)
 
 def unequip(item_id):
     global equipments_changed
@@ -321,4 +325,4 @@ def consume(item_id):
             popup_lines.append(line)
     for action in item['on_consume']:
         handle_item_action(action)
-    system.set_popup_content(popup_lines)
+    system.set_popup_content(popup_lines, selection_memory = False)

@@ -1,8 +1,9 @@
 # BUILT-IN
 import datetime
+import json
 
-# PROJECT
-import utils
+# SET VERSION NUMBER
+VERSION_NUMBER = '0000018'
 
 # SET CONSTANTS
 MODE_BOOT_SCREEN = "boot_screen"
@@ -19,19 +20,34 @@ WINDOW_MODE_FULLSCREEN = 'fullscreen'
 WINDOW_MODE_BORDERLESS = 'borderless'
 LAYER_TYPE_MAIN = 'main'
 LAYER_TYPE_POPUP = 'popup'
-RESOLUTIONS = [
-    (1280, 720),
-    (1600, 900),
-    (1920, 1080),
-]
-
-START_POSITION = 'c'
-START_ROOM = '1'
+RESOLUTIONS = {
+    '4:3': [
+        (800, 600),
+        (1024, 768),
+        (1280, 960),
+        (1600, 1200),
+    ],
+    '16:9': [
+        (1280, 720),
+        (1600, 900),
+        (1920, 1080),
+    ],
+    '16:10': [
+        (1280, 800),
+        (1440, 900),
+        (1680, 1050),
+        (1920, 1200),
+    ]
+}
+RESOLUTION_MIN = min([min(aspect_ratio) for aspect_ratio in RESOLUTIONS.values()])
 
 # SET CONSTANTS, GAME
+START_POSITION = 'c'
+START_ROOM = '1'
 PLAYER_START_HP = 100
 PLAYER_START_ATTACK_SKILL = 1
 PLAYER_START_ATTACK_SKILL_RANGED = 0
+PLAYER_START_LUCK = 0
 PLAYER_DAMAGE_UNARMED = 5
 PLAYER_START_EQUIPMENT_UPPER_BODY = '5'
 PLAYER_START_EQUIPMENT_LOWER_BODY = '6'
@@ -40,9 +56,7 @@ PLAYER_START_EQUIPMENT_FEET = '7'
 # SET CONSTANTS, FILE NAMES
 FOLDER_NAME_RESOURCES = 'resources'
 FOLDER_NAME_IMAGES = 'img'
-FILE_NAME_SETTINGS = 'settings'
-FILE_NAME_ERROR_LOG = 'error_log.txt'
-FILE_NAME_DEBUG_LOG = 'debug_log.txt'
+FOLDER_NAME_DATA = 'data'
 
 # SET CONSTANTS, TAGS
 TAGS = {
@@ -80,8 +94,8 @@ UI_TAGS = {
     "data_log_up": "▲l",
     "data_log_down": "▼l",
 }
-TAGS_REVERSE = utils.dict_swap_key_val(TAGS)
-UI_TAGS_REVERSE = utils.dict_swap_key_val(UI_TAGS)
+TAGS_REVERSE = {v: k for k, v in TAGS.items()}
+UI_TAGS_REVERSE = {v: k for k, v in UI_TAGS.items()}
 
 # SET CONSTANTS, DEFAULT COLORS
 DEFAULT_FG_COLOR = 'foreground'
@@ -355,11 +369,12 @@ ANIMATIONS = {
         ]
     },
     'take_damage': {
-        'fps': 4,
+        'fps': 8,
         'block_until_frame': 0,
         'frames': [
             'fade2_fg',
             'fade1_fg',
+            'fade1_bg',
         ]
     },
     'change_room': {
@@ -482,8 +497,13 @@ NPC_ATTACK_TEXT = [
 ]
 
 # SET VARS
+screen_width_full = None
+screen_height_full = None
 system_error = None
 run_game = True
+display_changed = False
+font_changed = False
+palette_changed = False
 settings = {}
 mode = None
 previous_mode = None
@@ -495,6 +515,8 @@ ui_selection_x = 0
 ui_selection_y = 0
 ui_selection_x_prev = 0
 ui_selection_y_prev = 0
+ui_selection_x_popup_prev = 0
+ui_selection_y_popup_prev = 0
 animation_queue = []
 last_input = None
 last_input_device = None
@@ -539,6 +561,8 @@ stats = {
     'times_player_missed': None,
     'times_npc_missed': None,
     'items_consumed': None,
+    'times_player_attack_luck': None,
+    'times_npc_missed_luck': None,
 }
 player = {
     'health_points_max': None,
@@ -547,6 +571,7 @@ player = {
     'health_status': None,
     'attack_skill': None,
     'attack_skill_ranged': None,
+    'luck': None,
     'damage_unarmed': None,
 }
 equipped_armor = {
@@ -624,6 +649,10 @@ item_type_consumable = [
 'food',
 ]
 
+def initialize():
+    import_settings()
+    add_debug_log("Starting game")
+
 def add_to_stats(stat, num):
     stats[stat] += num
 
@@ -632,27 +661,34 @@ def ui_scroll_zero():
         ui_scroll[key]['pos'] = 0
         ui_scroll[key]['max'] = 0
 
-def initialize():
-    import_settings()
-    add_debug_log("Starting game")
+def import_json(filename):
+    return json.load(open(filename + '.json','r'))
+
+def export_json(name, content):
+    with open(name + ".json", "w") as outfile:
+        json.dump(content, outfile, indent = 2)
 
 def import_settings():
     global settings
-    settings = utils.import_json(FOLDER_NAME_RESOURCES + '/' + FILE_NAME_SETTINGS)
+    settings = import_json(FOLDER_NAME_RESOURCES + '/' + 'settings')
 
 def export_settings():
-    utils.export_json(FOLDER_NAME_RESOURCES + '/' + FILE_NAME_SETTINGS, settings)
+    export_json(FOLDER_NAME_RESOURCES + '/' + 'settings', settings)
 
 def add_debug_log(item, error = False):
     global debug_log_list
     if error:
         item = "ERROR: " + item
+    turn = 0
+    if game['turn']:
+        turn = game['turn']
+    item = str(turn).rjust(6) + ' | ' + item
     debug_log_list.append(item)
     if settings['debug_error_log_to_file'] and error:
-        with open(FOLDER_NAME_RESOURCES + '/' + FILE_NAME_ERROR_LOG, 'a') as file:
+        with open(FOLDER_NAME_RESOURCES + '/' + 'error_log.txt', 'a') as file:
             file.write(datetime.datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
     elif settings['debug_log_to_file']:
-        with open(FOLDER_NAME_RESOURCES + '/' + FILE_NAME_DEBUG_LOG, 'a') as file:
+        with open(FOLDER_NAME_RESOURCES + '/' + 'debug_log.txt', 'a') as file:
             file.write(datetime.datetime.now().strftime("%d.%m.%Y - %H:%M:%S") + " | " + item + "\n")
 
 def raise_system_error(error_name):
@@ -689,6 +725,7 @@ def initialize_new_game():
     player['attack_skill'] = PLAYER_START_ATTACK_SKILL
     player['attack_skill_ranged'] = PLAYER_START_ATTACK_SKILL_RANGED
     player['damage_unarmed'] = PLAYER_DAMAGE_UNARMED
+    player['luck'] = PLAYER_START_LUCK
     for key in equipped_armor:
         equipped_armor[key] = None
     for key in equipped_weapons:

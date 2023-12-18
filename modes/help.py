@@ -1,5 +1,4 @@
 # PROJECT
-import audio
 import config
 import system
 import utils
@@ -23,19 +22,29 @@ def input(key, mod = None):
 
 def window_center():
     lines = [
-        'Music by:',
+        'VERSION:',
+        'v' + config.VERSION_NUMBER,
+        '',
+        'SKILLS:',
+        '- Weapon expertise -',
+        'Determines the chance to successfully hit your enemy with a melee weapon',
+        '',
+        '- Ranged weapon expertise -',
+        'Determines the chance to successfully hit your enemy with a ranged weapon',
+        '',
+        'MUSIC:',
         'Lory Werths',
         utils.add_ui_tag_link('mandolingals.tripod.com', 'https://mandolingals.tripod.com/'),
         '',
-        'Sounds from:',
+        'SOUNDS:',
         '100 Retro RPG UI Sound Effects',
         utils.add_ui_tag_link('leohpaz.itch.io', 'https://leohpaz.itch.io/'),
         '',
-        'Fonts from:',
+        'FONTS:',
         'The Ultimate Oldschool PC Font Pack',
         utils.add_ui_tag_link('int10h.org/oldschool-pc-fonts/', 'https://int10h.org/oldschool-pc-fonts/'),
         '',
-        'Color schemes from:',
+        'COLOR SCHEMES:',
         'Gogh color scheme collection',
         utils.add_ui_tag_link('github.com/Gogh-Co/Gogh', 'https://github.com/Gogh-Co/Gogh'),
     ]

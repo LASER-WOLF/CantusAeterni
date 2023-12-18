@@ -1,5 +1,4 @@
 # PROJECT
-import audio
 import config
 import system
 import windows
@@ -31,6 +30,7 @@ def window_center():
 def load_cutscene(cutscene_id):
     global cutscene
     cutscene = system.cutscenes[cutscene_id]
+    config.add_debug_log('Running cutscene -> ' + str(cutscene_id))
     result = []
     if(config.settings['debug_mode']):
         result.append("DEBUG: Running cutscene " + str(cutscene_id))

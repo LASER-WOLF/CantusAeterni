@@ -213,7 +213,7 @@
       {
         "type": "heal_player",
         "link": {
-          "health_points": 15,
+          "health_points": 50,
           "source": "the potion"
         }
       }

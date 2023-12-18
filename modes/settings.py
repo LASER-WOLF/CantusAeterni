@@ -58,10 +58,11 @@ def input(key, mod = None):
                 next_value = False
             if selected_option.name == 'resolution':
                 new_value = system.ui_selection_option_change_multi((config.settings['screen_width'], config.settings['screen_height']), selected_option.s_options, next_value)
-                if (config.settings['screen_width'], config.settings['screen_height']) != new_value:
+                if (config.settings['screen_width'], config.settings['screen_height']) != new_value and config.screen_width_full >= new_value[0] and config.screen_height_full >= new_value[1]:
                     config.settings['screen_width'] = new_value[0]
                     config.settings['screen_height'] = new_value[1]
                     config.trigger_animation('ui_sel_1', 'ui_sel', 'ui')
+                    config.display_changed = True
                     valid_input = True
             else:
                 new_value = system.ui_selection_option_change_multi(config.settings[selected_option.name], selected_option.s_options, next_value)
@@ -69,13 +70,24 @@ def input(key, mod = None):
                     config.settings[selected_option.name] = new_value
                     config.trigger_animation('ui_sel_1', 'ui_sel', 'ui')
                     valid_input = True
+                    if selected_option.name == 'window_mode':
+                        config.display_changed = True
+                    elif selected_option.name == 'aspect_ratio':
+                        config.display_changed = True
+                        config.settings['screen_width'] = config.RESOLUTIONS[config.settings['aspect_ratio']][0][0]
+                        config.settings['screen_height'] = config.RESOLUTIONS[config.settings['aspect_ratio']][0][1]
+                    elif selected_option.name == 'font':
+                        config.font_changed = True
+                    elif selected_option.name == 'palette':
+                        config.palette_changed = True
     return valid_input
 
 def selection_options():
     result = []
     result.append(system.SelectionOption("window_mode", "Screen | Window mode:", str(config.settings['window_mode']).capitalize(), "multi", [config.WINDOW_MODE_NORMAL, config.WINDOW_MODE_FULLSCREEN]))
     if config.settings['window_mode'] == config.WINDOW_MODE_NORMAL:
-        result.append(system.SelectionOption("resolution", "Screen | Resolution (windowed):", str(config.settings['screen_width']) + "x" + str(config.settings['screen_height']), "multi", config.RESOLUTIONS))
+        result.append(system.SelectionOption("aspect_ratio", "Screen | Windowed mode, aspect ratio:", str(config.settings['aspect_ratio']), "multi", list(config.RESOLUTIONS.keys())))
+        result.append(system.SelectionOption("resolution", "Screen | Windowed mode, resolution:", str(config.settings['screen_width']) + "x" + str(config.settings['screen_height']), "multi", [resolution for resolution in config.RESOLUTIONS[config.settings['aspect_ratio']] if resolution[0] <= config.screen_width_full and resolution[1] <= config.screen_height_full]))
     result.append(system.SelectionOption("font", "Screen | Font:", str(config.settings['font']), "multi", list(config.FONTS.keys())))
     result.append(system.SelectionOption("palette", "Screen | Color palette:", str(config.settings['palette']), "multi", list(config.PALETTES.keys())))
     result.append(system.SelectionOption("enable_mouse", "System | Enable mouse:", str(config.settings['enable_mouse']).capitalize(), "toggle"))
@@ -97,8 +109,10 @@ def selection_options():
         result.append(system.SelectionOption("debug_log_to_file", "Debug | Debug log to file:", str(config.settings['debug_log_to_file']).capitalize(), "toggle"))
         result.append(system.SelectionOption("debug_error_log_to_file", "Debug | Error log to file:", str(config.settings['debug_error_log_to_file']).capitalize(), "toggle"))
         result.append(system.SelectionOption("debug_info_screen", "Debug | Show screen info:", str(config.settings['debug_info_screen']).capitalize(), "multi", ['hide', 'compact', 'full']))
-        result.append(system.SelectionOption("visual_popup_window_shadow", "Visual | Enable shadow on popup window:", str(config.settings['visual_popup_window_shadow']).capitalize(), "toggle"))
-        result.append(system.SelectionOption("visual_scroll_log_arrows", "Visual | Enable arrows on log window scrollbar:", str(config.settings['visual_scroll_log_arrows']).capitalize(), "toggle"))
+        result.append(system.SelectionOption("visual_enable_extended_boot_animation", "Visual | Enable extended boot animation:", str(config.settings['visual_enable_extended_boot_animation']).capitalize(), "toggle"))
+        result.append(system.SelectionOption("visual_enable_popup_window_shadow", "Visual | Popup window, enable window shadow:", str(config.settings['visual_enable_popup_window_shadow']).capitalize(), "toggle"))
+        result.append(system.SelectionOption("visual_enable_popup_fill", "Visual | Popup window, enable background fill:", str(config.settings['visual_enable_popup_fill']).capitalize(), "toggle"))
+        result.append(system.SelectionOption("visual_enable_scroll_log_arrows", "Visual | Enable arrows on log window scrollbar:", str(config.settings['visual_enable_scroll_log_arrows']).capitalize(), "toggle"))
     return [result]
 
 def window_center():

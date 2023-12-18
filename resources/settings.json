@@ -1,5 +1,6 @@
 {
   "window_mode": "windowed",
+  "aspect_ratio": "16:9",
   "screen_width": 1280,
   "screen_height": 720,
   "font": "DOS/V re. ANK16",
@@ -18,7 +19,9 @@
   "debug_on_start": false,
   "debug_log_to_file": true,
   "debug_error_log_to_file": true,
-  "visual_popup_window_shadow": true,
-  "visual_scroll_log_arrows": false,
+  "visual_enable_extended_boot_animation": true,
+  "visual_enable_popup_window_shadow": true,
+  "visual_enable_popup_fill": true,
+  "visual_enable_scroll_log_arrows": false,
   "debug_info_screen": "compact"
 }

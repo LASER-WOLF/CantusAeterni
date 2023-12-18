@@ -1,74 +1,64 @@
 # TODO:
-  # write some text in the help section
-  # add setting: visual | enable popup fill
-  # add setting: visual | popup bg color
-  # make new boot animation
-  # add support for 'image' in popup window
-  # make single / multi dimensional version of selection options and selection options display
-  # add support for multiple aspect ratios: 4:3, 16:9, 16:10
-     4:3
-       640x480
-       800x600
-       1024x768
-       1600x1200
-     16:9
-       1280x720
-       1600x900
-       1920x1080
-     16:10
-       1280x800
-       1440x900
-       1680x1050
-       1920x1200
-  # add secret luck skill
-  # npc: dead bool and sight/sound/smell
-  # popup window: min and max size + word wrapping and text scrolling
-  # lower window: word wrapping and text scrolling
-  # skill progression:
-    # skill: unarmed combat (attack_melee)
-    # skill: combat (attack_skill)
-    # skill: ranged combat (attack_skill_ranged)
-  # new game settings:
-    # setting: enable minimap
-  # add quests
-  # npc: holds items, can give you as a reward for completing task or drop when killed
-  # enable / disable id tied to room?
-  # portal placement stored in portals and room file (duplicate data)
-  # map mode: store room data in selection
-  # npcs: actions
-  # inventory: colored text in inventory
-  # minimap: multicolor if multiple things on same tile
-  # sound: player attack npc
-  # sound: no sound when player and oponent miss in batte
-  # combat: fx when npc misses attack on player
-  # replace sound: portal_blocked
-  # audio fx: replace move sound fx
-  # game over screen: audio fx
-  # game over screen: music
-  # play sound later (sound queueing?) for: move / discover portal / pick up item / change room
-  # z levels
-  # support for saving / loading game  
-  # cool logo and background for main menu
-  # editor mode
-    # import json -> python
-    # save python data as file
-    # when starting game import python data files
-    # ability to edit all data files
+  # Popup window: Min and max size + word wrapping and text scrolling
+  # Lower window: Word wrapping and text scrolling
+  # NPC: Dead bool and sight/sound/smell
+  # Add support for low resolution (800 x 600)
+  # Skill progression (one point gained from NPC / one point gained from book / three points gained from experience)
+  # New game settings:
+    # Setting: enable minimap
+  # Enable / disable id tied to room?
+  # Portal placement stored in portals and room file (duplicate data)
+  # Map mode: Store room data in selection
+  # Add quests
+  # NPC: Holds items, can give you as a reward for completing task or drop when killed
+  # When near NPC: Special actions (pickpocket etc.)
+  # Clean up / rewrite boot animation code
+  # Add sound: Player attack npc
+  # Sound: No sound when player and oponent miss in batte
+  # Combat: Add FX when npc misses attack on player
+  # Replace sound for portal_blocked
+  # Audio fx: Replace move sound fx
+  # Game over screen: Audio fx
+  # Game over screen: Music
+  # Z-levels (stairs etc.)
+  # Support for saving / loading game  
+  # Cool logo and background for main menu
+  # Editor mode
+    # Import json -> python
+    # Save python data as file
+    # When starting game import python data files
+    # Ability to edit all data files
 
 # BUGS
-  # BUG: in character screen, selection jumping to different x dimension after equipping item
-  # BUG: in character screen, unequipping worn pants removes selection
-  # BUG (FIXED?): audio not playing when music is off and audio volume is same as music volume (sometimes)
+  # BUG (FIXED?): Audio not playing when music is off and audio volume is same as music volume (sometimes)
 
 # MAYBE?
-  # custom button mapping?
-  # better minimap in map mode?
-  # dynamic color scheme?
+  # Minimap: Multicolor if multiple things on same tile
+  # Make single / multi dimensional version of selection options and selection options display
+  # Add support for 'image' in popup window
+  # Custom button mapping
+  # Better minimap in map mode
+  # Dynamic color scheme
     # apprentice -> default
     # ibm -> cave
     # solarized -> forest
 
 # DONE:
+    v0000018:
+  # Add more debug reporting
+  # Add 1 line padding to lower window
+  # Inventory: Colored text in inventory
+  # BUG: Selection memory on portal if popup window open
+  # Add selection memory when changing mode
+  # Add secret luck skill for hit npc and dodge attack
+  # BUG: in character screen, selection jumping to different x dimension after equipping item
+  # BUG: in character screen, unequipping worn pants removes selection
+  # Make new boot animation
+  # Add setting: visual | enable popup fill
+  # Add version numbering
+  # Limit resolution selection to fit in screen (remove resolutions that are too big from settings menu)
+  # Add support for multiple aspect ratios: 4:3, 16:9, 16:10
+    v0000017:
   # (FIXED) BUG (OR FEATURE?): Fill rendered over line in popup window (because of pos_y_mod)
   # (FIXED) BUG: Black screen after minimize (Sort of fixed: only happens with debug screen overlay enabled)
   # ▲ ▼ arrows for scroll on log?

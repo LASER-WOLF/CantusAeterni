@@ -44,14 +44,14 @@ def initialize_new_game():
     global active_npcs
     global current_position
     global current_target
-    rooms = json.load(open('resources/data/rooms.json','r')) 
-    cutscenes = json.load(open('resources/data/cutscenes.json','r')) 
-    interactables = json.load(open('resources/data/interactables.json','r')) 
-    portals = json.load(open('resources/data/portals.json','r')) 
-    statuses = json.load(open('resources/data/statuses.json','r')) 
-    items = json.load(open('resources/data/items.json','r')) 
-    npcs = json.load(open('resources/data/npcs.json','r')) 
-    dialogues = json.load(open('resources/data/dialogues.json','r')) 
+    rooms = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'rooms.json','r')) 
+    cutscenes = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'cutscenes.json','r')) 
+    interactables = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'interactables.json','r')) 
+    portals = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'portals.json','r')) 
+    statuses = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'statuses.json','r')) 
+    items = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'items.json','r')) 
+    npcs = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'npcs.json','r')) 
+    dialogues = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'dialogues.json','r')) 
     log_list = [(0, "You start the game.")]
     dialogue_log = []
     inventory_list = []
@@ -63,11 +63,21 @@ def initialize_new_game():
     config.initialize_new_game()
     change_mode(config.MODE_CUTSCENE)
 
-def end_turn(action):
+def end_turn(action, target = None, result = None):
     if action == 'portal':
-        config.trigger_animation('change_room', 'fx_change_room')
-    else:
+        if result == 'blocked':
+            config.trigger_animation('fade', 'ui_back')
+        else:
+            config.trigger_animation('change_room', 'fx_change_room')
+    elif action == 'move':
+        config.trigger_animation('fade', 'fx_move')
+    elif action == 'pickup':
+        config.trigger_animation('fade', 'fx_pick_up_item')
+    elif (action == 'attack' or action == 'attack_ranged') and result != 'kill':
         config.trigger_animation('fade')
+    elif action != 'attack' and action != 'attack_ranged':
+        config.trigger_animation('fade')
+    #elif action == 'dialogue' or action == 'dialogue-fail' or action == 'inventory':
     hp_old = config.player['health_points']
     if action != 'portal':
         npc_behaviour()
@@ -75,21 +85,18 @@ def end_turn(action):
         dmg_from_statuses()
         dmg_from_wounds()
     hp_new = config.player['health_points']
-    hp_diff = hp_old - hp_new
+    hp_diff = hp_old - config.player['health_points']
     if hp_diff > 0:
         config.trigger_animation('take_damage', 'fx_npc_hit')
-    elif action == 'move':
-        audio.sound_play('fx_move')
-    elif action == 'pickup':
-        audio.sound_play('fx_pick_up_item')
-    elif action == 'portal_blocked':
-        audio.sound_play('ui_back')
     config.game['turn'] += 1
     config.ui_scroll_zero()
+    config.add_debug_log('Turn ended: ' + action + ' -> ' + str(target) + ' (' + str(result) + ')')
 
-def change_mode(new_mode):
+def change_mode(new_mode, selection_memory = True):
     global main_content
     global popup_content
+    if selection_memory is True:
+        ui_selection_store()
     ui_selection_none()
     config.ui_scroll_zero()
     main_content = None
@@ -102,17 +109,35 @@ def change_mode(new_mode):
     elif config.mode == config.MODE_CUTSCENE or config.mode == config.MODE_GAME:
         audio.music_change_type(audio.MUSIC_TYPE_GAME)
 
-def change_mode_previous():
+def change_mode_previous(selection_memory = True):
     audio.sound_play('ui_back', 'ui')
-    change_mode(config.previous_mode)
+    change_mode(config.previous_mode, selection_memory = False)
+    if selection_memory is True:
+        ui_selection_retrieve()
     return True
 
-def set_popup_content(lines, options = None, centered = False, play_animation = True, border_color = None, fg_color = None, bg_color = None):
+def ui_selection_store():
+    config.ui_selection_x_prev = config.ui_selection_x
+    config.ui_selection_y_prev = config.ui_selection_y
+
+def ui_selection_retrieve():
+    config.ui_selection_x = config.ui_selection_x_prev
+    config.ui_selection_y = config.ui_selection_y_prev
+
+def ui_selection_popup_store():
+    config.ui_selection_x_popup_prev = config.ui_selection_x
+    config.ui_selection_y_popup_prev = config.ui_selection_y
+
+def ui_selection_popup_retrieve():
+    config.ui_selection_x = config.ui_selection_x_popup_prev
+    config.ui_selection_y = config.ui_selection_y_popup_prev
+
+def set_popup_content(lines, options = None, centered = False, play_animation = True, border_color = None, fg_color = None, bg_color = None, selection_memory = True):
     global popup_content
     if play_animation:
         config.trigger_animation('fade_popup')
-    config.ui_selection_x_prev = config.ui_selection_x
-    config.ui_selection_y_prev = config.ui_selection_y
+    if selection_memory is True:
+        ui_selection_popup_store()
     config.ui_selection_x = 0
     config.ui_selection_y = 0
     popup_content = {
@@ -124,12 +149,12 @@ def set_popup_content(lines, options = None, centered = False, play_animation = 
         'bg_color': bg_color,
     }
 
-def unset_popup_content(play_animation = True):
+def unset_popup_content(play_animation = True, selection_memory = True):
     global popup_content
     if play_animation:
         config.trigger_animation('fade')
-    config.ui_selection_x = config.ui_selection_x_prev
-    config.ui_selection_y = config.ui_selection_y_prev
+    if selection_memory is True:
+        ui_selection_popup_retrieve()
     popup_content = None
     ui_selection_options = None
 
@@ -205,19 +230,16 @@ def restart_game():
 
 def pre_quit_prompt():
     global ui_pre_quit_prompt
-    ui_selection_none()
     config.ui_scroll_zero()
     ui_pre_quit_prompt = not ui_pre_quit_prompt
 
 def quit_game_prompt():
     global ui_quit_prompt
-    ui_selection_none()
     config.ui_scroll_zero()
     ui_quit_prompt = not ui_quit_prompt
 
 def restart_game_prompt():
     global ui_restart_prompt
-    ui_selection_none()
     config.ui_scroll_zero()
     ui_restart_prompt = not ui_restart_prompt
 
@@ -228,9 +250,9 @@ def ui_selection_none():
     config.ui_selection_y = 0
     config.ui_selection_current = None
 
-def prev_selection_none():
-    config.ui_selection_x_prev = 0
-    config.ui_selection_y_prev = 0
+def ui_selection_popup_prev_none():
+    config.ui_selection_x_popup_prev = 0
+    config.ui_selection_y_popup_prev = 0
 
 def set_selection_options(target_list):
     global ui_selection_options
@@ -261,6 +283,11 @@ def set_selection_options(target_list):
                 ui_selection_x_next()
         else:
             config.ui_selection_y = min(max_selection_y, max(min_selection_y, config.ui_selection_y))
+        if ui_selection_options[config.ui_selection_x][config.ui_selection_y] is None:
+            if config.ui_selection_y > 0:
+                ui_selection_y_prev()
+            else:
+                ui_selection_y_next()
         config.ui_selection_current = ui_selection_options[config.ui_selection_x][config.ui_selection_y]
 
 def ui_selection_y_prev():
@@ -356,7 +383,7 @@ def ui_scroll_minus(scroll_name):
         config.ui_scroll[scroll_name]['pos'] -= 1
         if scroll_name == 'center':
             config.trigger_animation('ui_sel_1', animation_type = config.UI_TAGS['scroll'], animation_data = config.UI_TAGS['data_center_up'])
-        elif scroll_name == 'log' and config.settings['visual_scroll_log_arrows']:
+        elif scroll_name == 'log' and config.settings['visual_enable_scroll_log_arrows']:
             config.trigger_animation('ui_sel_1', animation_type = config.UI_TAGS['scroll'], animation_data = config.UI_TAGS['data_log_down'])
         return True
     return False
@@ -366,7 +393,7 @@ def ui_scroll_plus(scroll_name):
         config.ui_scroll[scroll_name]['pos'] += 1
         if scroll_name == 'center':
             config.trigger_animation('ui_sel_1', animation_type = config.UI_TAGS['scroll'], animation_data = config.UI_TAGS['data_center_down'])
-        elif scroll_name == 'log' and config.settings['visual_scroll_log_arrows']:
+        elif scroll_name == 'log' and config.settings['visual_enable_scroll_log_arrows']:
             config.trigger_animation('ui_sel_1', animation_type = config.UI_TAGS['scroll'], animation_data = config.UI_TAGS['data_log_up'])
         return True
     return False
@@ -589,6 +616,10 @@ def npc_action_attack_player(npc, ranged = False):
     attack_text = format_npc_log_text(attack_text, npc)
     game_over_text = format_npc_log_text(game_over_text, npc)
     add_log(attack_text)
+    if hit:
+        hit = not utils.random_chance_luck_combat(config.player['luck'])
+        if not hit:
+            config.add_to_stats('times_npc_missed_luck', 1)
     if hit:
         damage_num = utils.randomize_damage(damage)
         defence_num = utils.randomize_damage(check_player_defence())
@@ -825,4 +856,5 @@ def player_death():
         SelectionOption('restart_game', 'Return to title screen'),
         SelectionOption('quit_game', 'Quit game')
     ]]
+    config.add_debug_log('Game over')
     set_popup_content(popup_lines, popup_options, centered = True, play_animation = False)
