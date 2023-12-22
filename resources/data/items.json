@@ -199,7 +199,6 @@
       }
     ],
     "on_consume_text": [
-      "The antidote heals you of the poisoning!"
     ]
   },
   "12": {
@@ -220,6 +219,23 @@
     ],
     "on_consume_text": [
       "The magicks of the potion has a wonderful effect on your health! You feel great!"
+    ]
+  },
+  "13": {
+    "name": "book of battle tactics",
+    "type": "book",
+    "consume_text": "Read book",
+    "text": [
+      "It is a dusty old book, bound in red leather. In black letters the title reads \"No greater glory, no greater joy: Illustrated lessons in advanced battle tactics. Written by Sire Yhwand IV\"."
+    ],
+    "on_consume": [
+      {
+        "type": "increase_skill",
+        "link": "attack"
+      }
+    ],
+    "on_consume_text": [
+      "After carefully studying the book you gain new insight into advanced battle tactics. Your weapon expertise skill has increased!"
     ]
   }
 }

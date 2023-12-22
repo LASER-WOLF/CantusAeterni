@@ -64,20 +64,26 @@ def add_ui_tag_scroll_log_up(string):
     return add_ui_tag(string, config.UI_TAGS['scroll'], config.UI_TAGS['data_log_up'])
 
 def add_ui_tag_scroll_log_down(string):
-    return add_ui_tag(string, config.UI_TAGS['scroll'], config.UI_TAGS['data_log_up'])
+    return add_ui_tag(string, config.UI_TAGS['scroll'], config.UI_TAGS['data_log_down'])
 
 def add_ui_tag_continue(string):
     return add_ui_tag(string, config.UI_TAGS['continue'])
 
+def add_ui_tag_back(string):
+    return add_ui_tag(string, config.UI_TAGS['back'])
+
 def add_ui_tag_link(string, link):
     return add_ui_tag(string, config.UI_TAGS['link'], link)
+
+def format_link(string, link):
+    return add_ui_tag_link(add_text_tag(string, fg = config.TAG_COLOR_LINK), link)
 
 def remove_text_tags(target_line):
     target_line = re.sub('<text=(.{2}):(.{2}):(.{2})>(.*?)</text>', r"\4", target_line, flags = re.IGNORECASE)
     return target_line
 
 def remove_ui_tags(target_line):
-    target_line = re.sub('<ui=(.{2}):(.*?)>(.*?)</ui>', r"\3", target_line, flags = re.IGNORECASE)
+    target_line = re.sub('<ui=(.{4}):(.*?)>(.*?)</ui>', r"\3", target_line, flags = re.IGNORECASE)
     return target_line
 
 def remove_all_tags(target_line):
@@ -193,7 +199,9 @@ def format_item_type(name, capitalized = True, colored = True):
 
 def format_item_type_color(text, item_type):
     text_formatted = text
-    if item_type == 'ring':
+    if item_type == 'book':
+        text_formatted = add_text_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_BOOK)
+    elif item_type == 'ring':
         text_formatted = add_text_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_RING)
     elif item_type in config.equipped_armor:
         text_formatted = add_text_tag(text_formatted, fg = config.TAG_COLOR_ITEM_TYPE_ARMOR)

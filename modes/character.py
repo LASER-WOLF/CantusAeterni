@@ -13,10 +13,14 @@ item_consumed = None
 def init():
     global init_done
     global equipments_changed
-    global items_consumed
+    global drinks_consumed
+    global foods_consumed
+    global books_consumed
     init_done = True
     equipments_changed = 0
-    items_consumed = 0
+    drinks_consumed = 0
+    foods_consumed = 0
+    books_consumed = 0
 
 def run():
     if init_done is False:
@@ -36,20 +40,15 @@ def run():
     if system.popup_content is not None:
         system.set_selection_options(system.popup_content['options'])
         layers.append(
-            windows.popup(system.popup_content['lines'], options = system.ui_selection_options, centered = system.popup_content['centered'])
+            windows.popup(system.popup_content['lines'], options = system.ui_selection_options, title = system.popup_content['title'], image = system.popup_content['image'], centered = system.popup_content['centered'])
         )
     return layers
 
 def exit_inventory_screen():
     if equipments_changed > 0:
         system.add_log('You change your equipment.')
-    if items_consumed > 0:
-        items_consumed_text = 'an item'
-        if items_consumed > 1:
-            items_consumed_text = 'multiple items'
-        system.add_log('You consume ' + items_consumed_text +'.')
     system.run_queued_actions()
-    if equipments_changed > 0 or items_consumed > 0:
+    if equipments_changed > 0 or (drinks_consumed + foods_consumed + books_consumed) > 0:
         global init_done
         init_done = False
         system.end_turn('inventory')
@@ -61,7 +60,7 @@ def input_popup(key, mod = None):
     if selected_option is None:
         if key in config.controls['action']:
             valid_input = True
-            config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
+            config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui', animation_data = config.UI_TAGS['continue'])
             system.unset_popup_content()
     else:
         if key in config.controls['up']:
@@ -71,20 +70,20 @@ def input_popup(key, mod = None):
         elif key in config.controls['back'] or (key in config.controls['action'] and selected_option.name == 'cancel'):
             valid_input = True
             if key in config.controls['action'] and selected_option.name == 'cancel':
-                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT)
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT)
             audio.sound_play('ui_back', 'ui')
             system.unset_popup_content()
         elif key in config.controls['action']:
             valid_input = True
             if selected_option.name == "equip":
-                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 equip(selected_option.link)
             elif selected_option.name == "unequip":
-                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 unequip(selected_option.link)
                 system.unset_popup_content()
             elif selected_option.name == "consume":
-                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 consume(selected_option.link)
     return valid_input
 
@@ -99,17 +98,13 @@ def input_main(key, mod = None):
         elif key in config.controls['down']:
             valid_input = system.ui_selection_down()
         elif key in config.controls['left']:
-            valid_input = system.ui_selection_left()
-            if valid_input:
-                config.ui_selection_y = 0
+            valid_input = system.ui_selection_left(True)
         elif key in config.controls['right']:
-            valid_input = system.ui_selection_right()
-            if valid_input:
-                config.ui_selection_y = 0
+            valid_input = system.ui_selection_right(True)
         elif key in config.controls['action']:
             valid_input = True
             if selected_option.name == "item":
-                config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
+                config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 examine(selected_option.link)
     return valid_input
 
@@ -135,11 +130,11 @@ def window_center():
         damage_ranged = system.items[config.equipped_weapons['attack_ranged']]['damage']
     damage_ranged = utils.format_damage_num(damage_ranged)
     defence = utils.format_defence_num(system.check_player_defence(), 6)
-    attack_skill = utils.format_skill_num(config.player['attack_skill'])
-    attack_skill_ranged = utils.format_skill_num(config.player['attack_skill_ranged'])
+    attack_skill = utils.format_skill_num(config.player['skill_level_attack'])
+    attack_skill_ranged = utils.format_skill_num(config.player['skill_level_attack_ranged'])
     combat_status.append('COMBAT STATUS:')
-    combat_status.append(' Weapon expertise: '.ljust(just_num) + str(attack_skill))
-    combat_status.append(' Ranged weapon expertise: '.ljust(just_num) + str(attack_skill_ranged))
+    combat_status.append((' ' + config.SKILL_NAMES['attack'].capitalize() + ': ').ljust(just_num) + str(attack_skill))
+    combat_status.append((' ' + config.SKILL_NAMES['attack_ranged'].capitalize() + ': ').ljust(just_num) + str(attack_skill_ranged))
     combat_status.append(' Attack damage: '.ljust(just_num) + str(damage))
     combat_status.append(' Ranged attack damage: '.ljust(just_num) + str(damage_ranged))
     combat_status.append(' Defence: '.ljust(just_num) + str(defence))
@@ -164,7 +159,9 @@ def window_center():
     for item_id in system.inventory_list:
         sort_num = 0
         item = system.items[item_id]
-        if item['type'] == 'ring':
+        if item['type'] == 'book':
+            sort_num = 0
+        elif item['type'] == 'ring':
             sort_num = 1
         elif item['type'] in config.equipped_armor:
             sort_num = 2
@@ -206,9 +203,7 @@ def examine(item_id):
     item_equippable = item['type'] == 'ring' or item['type'] in config.equipped_armor or item['type'] in config.equipped_weapons
     popup_lines = []
     popup_options = [[]]
-    item_name = '« ' + item['name'].upper() + ' »'
-    popup_lines.append(item_name)
-    popup_lines.append('<vertical_spacer>')
+    popup_title = item['name'].upper()
     popup_lines.append('Type: ' + utils.format_item_type(item['type']))
     if item['type'] == 'attack' or item['type'] == 'attack_ranged':
         damage_num = utils.format_damage_num(item['damage'])
@@ -246,13 +241,10 @@ def examine(item_id):
             consume_text = item['consume_text']
         popup_options[0].append(system.SelectionOption("consume", consume_text, item_id))
     popup_options[0].append(system.SelectionOption("cancel", 'Go back'))
-    system.set_popup_content(popup_lines, popup_options)
+    system.set_popup_content(popup_lines, popup_options, title = popup_title)
 
 def handle_item_action(action):
-    if action['type'] == 'activate_flag' or action['type'] == 'deactivate_flag':
-        system.execute_action(action)
-    else:
-        system.queue_action(action)
+    system.execute_action(action)
 
 def equip(item_id):
     global equipments_changed
@@ -313,13 +305,28 @@ def unequip(item_id):
     system.inventory_list.append(item_id)
 
 def consume(item_id):
-    global items_consumed
-    items_consumed += 1
-    config.add_to_stats('items_consumed', 1)
+    global drinks_consumed
+    global foods_consumed
+    global books_consumed
     item = system.items[item_id]
     system.inventory_list.remove(item_id)
+    consume_type = 'consume'
+    if item['type'] == 'drink':
+        consume_type = 'drink'
+        config.add_to_stats('drinks_consumed', 1)
+        drinks_consumed += 1
+    elif item['type'] == 'food':
+        consume_type = 'eat'
+        config.add_to_stats('foods_consumed', 1)
+        foods_consumed += 1
+    elif item['type'] == 'book':
+        consume_type = 'read'
+        config.add_to_stats('books_consumed', 1)
+        books_consumed += 1
+    consume_text = 'You ' + consume_type + ' the ' + item['name'] + '.'
+    system.add_log(consume_text)
     popup_lines = []
-    popup_lines.append('You consume the ' + item['name'] + '.')
+    popup_lines.append(consume_text)
     if item['on_consume_text']:
         for line in item['on_consume_text']:
             popup_lines.append(line)

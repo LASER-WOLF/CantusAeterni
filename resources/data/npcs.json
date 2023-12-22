@@ -14,6 +14,7 @@
     "health_points_max": 10,
     "health_stage": 0,
     "health_status": null,
+    "dead": false,
     "damage": 20,
     "damage_ranged": 10,
     "attack_skill": 3,
@@ -43,6 +44,10 @@
     "sound_far_always": "You notice strange sounds coming from the <pos>.",
     "sound_far_hostile": null,
     "sound_far_friendly": null,
+    "sight_near_dead": null,
+    "sight_far_dead": null,
+    "smell_near_dead": null,
+    "smell_far_dead": null,
     "attack_text": [
       "<name> opens <pronoun_pos> mouth and whips you with <pronoun_pos> poisonous tongue.",
       "<name> unleashes a fierce and painful attack with <pronoun_pos> poisonous tongue.",

@@ -186,6 +186,12 @@
         "link": "8",
         "content": "Examine the unknown object",
         "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "11",
+        "content": "Examine the unknown object",
+        "disabled": false
       }
     ],
     "sight": [
@@ -240,6 +246,12 @@
       {
         "position": "se",
         "link": "10",
+        "content": "You see <i>an unknown object</i> next to the skelleton in the darkness in front of you.",
+        "disabled": false
+      },
+      {
+        "position": "se",
+        "link": "13",
         "content": "You see <i>an unknown object</i> next to the skelleton in the darkness in front of you.",
         "disabled": false
       },

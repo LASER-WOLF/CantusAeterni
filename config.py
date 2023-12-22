@@ -3,9 +3,10 @@ import datetime
 import json
 
 # SET VERSION NUMBER
-VERSION_NUMBER = '0000018'
+VERSION_NUMBER = '0000019'
 
 # SET CONSTANTS
+INPUT_COMBO_DEBUG_MODE = 'debugspacemode'
 MODE_BOOT_SCREEN = "boot_screen"
 MODE_MAIN_MENU = "main_menu"
 MODE_DEBUG = "debug_screen"
@@ -21,12 +22,12 @@ WINDOW_MODE_BORDERLESS = 'borderless'
 LAYER_TYPE_MAIN = 'main'
 LAYER_TYPE_POPUP = 'popup'
 RESOLUTIONS = {
-    '4:3': [
-        (800, 600),
-        (1024, 768),
-        (1280, 960),
-        (1600, 1200),
-    ],
+    #'4:3': [
+    #    (800, 600),
+    #    (1024, 768),
+    #    (1280, 960),
+    #    (1600, 1200),
+    #],
     '16:9': [
         (1280, 720),
         (1600, 900),
@@ -41,12 +42,31 @@ RESOLUTIONS = {
 }
 RESOLUTION_MIN = min([min(aspect_ratio) for aspect_ratio in RESOLUTIONS.values()])
 
+# SET CONSTANTS, SKILLS
+SKILL_NAMES = {
+    'attack': 'weapon expertise',
+    'attack_ranged': 'ranged weapon expertise',
+}
+EXPERIENCE_LEVELS = {
+    'attack': {
+        1: 10,
+        2: 100,
+        3: 1000,
+    },
+    'attack_ranged': {
+        1: 10,
+        2: 100,
+        3: 1000,
+    },
+}
+
 # SET CONSTANTS, GAME
 START_POSITION = 'c'
 START_ROOM = '1'
 PLAYER_START_HP = 100
-PLAYER_START_ATTACK_SKILL = 1
+PLAYER_START_ATTACK_SKILL = 0
 PLAYER_START_ATTACK_SKILL_RANGED = 0
+PLAYER_START_ATTACK_SKILL_UNARMED = 2
 PLAYER_START_LUCK = 0
 PLAYER_DAMAGE_UNARMED = 5
 PLAYER_START_EQUIPMENT_UPPER_BODY = '5'
@@ -82,13 +102,14 @@ TAGS = {
     "strikethrough": "st",
 }
 UI_TAGS = {
-    "none": "00",
-    "continue": "01",
-    "action": "02",
-    "scroll": "03",
-    "link": "04",
-    "left": "<-",
-    "right": "->",
+    "none": "none",
+    "back": "back",
+    "continue": "cont",
+    "action": "actn",
+    "scroll": "scrl",
+    "link": "link",
+    "left": "left",
+    "right": "rght",
     "data_center_up": "▲c",
     "data_center_down": "▼c",
     "data_log_up": "▲l",
@@ -104,6 +125,7 @@ DEFAULT_FILL_COLOR = 'bright_black'
 # SET CONSTANTS, TAG COLORS
 TAG_COLOR_FG = TAGS['foreground']
 TAG_COLOR_BG = TAGS['background']
+TAG_COLOR_LINK = TAGS['blue']
 TAG_COLOR_DARK = TAGS['bright_black']
 TAG_COLOR_HL = TAGS['bright_white']
 TAG_COLOR_WEAK = TAGS['white']
@@ -113,12 +135,13 @@ TAG_COLOR_PORTAL = TAG_COLOR_INTERACTABLE
 TAG_COLOR_DIRECTION = TAGS['bright_blue']
 TAG_COLOR_NPC = TAGS['bright_yellow']
 TAG_COLOR_STATUS = TAGS['bright_magenta']
+TAG_COLOR_ITEM_TYPE_BOOK = TAGS['bright_yellow']
 TAG_COLOR_ITEM_TYPE_RING = TAGS['bright_red']
 TAG_COLOR_ITEM_TYPE_ARMOR = TAGS['bright_green']
 TAG_COLOR_ITEM_TYPE_WEAPON = TAGS['bright_cyan']
 TAG_COLOR_ITEM_TYPE_CONSUMABLE = TAGS['bright_magenta']
 TAG_COLOR_ITEM_TYPE_KEY = TAGS['bright_blue']
-TAG_COLOR_ITEM_MAGICAL = TAGS['bright_yellow']
+TAG_COLOR_ITEM_MAGICAL = TAGS['bright_white']
 TAG_COLOR_STAGE_0 = TAG_COLOR_WEAK
 TAG_COLOR_STAGE_1 = TAGS['red']
 TAG_COLOR_STAGE_2 = TAGS['yellow']
@@ -136,6 +159,7 @@ TAG_COLOR_UI_INACTIVE = TAG_COLOR_WEAK
 TAG_COLOR_LOG_DAMAGE = TAG_COLOR_HEALTH_1
 TAG_COLOR_LOG_HEAL = TAG_COLOR_HEALTH_3
 TAG_COLOR_LOG_OLD = TAG_COLOR_UI_INACTIVE
+TAG_COLOR_LOG_HL = TAGS['bright_yellow']
 TAG_COLOR_MAP_INACTIVE = TAG_COLOR_DARK
 TAG_COLOR_MAP_SELECTED = TAG_COLOR_FG
 TAG_COLOR_SCROLLBAR_BG = TAG_COLOR_HL
@@ -520,6 +544,8 @@ ui_selection_y_popup_prev = 0
 animation_queue = []
 last_input = None
 last_input_device = None
+ui_scroll_start_pos = 0
+ui_scroll_end_pos = 0
 ui_scroll = {
     'center': {
         'pos': 0,
@@ -560,7 +586,9 @@ stats = {
     'health_healed': None,
     'times_player_missed': None,
     'times_npc_missed': None,
-    'items_consumed': None,
+    'drinks_consumed': None,
+    'foods_consumed': None,
+    'books_consumed': None,
     'times_player_attack_luck': None,
     'times_npc_missed_luck': None,
 }
@@ -569,10 +597,15 @@ player = {
     'health_points': None,
     'health_stage': None,
     'health_status': None,
-    'attack_skill': None,
-    'attack_skill_ranged': None,
+    'skill_level_attack': None,
+    'skill_level_attack_ranged': None,
+    'skill_level_attack_unarmed': None,
     'luck': None,
     'damage_unarmed': None,
+    'experience_attack': None,
+    'experience_level_attack': None,
+    'experience_attack_ranged': None,
+    'experience_level_attack_ranged': None,
 }
 equipped_armor = {
     'head': None,
@@ -647,6 +680,7 @@ controls = {
 item_type_consumable = [
 'drink',
 'food',
+'book',
 ]
 
 def initialize():
@@ -682,7 +716,7 @@ def add_debug_log(item, error = False):
     turn = 0
     if game['turn']:
         turn = game['turn']
-    item = str(turn).rjust(6) + ' | ' + item
+    item = '(' + str(turn) + ') ' + item
     debug_log_list.append(item)
     if settings['debug_error_log_to_file'] and error:
         with open(FOLDER_NAME_RESOURCES + '/' + 'error_log.txt', 'a') as file:
@@ -722,10 +756,15 @@ def initialize_new_game():
     player['health_points'] = PLAYER_START_HP
     player['health_stage'] = 0
     player['health_status'] = None
-    player['attack_skill'] = PLAYER_START_ATTACK_SKILL
-    player['attack_skill_ranged'] = PLAYER_START_ATTACK_SKILL_RANGED
+    player['skill_level_attack'] = 0
+    player['skill_level_attack_ranged'] = 0
+    player['skill_level_attack_unarmed'] = PLAYER_START_ATTACK_SKILL_UNARMED
     player['damage_unarmed'] = PLAYER_DAMAGE_UNARMED
     player['luck'] = PLAYER_START_LUCK
+    player['experience_attack'] = 0
+    player['experience_level_attack'] = PLAYER_START_ATTACK_SKILL
+    player['experience_attack_ranged'] = 0
+    player['experience_level_attack_ranged'] = PLAYER_START_ATTACK_SKILL_RANGED
     for key in equipped_armor:
         equipped_armor[key] = None
     for key in equipped_weapons:

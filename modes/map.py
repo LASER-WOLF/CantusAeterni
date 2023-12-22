@@ -70,11 +70,12 @@ def selection_options():
         for y in range(max_y):
             if {'x': x, 'y': y} in known_rooms.values():
                 found_rooms = utils.dict_key_by_value(known_rooms, {'x': x, 'y': y})
-                found_room = found_rooms[0]
+                found_room_id = found_rooms[0]
+                found_room = (found_room_id, system.rooms[found_room_id])
                 result[x].append(found_room)
                 if len(found_rooms) > 1:
                     add_debug_log("Multiple rooms with same coordinates " + "(ID: " + str(found_rooms) + ")", True)
-                if found_room == system.active_room and system.ui_selection_options is None:
+                if found_room_id == system.active_room and system.ui_selection_options is None:
                     config.ui_selection_x = x
                     config.ui_selection_y = y
             else:
@@ -86,11 +87,10 @@ def window_center():
     lines.extend(map_content())
     lines.append('')
     lines.append('')
-    lines.append('')
-    lines.append(system.rooms[system.ui_selection_options[config.ui_selection_x][config.ui_selection_y]]['noun'].upper())
+    lines.append(config.ui_selection_current[1]['noun'].upper())
     if config.settings['debug_mode']:
-        lines.append("DEBUG: " + str(system.ui_selection_options[config.ui_selection_x][config.ui_selection_y]))
-    #lines.extend(windows.block_minimap(system.rooms[config.ui_selection_current], system.current_position))
+        lines.append("DEBUG: " + str(config.ui_selection_current[0]))
+    #lines.extend(windows.block_minimap(config.ui_selection_current[1], system.current_position))
     return windows.Content(windows.WINDOW_CENTER, lines, None, windows.FILL_PATTERNS['dots1'],None, True, True)
 
 def portal_check(portal_check_dict):

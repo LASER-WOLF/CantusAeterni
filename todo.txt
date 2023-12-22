@@ -1,17 +1,11 @@
 # TODO:
-  # Popup window: Min and max size + word wrapping and text scrolling
-  # Lower window: Word wrapping and text scrolling
-  # NPC: Dead bool and sight/sound/smell
-  # Add support for low resolution (800 x 600)
-  # Skill progression (one point gained from NPC / one point gained from book / three points gained from experience)
-  # New game settings:
-    # Setting: enable minimap
   # Enable / disable id tied to room?
   # Portal placement stored in portals and room file (duplicate data)
-  # Map mode: Store room data in selection
+  # Add NPC spawner system
   # Add quests
   # NPC: Holds items, can give you as a reward for completing task or drop when killed
   # When near NPC: Special actions (pickpocket etc.)
+  # Skill progression: One point gained from NPC
   # Clean up / rewrite boot animation code
   # Add sound: Player attack npc
   # Sound: No sound when player and oponent miss in batte
@@ -33,9 +27,14 @@
   # BUG (FIXED?): Audio not playing when music is off and audio volume is same as music volume (sometimes)
 
 # MAYBE?
+  # Character mode, main window: Add auto scrolling when reach bottom
+  # Add support for low resolution (800 x 600)
+  # Game mode, lower window: Add word wrapping and auto scrolling
+  # Main menu mode, center window: Add dynamic vertical spacing
+  # New game settingss:?
+    # Setting: enable minimap?
   # Minimap: Multicolor if multiple things on same tile
   # Make single / multi dimensional version of selection options and selection options display
-  # Add support for 'image' in popup window
   # Custom button mapping
   # Better minimap in map mode
   # Dynamic color scheme
@@ -44,6 +43,17 @@
     # solarized -> forest
 
 # DONE:
+    v0000019:
+  # Map mode: Store room data in selection
+  # Debug mode, log window: Add word wrapping
+  # Game mode, log window: Add word wrapping
+  # Settings mode, center window: Add auto scrolling when reaching bottom
+  # Cutscene mode, main window: Add scrolling up / down key inputs
+  # Add support for 'image' in popup window
+  # NPC: Dead bool and accompanying sight/smell
+  # Skill progression: One point gained from book
+  # Skill progression: Three points gained from experience
+  # Popup window: Min and max size + word wrapping and text scrolling
     v0000018:
   # Add more debug reporting
   # Add 1 line padding to lower window

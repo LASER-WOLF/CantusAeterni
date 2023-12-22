@@ -7,7 +7,7 @@ import config
 import utils
 
 class Content:
-    def __init__(self, w_type = None, lines = None, line_color = None, fill = None, fill_color = None, centered_horizontal = False, centered_vertical = False, min_height = None):
+    def __init__(self, w_type = None, lines = None, line_color = None, fill = None, fill_color = None, centered_horizontal = False, centered_vertical = False, min_height = None, selection_scroll = False):
         self.w_type = w_type
         self.lines = lines
         self.line_color = line_color
@@ -16,6 +16,7 @@ class Content:
         self.centered_horizontal = centered_horizontal
         self.centered_vertical = centered_vertical
         self.min_height = min_height
+        self.selection_scroll = selection_scroll
 
 class Line:
     def __init__(self, content, color = None, fill = None, fill_color = None, centered = False):
@@ -175,7 +176,7 @@ def main(target_list):
     result = make_lines_multi(content_upper + content_center + content_lower)
     return (config.LAYER_TYPE_MAIN, result, None, None)
 
-def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg_color = None, bg_color = None, border_color = None, centered = False, margin = 2, min_width = 36):
+def popup(content, options = None, title = None, image = None, fill = '░', fill_color = 'bright_black', fg_color = None, bg_color = None, border_color = None, centered = False, margin = 2, min_width = 36):
     if config.settings['visual_enable_popup_fill'] is False:
         fill = None
     if fg_color is None:
@@ -184,20 +185,29 @@ def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg
         bg_color = 'black'
     if border_color is None:
         border_color = 'foreground'
-    height = len(content)
     width = utils.list_longest_entry_length([utils.remove_all_tags(line) for line in content])
-    if min_width:
-        width = max(width, min_width)
+    max_width = config.size_x - (round(config.size_x * 0.2) + ((margin * 2) + 2))
+    width = min(max(width, min_width), max_width)
+    if image is not None:
+        width = max(width, utils.list_longest_entry_length([utils.remove_all_tags(line) for line in image]))
+    if title is not None:
+        title_formatted = title.upper()
+        if len(title_formatted) + 4 > max_width:
+            title_formatted = title_formatted[:max_width - 7] + '...'
+        title_formatted = '« ' + title_formatted +  ' »'
+        width = max(width, len(title_formatted))
     # SELECTION OPTIONS
     content_options = []
     if options is None:
         press_to_contine_option = press_to_continue_text()
         content_options.append(press_to_contine_option)
-        width = max(width, len(utils.remove_all_tags(press_to_contine_option)))
     else:
         content_options.append('SELECT ACTION:')
-        content_options.extend(format_selection_options_display(options)[0])
-        width = max(width, utils.list_longest_entry_length([utils.remove_all_tags(line) for line in content_options]))
+        content_options.extend(format_selection_options_display(options, enable_justnum = False)[0])
+    content_options = word_wrap(content_options, max_width)
+    width = max(width, utils.list_longest_entry_length([utils.remove_all_tags(line) for line in content_options]))
+    wrapped_lines = word_wrap(content, max_width)
+    wrapped_lines = scrollable_content_center(wrapped_lines, config.size_y - round(config.size_y * 0.4) - len(content_options))
     # SET BACKGROUND AND BORDERS
     if fill:
         fill = fill_empty_space('', length = width + (margin * 2) + 2, char = fill)
@@ -212,31 +222,34 @@ def popup(content, options = None, fill = '░', fill_color = 'bright_black', fg
     content_combine = []
     spacing = 0.75
     spacer = ('', spacing, 'other')
-    line_type = 'content'
-    for num, line in enumerate(content):
+    content_combine.append(('', 0, 'other'))
+    if image is not None:
+        for num, line in enumerate(image):
+            offset = 0
+            if num == 0:
+                offset = spacing
+            content_combine.append((line, offset, 'image'))
+        content_combine.append(('', 0, 'other'))
+    if title is not None:
+        content_combine.append((title_formatted, spacing, 'title'))
+        content_combine.append(('', 0, 'other'))
+    for num, line in enumerate(wrapped_lines):
         offset = 0
         if num == 0:
-            content_combine.append(('', 0, 'other'))
             offset = spacing
-        line_formatted = (line, offset, line_type)
-        if line == '<vertical_spacer>':
-            line_formatted = spacer
-        content_combine.append(line_formatted)
+        content_combine.append((line, offset, 'content'))
     content_combine.append(spacer)
-    line_type = 'options'
+    content_combine.append(('-' * width, 0,'other'))
+    content_combine.append(spacer)
     for num, line in enumerate(content_options):
-        offset = 0
-        if num == 0:
-            content_combine.append(('-' * width, 0,'other'))
-            content_combine.append(spacer)
-        content_combine.append((line, offset, line_type))
+        content_combine.append((line, 0, 'options'))
     content_combine.append(spacer)
     # FORMAT FINAL CONTENT
     result = []
     result.append((first_line, 0))
     for num, (line, line_offset, line_type) in enumerate(content_combine):
         line_centered = False
-        if line_type == 'content':
+        if line_type == 'content' or line_type == 'title' or line_type == 'image':
             line_centered = centered
         line_color = None
         line_without_tags = utils.remove_all_tags(line)
@@ -268,29 +281,48 @@ def upper(content):
     lines.append(seperator())
     return lines
 
-def word_wrap(target_list, max_width):
+def word_wrap(target_list, max_width, numbered_list = False, new_line_padding = False, line_prefix = None):
     def add_word(line, word):
         if line != '':
             line += ' '
         line += word
         return line, ''
     result = []
-    for line in target_list:
+    for line_num, line in enumerate(target_list):
+        if numbered_list is True:
+            line_num = line[0]
+            line = line[1]
         # WRAP LINE IF TOO LONG
         if len(utils.remove_all_tags(line)) > max_width:
             word = new_line = ''
-            tag = tag_search = None
+            text_tag = text_tag_search = ui_tag = ui_tag_search = ui_tag_data = None
+            text_tag_word_num = ui_tag_word_num = 0
+            if line_prefix is not None:
+                word = line_prefix
             for character_num, character in enumerate(line):
+                line_count = 0
                 word_finished = False
                 # LOOK FOR TAGS
-                if tag_search is None:
-                    tag_search = re.search('<text=(.{2}):(.{2}):(.{2})>',  word)
+                if text_tag_search is None:
+                    text_tag_search = re.search('<text=(.{2}):(.{2}):(.{2})>',  word)
                 # TAG FOUND
-                if tag_search is not None:
-                    tag = (tag_search.string, '</text>')
-                    tag_search_end = re.search('</text>',  word)
-                    if tag_search_end:
-                        tag = tag_search = None
+                if text_tag_search is not None:
+                    text_tag = (text_tag_search.string, '</text>')
+                    text_tag_search_end = re.search('</text>',  word)
+                    if text_tag_search_end:
+                        text_tag = text_tag_search = None
+                        text_tag_word_num = 0
+                # LOOK FOR TAGS
+                if ui_tag_search is None:
+                    ui_tag_search = re.search('<ui=(.{4}):(.*?)>',  word)
+                # TAG FOUND
+                if ui_tag_search is not None:
+                    ui_tag_data = ui_tag_search.group(2)
+                    ui_tag = (ui_tag_search.string, '</ui>')
+                    ui_tag_search_end = re.search('</ui>',  word)
+                    if ui_tag_search_end:
+                        ui_tag = ui_tag_search = ui_tag_data = None
+                        ui_tag_word_num = 0
                 # END OF WORD IF CHARACTER IS WHITESPACE
                 if len(word) > 0 and character == ' ':
                     word_finished = True
@@ -304,63 +336,94 @@ def word_wrap(target_list, max_width):
                 if word_finished is True:
                     if (len(utils.remove_all_tags(new_line + word)) + 1) <= max_width:
                         new_line, word = add_word(new_line, word)
+                        if text_tag:
+                            text_tag_word_num += 1
+                        elif ui_tag:
+                            ui_tag_word_num += 1
                     # MAKE NEW LINE WITH WORD
                     else:
-                        if tag:
-                            new_line += tag[1]
-                            word = tag[0] + word
-                        result.append(new_line)
+                        if new_line_padding is True or (ui_tag and ui_tag_word_num > 0 and (str(config.ui_selection_x) + '-' + str(config.ui_selection_y)) == ui_tag_data):
+                            word = '  ' + word
+                        if text_tag and text_tag_word_num > 0:
+                            new_line += text_tag[1]
+                            word = text_tag[0] + word
+                        if ui_tag and ui_tag_word_num > 0:
+                            new_line += ui_tag[1]
+                            word = ui_tag[0] + word
+                        if numbered_list is True:
+                            result.append((line_num, new_line))
+                        else:
+                            result.append(new_line)
                         new_line = word
                         word = ''
             # ADD LAST WORD TO LINE
             new_line, word = add_word(new_line, word)
             if new_line != '':
-                result.append(new_line)
+                if numbered_list is True:
+                    result.append((line_num, new_line))
+                else:
+                    result.append(new_line)
         # DO NOTHING IF LINE LENGTH WITHIN MAX LENGTH
         else:
-            result.append(line)
+            if line_prefix is not None:
+                line = line_prefix + line
+            if numbered_list is True:
+                result.append((line_num, line))
+            else:
+                result.append(line)
     return result
 
-def scrollable_content_center(target_list, max_num_lines = 10):
+def scrollable_content_center(target_list, max_num_lines = 10, selection_scroll = False):
     result = []
     scroll_pos = config.ui_scroll['center']['pos']
     scroll_max = 0
+    scroll_start_pos = 0
+    scroll_end_pos = len(target_list)
     if len(target_list) > max_num_lines:
-        max_num_lines -= 1
         scroll_pos_mod = 0
-        if scroll_pos > 0:
+        scroll_max_mod = 0
+        if selection_scroll is False:
             max_num_lines -= 1
-            scroll_pos_mod = 1
-        scroll_max = max(0, len(target_list) - max_num_lines - scroll_pos_mod)
+            scroll_max_mod = 1
+            if scroll_pos > 0:
+                max_num_lines -= 1
+                scroll_pos_mod = 1
+        scroll_max = max(0, len(target_list) - max_num_lines - scroll_pos_mod - scroll_max_mod)
         scroll_pos = min(scroll_max, max(0, scroll_pos))
+        if scroll_pos >= scroll_max and selection_scroll is False:
+            max_num_lines += 1
         scroll_start_pos = scroll_pos + scroll_pos_mod
         scroll_end_pos = max_num_lines + scroll_pos + scroll_pos_mod
         target_list_shortened = target_list[scroll_start_pos:scroll_end_pos]
-        if scroll_pos > 0:
-            text = "[SHIFT] + [UP]"
-            if config.last_input_device == 'joystick':
-                text = '[RIGHT STICK UP]'
-            result.append(utils.add_ui_tag_scroll_center_up('▲ PRESS ' + text + ' TO SCROLL UP'))
+        text_up = "[SHIFT] + [UP]"
+        if config.last_input_device == 'joystick':
+            text_up = '[RIGHT STICK UP]'
+        text_up = '▲ PRESS ' + text_up + ' TO SCROLL UP'
+        text_down = "[SHIFT] + [DOWN]"
+        if config.last_input_device == 'joystick':
+            text_down = '[RIGHT STICK DOWN]'
+        text_down = '▼ PRESS ' + text_down + ' TO SCROLL DOWN'
+        if scroll_pos > 0 and selection_scroll is False:
+            result.append(utils.add_ui_tag_scroll_center_up(text_up))
         for line in target_list_shortened:
             result.append(line)
-        if scroll_pos < scroll_max:
-            text = "[SHIFT] + [DOWN]"
-            if config.last_input_device == 'joystick':
-                text = '[RIGHT STICK DOWN]'
-            result.append(utils.add_ui_tag_scroll_center_down('▼ PRESS ' + text + ' TO SCROLL DOWN'))
+        if scroll_pos < scroll_max and selection_scroll is False:
+            result.append(utils.add_ui_tag_scroll_center_down(text_down))
     else:
         result = target_list
         scroll_pos = 0
     config.ui_scroll['center']['pos'] = scroll_pos
     config.ui_scroll['center']['max'] = scroll_max
+    config.ui_scroll_start_pos = scroll_start_pos
+    config.ui_scroll_end_pos = scroll_end_pos
     return result
 
 def center(content, padding_top = 0, padding_bottom = 0):
     if padding_bottom > 0:
         padding_bottom += 1
     padding = padding_top + padding_bottom
-    wrapped_lines = word_wrap(content.lines, config.size_x - 5)
-    wrapped_lines = scrollable_content_center(wrapped_lines, config.size_y - padding)
+    wrapped_lines = word_wrap(content.lines, config.size_x - 4)
+    wrapped_lines = scrollable_content_center(wrapped_lines, config.size_y - padding, selection_scroll = content.selection_scroll)
     lines = []
     # INIT FILL
     fill, fill_list, fill_num = fill_init(content.fill)
@@ -485,7 +548,7 @@ def fill_init(fill):
         fill = fill_list[fill_num]
     return fill, fill_list, fill_num
 
-def format_selection_options_display(target_list, min_size_list = None, min_size = 10, empty_text = None):
+def format_selection_options_display(target_list, min_size_list = None, min_size = 10, empty_text = None, enable_justnum = True, append_empty = True):
     if empty_text is None:
         empty_text = utils.add_text_tag('Nothing', fg = config.TAG_COLOR_UI_INACTIVE)
     pre_line = "> "
@@ -501,7 +564,7 @@ def format_selection_options_display(target_list, min_size_list = None, min_size
         just_num = max(this_min_size, just_num)
         result.append([])
         for y, option_entry in enumerate(option_list):
-            entry = ""
+            entry = ''
             if len(utils.list_none_filter(option_list)) == 0 and y == 0:
                 entry = pre_line_empty + empty_text
             if option_entry:
@@ -512,19 +575,21 @@ def format_selection_options_display(target_list, min_size_list = None, min_size
                 else:
                     entry = utils.add_ui_tag_sel_action(entry, x, y)
                     entry = pre_line_empty + entry
-            entry = fill_empty_space(entry, just_num - len(utils.remove_all_tags(entry)))
-            result[x].append(entry)
+            if enable_justnum and (entry or append_empty):
+                entry = fill_empty_space(entry, just_num - len(utils.remove_all_tags(entry)))
+            if append_empty or entry:
+                result[x].append(entry)
     return result
     
-def format_selection_options_display_modifiable(target_list, min_size_name = 60, min_size_value = 20, name_link_padding = 20):
+def format_selection_options_display_modifiable(target_list, min_size_name = 70, min_size_value = 20, name_link_padding = 10):
     pre_line = "> "
     pre_line_empty = " "
     result = []
     for x, option_list in enumerate(target_list):
         just_num_name = utils.list_longest_entry_length(utils.remove_all_tags_multi([item.display_name for item in utils.list_none_filter(option_list)])) + 2 + name_link_padding
-        just_num_name = max (min_size_name, just_num_name)
+        just_num_name = max(min_size_name, just_num_name)
         just_num_link = utils.list_longest_entry_length(utils.remove_all_tags_multi(utils.list_none_filter([item.link for item in utils.list_none_filter(option_list)])))
-        just_num_link = max (min_size_value, just_num_link)
+        just_num_link = max(min_size_value, just_num_link)
         result.append([])
         for y, option_entry in enumerate(option_list):
             entry = ""
@@ -636,13 +701,11 @@ def combine_blocks(blocks, margin_size = 4, r_align = None, min_size_list = None
         l_length = sum(block_length[:r_align:])
         r_length = sum(block_length[r_align::])
         fill_length = (config.size_x - (l_length + r_length)) - (margin_size * len(blocks))
-    line_align = False
     for block_num, block in enumerate(blocks):
         fill_space = 0
         if r_align is not None:
             if block_num == r_align:
                 fill_space = fill_length
-                #line_align = True
         for line_num in range(height):
             line = ""
             if line_num < len(block):
@@ -740,7 +803,7 @@ def block_minimap(room, npcs = None, position = None, ui_tags = None):
                                 tile_low = MINIMAP_TILES['selected_interactable_current_low']
             if npcs:
                 for npc in npcs.values():
-                    if npc['position'] == pos and room['visited'][pos]:
+                    if npc['position'] == pos and room['visited'][pos] and npc['dead'] is False:
                         tile_top = MINIMAP_TILES['npc_top']
                         tile_mid = MINIMAP_TILES['npc_mid']
                         tile_low = MINIMAP_TILES['npc_low']
@@ -816,15 +879,16 @@ def make_scrollbar(scrollbar_window_height, scroll_pos, scroll_max):
         lines.append(down_arrow)
     return lines
 
-def log_content(target_list, numbered_list = True, max_num_lines = 10):
+def log_content(target_list, numbered_list = True, max_num_lines = 10,):
+    wrapped_lines = word_wrap(target_list, config.size_x - 5, numbered_list = numbered_list, new_line_padding = True, line_prefix = '∙ ')
     result = []
     scroll_pos = config.ui_scroll['log']['pos']
-    scroll_max = max(0, len(target_list) - max_num_lines)
+    scroll_max = max(0, len(wrapped_lines) - max_num_lines)
     scroll_start_pos = -abs(max_num_lines + scroll_pos)
     scroll_end_pos = -abs(scroll_pos)
     if scroll_end_pos == 0:
         scroll_end_pos = None
-    target_list_shortened = target_list[scroll_start_pos:scroll_end_pos]
+    target_list_shortened = wrapped_lines[scroll_start_pos:scroll_end_pos]
     scrollbar = make_scrollbar(max_num_lines, scroll_pos, scroll_max)
     num = len(target_list_shortened)
     while num < max_num_lines:
@@ -834,7 +898,7 @@ def log_content(target_list, numbered_list = True, max_num_lines = 10):
         log_line = line
         if numbered_list:
             log_num = line[0]
-            log_line = '∙ ' + line[1]
+            log_line = line[1]
             if log_num < config.game['turn'] - 1:
                 log_line = utils.add_text_tag(utils.remove_all_tags(log_line), fg = config.TAG_COLOR_LOG_OLD)
         result.append(scrollbar[num] + " " + log_line)
@@ -856,7 +920,7 @@ def press_to_go_back_text(target_key = "esc"):
         text += ' OR [RIGHT MOUSE]'
     if config.last_input_device == 'joystick':
         text = '(B)'
-    return 'PRESS ' + text + ' TO GO BACK'
+    return utils.add_ui_tag_back('PRESS ' + text + ' TO GO BACK')
 
 def line_set_color_multi(target_list, target_color):
     result = []

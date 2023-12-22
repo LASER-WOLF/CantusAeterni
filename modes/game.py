@@ -18,8 +18,8 @@ def set_room():
     if room_id != system.active_room:
         room_id = system.active_room
         room = system.rooms[room_id]
-        system.update_active_npcs()
         config.add_debug_log('Loading room -> ' + str(room_id))
+    system.update_active_npcs()
 
 def run():
     set_room()
@@ -44,7 +44,7 @@ def run():
     if system.popup_content is not None:
         system.set_selection_options(system.popup_content['options'])
         layers.append(
-            windows.popup(system.popup_content['lines'], options = system.ui_selection_options, centered = system.popup_content['centered'], border_color = system.popup_content['border_color'], fg_color = system.popup_content['fg_color'], bg_color = system.popup_content['bg_color'])
+            windows.popup(system.popup_content['lines'], options = system.ui_selection_options, title = system.popup_content['title'], image = system.popup_content['image'], centered = system.popup_content['centered'], border_color = system.popup_content['border_color'], fg_color = system.popup_content['fg_color'], bg_color = system.popup_content['bg_color'])
         )
     return layers
 
@@ -55,10 +55,14 @@ def ui_action_restart_game():
 def input_popup(key, mod = None):
     valid_input = False
     selected_option = config.ui_selection_current
-    if selected_option is None:
+    if key in config.controls['scroll_center_up'] or (key in config.controls['up'] and (mod in config.controls['mod_scroll_center'])):
+        valid_input = system.ui_scroll_minus('center')
+    elif key in config.controls['scroll_center_down'] or (key in config.controls['down'] and (mod in config.controls['mod_scroll_center'])):
+        valid_input = system.ui_scroll_plus('center')
+    elif selected_option is None:
         if key in config.controls['action']:
             valid_input = True
-            config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
+            config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui', animation_data = config.UI_TAGS['continue'])
             system.unset_popup_content()
     else:
         if key in config.controls['up']:
@@ -103,9 +107,9 @@ def input_main(key, mod = None):
         elif key in config.controls['down']:
             valid_input = system.ui_selection_down_or_scroll_minus('log')
         elif key in config.controls['left']:
-            valid_input = system.ui_selection_left_or_scroll('log')
+            valid_input = system.ui_selection_left_or_scroll('log', True)
         elif key in config.controls['right']:
-            valid_input = system.ui_selection_right_or_scroll('log')
+            valid_input = system.ui_selection_right_or_scroll('log', True)
         elif key in config.controls['back']:
             if config.ui_scroll['log']['pos'] > 0:
                 valid_input = True
@@ -181,7 +185,7 @@ def input_main(key, mod = None):
                 action_move(selected_option.link)
             elif selected_option.name == "examine":
                 config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
-                examine(selected_option.link[0], selected_option.link[1])
+                examine(selected_option.link, selected_option.display_name)
             elif selected_option.name == "portal":
                 config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 action_portal(selected_option.link)
@@ -229,8 +233,6 @@ def selection_options():
         result.append([
             system.SelectionOption("character", "Character"),
             system.SelectionOption("map", "Map"),
-        ])
-        result.append([
             system.SelectionOption("debug", "Debug screen"),
             system.SelectionOption("settings", "Settings"),
             system.SelectionOption("help", "Help"),
@@ -249,9 +251,12 @@ def window_center():
         lines.extend(load_room())
     return windows.Content(windows.WINDOW_CENTER, lines)
 
+def window_log():
+    return windows.Content(windows.WINDOW_LOG, windows.log_content(system.log_list))
+
 def window_lower():
     ui_blocks = []
-    selection_options_display = windows.format_selection_options_display(system.ui_selection_options, min_size_list = [50])
+    selection_options_display = windows.format_selection_options_display(system.ui_selection_options, min_size_list = [50], append_empty = False)
     if system.ui_pre_quit_prompt:
         selection_options_display[0].insert(0, 'SELECT ACTION:')
     elif system.ui_quit_prompt or system.ui_restart_prompt:
@@ -259,23 +264,22 @@ def window_lower():
     else:
         if config.game_settings['show_minimap']:
             ui_blocks.append(windows.block_minimap(room, system.active_npcs, system.current_position, check_move_options(True)))
-        option_titles = ["MOVE OR WAIT:", "INTERACT:", "OTHER:", "SYSTEM:"]
+        option_titles = ["MOVE OR WAIT:", "INTERACT:", "OTHER:"]
         selection_options_display = windows.format_selection_options_display_add_titles(selection_options_display, option_titles)
+        selection_options_display[2].insert(3, 'SYSTEM:')
+        selection_options_display[2].insert(3, '')
     ui_blocks.extend(selection_options_display)
     return windows.Content(windows.WINDOW_LOWER, windows.combine_blocks(ui_blocks, r_align = 2))
-
-def window_log():
-    return windows.Content(windows.WINDOW_LOG, windows.log_content(system.log_list))
 
 def npc_block_player():
     block_action = False
     blocking_npc = None
     for npc in system.active_npcs.values():
-        if npc['hostile'] is True:
+        if npc['hostile'] is True and npc['dead'] is False:
             if npc['position'] == system.current_position:
                 block_action = random.choice([False, True, True, True])
-            elif npc['ranged'] is True:
-                block_action = random.choice([False, True])
+            #elif npc['ranged'] is True:
+            #    block_action = random.choice([False, True])
             if block_action is True:
                 blocking_npc = npc
                 break
@@ -316,7 +320,8 @@ def action_pickup(link):
 def check_move_options(minimap_mode = False):
     result = []
     result_minimap = {}
-    result.append(system.SelectionOption("move", 'Wait at the current position', system.current_position))
+    wait_text = 'Wait at the current position'
+    result.append(system.SelectionOption("move", wait_text, system.current_position))
     result_minimap[system.current_position] = 0
     num = 1
     for pos, text in utils.DIRECTION_ABR.items():
@@ -338,7 +343,7 @@ def check_move_options(minimap_mode = False):
 def check_interact_options():
     result = []
     for npc_id, npc in system.active_npcs.items():
-        if npc['hostile'] is True:
+        if npc['hostile'] is True and npc['dead'] is False:
             if npc['position'] == system.current_position:
                 dialogue_text = 'Try to start a conversation with ' + utils.format_npc_name(npc, False)
                 if npc['dialogue_hostile'] is not None:
@@ -356,12 +361,12 @@ def check_interact_options():
                 if system.items[config.equipped_weapons['attack_ranged']]['interact_text'] is not None:
                     attack_text = system.items[config.equipped_weapons['attack_ranged']]['interact_text']
                 result.append(system.SelectionOption("attack_ranged", attack_text + ' ' + utils.format_npc_name(npc, False), (npc_id,  npc)))
-        elif npc['position'] == system.current_position and npc['dialogue'] is not None:
+        elif npc['position'] == system.current_position and npc['dialogue'] is not None and npc['dead'] is False:
             dialogue_text = 'Start a conversation with ' + utils.format_npc_name(npc, False)
             result.append(system.SelectionOption("dialogue_load", dialogue_text, (npc['dialogue'], dialogue_text, npc_id)))
     for entry in room['interactable']:
         if entry['position'] == system.current_position and not entry['disabled']:
-            result.append(system.SelectionOption("examine", entry['content'], (entry['link'], entry['content'])))
+            result.append(system.SelectionOption("examine", entry['content'], entry['link']))
     for entry in room['portal']:
         if entry['position'] == system.current_position and not entry['disabled']:
             result.append(system.SelectionOption("portal", entry['content'], entry['link']))
@@ -457,23 +462,39 @@ def sense_scan(sense, sense_text, position_mode = False):
     for npc in system.active_npcs.values():
         sense_text_list = []
         if not position_mode and npc['position'] != system.current_position:
-            sense_text_list.append(npc[sense + '_far_always'])
-            if npc['hostile']:
-                sense_text_list.append(npc[sense + '_far_hostile'])
+            if npc['dead']:
+                if sense == 'sight':
+                    if npc['sight_far_dead'] is not None:
+                        sense_text_list.append(npc['sight_far_dead'])
+                    else:
+                        sense_text_list.append('You see the dead body of <name> at the <pos>.')
+                elif sense == 'smell' and npc['smell_far_dead'] is not None:
+                    sense_text_list.append(npc['smell_far_dead'])
             else:
-                sense_text_list.append(npc[sense + '_far_friendly'])
+                if npc[sense + '_far_always'] is not None:
+                    sense_text_list.append(npc[sense + '_far_always'])
+                if npc['hostile'] is True and npc[sense + '_far_hostile'] is not None:
+                    sense_text_list.append(npc[sense + '_far_hostile'])
+                elif npc['hostile'] is False and npc[sense + '_far_friendly'] is not None:
+                    sense_text_list.append(npc[sense + '_far_friendly'])
         elif position_mode and npc['position'] == system.current_position:
-            sense_text_list.append(npc[sense + '_near_always'])
-            if npc['hostile']:
-                sense_text_list.append(npc[sense + '_near_hostile'])
+            if npc['dead']:
+                if sense == 'sight':
+                    if npc['sight_near_dead'] is not None:
+                        sense_text_list.append(npc['sight_near_dead'])
+                    else:
+                        sense_text_list.append('You see the dead body of <name> in front of you.')
+                elif sense == 'smell' and npc['smell_near_dead'] is not None:
+                    sense_text_list.append(npc['smell_near_dead'])
             else:
-                sense_text_list.append(npc[sense + '_near_friendly'])
+                if npc[sense + '_near_always'] is not None:
+                    sense_text_list.append(npc[sense + '_near_always'])
+                if npc['hostile'] is True and npc[sense + '_near_hostile'] is not None:
+                    sense_text_list.append(npc[sense + '_near_hostile'])
+                if npc['hostile'] is False and npc[sense + '_near_friendly'] is not None:
+                    sense_text_list.append(npc[sense + '_near_friendly'])
         for line in sense_text_list:
-            if line:
-                content = line.replace('<pos>', utils.format_position_text_room(npc['position'], room['noun']))
-                content = content.replace('<name>', utils.format_npc(npc['name']))
-                content = utils.format_color_tags(content)
-                result.append(sense_text + content)
+            result.append(sense_text + utils.format_color_tags(system.format_npc_log_text(line, npc)))
     return result
 
 def sense_sight(position_mode = False):
@@ -529,19 +550,17 @@ def enter_portal(link):
 def add_to_inventory(item):
     system.inventory_list.append(item)
 
-def examine(link, header_text):
+def examine(link, popup_title):
     interactable = system.interactables[link]
     popup_lines = []
     popup_options = None
-    popup_lines.append('« ' + utils.format_color_tags(header_text).upper() +  ' »')
-    popup_lines.append('<vertical_spacer>')
     for line in interactable['examine_text']:
         popup_lines.append(utils.format_color_tags(line))
     if interactable['examine_options']:
         popup_options = [[]]
         for line in interactable['examine_options']:
             popup_options[0].append(system.SelectionOption("examine-" + line['type'], line['text'], link))
-    system.set_popup_content(popup_lines, popup_options)
+    system.set_popup_content(popup_lines, popup_options, title = popup_title)
 
 def examine_confirm(link):
     interactable = system.interactables[link]
@@ -567,18 +586,22 @@ def player_attack_npc(npc, ranged = False):
     miss_text = config.NPC_DODGE_TEXT
     player_miss_text = npc['player_attack_miss_text']
     killed_text = 'You have murdered <name>.'
-    attack_skill = config.player['attack_skill']
+    skill_name = 'attack_unarmed'
+    attack_skill = config.player['skill_level_attack_unarmed']
     damage = config.player['damage_unarmed']
     on_attack = None
     player_attack_text = None
     if config.equipped_weapons['attack'] is not None:
+        skill_name = 'attack'
+        attack_skill = config.player['skill_level_attack']
         damage = system.items[config.equipped_weapons['attack']]['damage']
         on_attack = system.items[config.equipped_weapons['attack']]['on_attack']
         player_attack_text = system.items[config.equipped_weapons['attack']]['attack_text']
     if ranged:
+        skill_name = 'attack_ranged'
         attack_text = config.PLAYER_ATTACK_TEXT_RANGED
         killed_text = 'You have murdered <name> from a distance.'
-        attack_skill = config.player['attack_skill_ranged']
+        attack_skill = config.player['skill_level_attack_ranged']
         damage = system.items[config.equipped_weapons['attack_ranged']]['damage']
         on_attack = system.items[config.equipped_weapons['attack_ranged']]['on_attack']
         player_attack_text = system.items[config.equipped_weapons['attack_ranged']]['attack_text']
@@ -598,6 +621,8 @@ def player_attack_npc(npc, ranged = False):
     system.add_log(attack_text)
     if hit:
         system.npc_take_damage(utils.randomize_damage(damage), 'the attack', npc, killed_text)
+        if skill_name != 'attack_unarmed':
+            system.add_skill_experience(skill_name)
         if npc['health_points'] <= 0:
             result = 'kill'
         if npc['health_points'] > 0 and on_attack:
@@ -609,7 +634,7 @@ def player_attack_npc(npc, ranged = False):
         result = 'miss'
     return result
 
-def dialogue_load(dialogue_id, header_text = None, npc_id = None):
+def dialogue_load(dialogue_id, popup_title = None, npc_id = None):
     dialogue_start = False
     if npc_id is not None:
         npc = system.npcs[npc_id]
@@ -620,10 +645,8 @@ def dialogue_load(dialogue_id, header_text = None, npc_id = None):
     dialogue = system.dialogues[dialogue_id]
     popup_lines = []
     popup_options = [[]]
-    if header_text is None:
-        header_text = 'In conversation with ' + utils.format_npc_name(npc, False)
-    popup_lines.append('« ' + header_text.upper() +  ' »')
-    popup_lines.append('<vertical_spacer>')
+    if popup_title is None:
+        popup_title = 'In conversation with ' + utils.format_npc_name(npc, False)
     if dialogue_start:
         system.add_dialogue_log('Started conversation with ' + utils.format_npc_name(npc))
     for line in dialogue['text']:
@@ -633,7 +656,7 @@ def dialogue_load(dialogue_id, header_text = None, npc_id = None):
         system.add_dialogue_log(dialogue_line)
     for response in dialogue['responses']:
         popup_options[0].append(system.SelectionOption('dialogue_response', response['text'], response))
-    system.set_popup_content(popup_lines, popup_options, selection_memory = dialogue_start)
+    system.set_popup_content(popup_lines, popup_options, selection_memory = dialogue_start, title = popup_title)
     for action in dialogue['on_load']:
         handle_dialogue_action(action)
 

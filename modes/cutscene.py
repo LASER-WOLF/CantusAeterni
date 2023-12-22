@@ -17,9 +17,13 @@ def run():
 
 def input(key, mod = None):
     valid_input = False
-    if key in config.controls['action']:
+    if key in config.controls['scroll_center_up'] or (key in config.controls['up'] and (mod in config.controls['mod_scroll_center'])):
+        valid_input = system.ui_scroll_minus('center')
+    elif key in config.controls['scroll_center_down'] or (key in config.controls['down'] and (mod in config.controls['mod_scroll_center'])):
+        valid_input = system.ui_scroll_plus('center')
+    elif key in config.controls['action']:
         valid_input = True
-        config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui')
+        config.trigger_animation(config.ANIMATION_UI_CONTINUE_DEFAULT, 'ui_confirm', 'ui', animation_data = config.UI_TAGS['continue'])
         for line in cutscene['on_exit']:
             system.execute_action(line)
     return valid_input

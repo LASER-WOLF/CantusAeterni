@@ -367,14 +367,14 @@ def run():
                             render_line = font.render(clean_line, False, config.PALETTES[palette_name][line_color])
                             surfaces[layer_type].blit(render_line, (offset_x + start_x, start_y + pos_y))
                         # FIND UI TAGS
-                        tag_search = re.finditer('<ui=(.{2}):(.*?)>(.*?)</ui>', utils.remove_text_tags(line), flags = re.IGNORECASE)
+                        tag_search = re.finditer('<ui=(.{4}):(.*?)>(.*?)</ui>', utils.remove_text_tags(line), flags = re.IGNORECASE)
                         start_adj = 0
                         for tag_num, match in enumerate(tag_search):
                             match_type = match.group(1).lower()
                             match_data = match.group(2).lower()
                             match_text = match.group(3)
                             match_start = match.start() - start_adj
-                            start_adj += 13 + len(match_data)
+                            start_adj += 15 + len(match_data)
                             ui_option_x = offset_x + start_x + ((match_start) * font_width)
                             ui_option_y = pos_y + start_y
                             ui_option_size_x = font_width * len(match_text)
@@ -391,7 +391,7 @@ def run():
                             match_text = match.group(4)
                             start_adj = 22 * tag_num
                             match_start = match.start() - start_adj
-                            # SET OTHER
+                            # SET OTHERconfig.ui_selection_current
                             tag_line_font = None
                             if match_other == config.TAGS['underline']:
                                 tag_line_font = font_underline
@@ -433,7 +433,7 @@ def run():
                     option_found = False
                     option_type = option[2]
                     option_data = option[3]
-                    if option_type == config.UI_TAGS['continue']:
+                    if option_type == config.UI_TAGS['continue'] and animation_data == config.UI_TAGS['continue']:
                         option_found = True
                     elif animation_data == option_data:
                         if animation_type == option_type:
@@ -525,6 +525,8 @@ def run():
                                         key = 'mouse_left'
                                     elif option_type == config.UI_TAGS['right']:
                                         key = 'mouse_right'
+                            elif option_type == config.UI_TAGS['back'] and mouse_button == 1:
+                                key = 'mouse_back'
                             elif option_type == config.UI_TAGS['scroll'] and mouse_button == 1:
                                 if option_data == config.UI_TAGS['data_center_up']:
                                     key = 'mouse_scroll_center_up'
@@ -550,7 +552,7 @@ def run():
                     key = pygame.key.name(event.key)
                     if key == 'left shift' or key == 'left ctrl' or key == 'left alt' or key == 'right shift' or key == 'right ctrl' or key == 'right alt':
                         key = None
-                    else:
+                    elif key:
                         if event.mod & pygame.KMOD_SHIFT:
                             mod = 'shift'
                         elif event.mod & pygame.KMOD_CTRL:
@@ -680,8 +682,6 @@ def boot_animation():
     info_lines_start_line = title_line_start_line + 2
     x_margin = round(config.size_x * 0.2)
     bar_length = config.size_x - (x_margin * 2)
-    #bar_length = 100
-    #x_margin = (config.size_x / 2) - (bar_length / 2)
     bar_pos_y = offset_y + ((config.size_y - 2) * font_height)
     # RENDER BG
     screen.fill(config.PALETTES[palette_name]['background'])

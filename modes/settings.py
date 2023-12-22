@@ -19,9 +19,9 @@ def input(key, mod = None):
     selected_option = config.ui_selection_current
     if selected_option is not None:
         if key in config.controls['up']:
-            valid_input = system.ui_selection_up()
+            valid_input = system.ui_selection_up_scrollable('center')
         elif key in config.controls['down']:
-            valid_input = system.ui_selection_down()
+            valid_input = system.ui_selection_down_scrollable('center')
         elif key in config.controls['back']:
             config.export_settings()
             valid_input = system.change_mode_previous()
@@ -103,8 +103,8 @@ def selection_options():
         result.append(system.SelectionOption("sound_volume", "Audio | Sound volume:", str(config.settings['sound_volume']).zfill(2) + " / 10", "scale", (0, 10, 1)))
     if config.settings['enable_music']:
         result.append(system.SelectionOption("enable_music_now_playing", "Audio | Show title of music track:", str(config.settings['enable_music_now_playing']).capitalize(), "toggle"))
-    result.append(system.SelectionOption("debug_mode", "Debug | Enable debug mode:", str(config.settings['debug_mode']).capitalize(), "toggle"))
     if config.settings['debug_mode']:
+        result.append(system.SelectionOption("debug_mode", "Debug | Enable debug mode:", str(config.settings['debug_mode']).capitalize(), "toggle"))
         result.append(system.SelectionOption("debug_print", "Debug | Print detailed debug messages:", str(config.settings['debug_print']).capitalize(), "toggle"))
         result.append(system.SelectionOption("debug_log_to_file", "Debug | Debug log to file:", str(config.settings['debug_log_to_file']).capitalize(), "toggle"))
         result.append(system.SelectionOption("debug_error_log_to_file", "Debug | Error log to file:", str(config.settings['debug_error_log_to_file']).capitalize(), "toggle"))
@@ -116,4 +116,4 @@ def selection_options():
     return [result]
 
 def window_center():
-    return windows.Content(windows.WINDOW_CENTER, windows.format_selection_options_display_modifiable(system.ui_selection_options)[0])
+    return windows.Content(windows.WINDOW_CENTER, windows.format_selection_options_display_modifiable(system.ui_selection_options)[0], selection_scroll = True)

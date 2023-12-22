@@ -57,19 +57,16 @@ def input(key, mod = None):
 def selection_options():
     result = []
     if system.ui_quit_prompt:
-        result.append([
-        system.SelectionOption("quit_game", "YES"),
-        system.SelectionOption("quit_game_prompt", "NO"),
-        ])
+        result.append(system.SelectionOption("quit_game", "YES"))
+        result.append(system.SelectionOption("quit_game_prompt", "NO"))
     else:
-        result.append([
-        system.SelectionOption("start", "START GAME"),
-        system.SelectionOption("debug", "DEBUG SCREEN"),
-        system.SelectionOption("settings", "SETTINGS"),
-        system.SelectionOption("help", "HELP"),
-        system.SelectionOption("quit_game_prompt", "QUIT"),
-        ])
-    return result
+        result.append(system.SelectionOption("start", "START GAME"))
+        if config.settings['debug_mode']:
+            result.append(system.SelectionOption("debug", "DEBUG SCREEN"))
+        result.append(system.SelectionOption("settings", "SETTINGS"))
+        result.append(system.SelectionOption("help", "HELP"))
+        result.append(system.SelectionOption("quit_game_prompt", "QUIT"))
+    return [result]
 
 def window_center():
     lines = []

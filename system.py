@@ -132,7 +132,7 @@ def ui_selection_popup_retrieve():
     config.ui_selection_x = config.ui_selection_x_popup_prev
     config.ui_selection_y = config.ui_selection_y_popup_prev
 
-def set_popup_content(lines, options = None, centered = False, play_animation = True, border_color = None, fg_color = None, bg_color = None, selection_memory = True):
+def set_popup_content(lines, options = None, title = None, image = None, centered = False, play_animation = True, border_color = None, fg_color = None, bg_color = None, selection_memory = True):
     global popup_content
     if play_animation:
         config.trigger_animation('fade_popup')
@@ -143,6 +143,8 @@ def set_popup_content(lines, options = None, centered = False, play_animation = 
     popup_content = {
         'lines': lines,
         'options': options,
+        'title': title,
+        'image': image,
         'centered': centered,
         'border_color': border_color,
         'fg_color': fg_color,
@@ -210,6 +212,8 @@ def execute_action(action):
         npc_unlock_secret_name(action['link'])
     elif action['type'] == 'heal_player':
         heal_player(action['link'])
+    elif action['type'] == 'increase_skill':
+        increase_skill(action['link'])
     config.add_debug_log("Action: " + action['type'] + " -> " + str(action['link']))
 
 def queue_action(action):
@@ -330,7 +334,7 @@ def ui_selection_y_next():
                 config.ui_selection_x += 1
     return valid_input
 
-def ui_selection_x_prev():
+def ui_selection_x_prev(zero_y = False):
     valid_input = False
     if config.ui_selection_x > 0:
         found = None
@@ -342,13 +346,15 @@ def ui_selection_x_prev():
             valid_input = True
             audio.sound_play('ui_sel', 'ui')
             config.ui_selection_x = found
+            if zero_y:
+                config.ui_selection_y = 0
             while config.ui_selection_y > 0 and ui_selection_options[config.ui_selection_x][config.ui_selection_y] is None:
                 config.ui_selection_y -= 1
             while config.ui_selection_y < len(ui_selection_options[config.ui_selection_x]) and ui_selection_options[config.ui_selection_x][config.ui_selection_y] is None:
                 config.ui_selection_y += 1
     return valid_input
 
-def ui_selection_x_next():
+def ui_selection_x_next(zero_y = False):
     valid_input = False
     if config.ui_selection_x < len(ui_selection_options)-1:
         found = None
@@ -360,6 +366,8 @@ def ui_selection_x_next():
             valid_input = True
             audio.sound_play('ui_sel', 'ui')
             config.ui_selection_x = found
+            if zero_y:
+                config.ui_selection_y = 0
             while config.ui_selection_y > 0 and ui_selection_options[config.ui_selection_x][config.ui_selection_y] is None:
                 config.ui_selection_y -= 1
             while config.ui_selection_y < len(ui_selection_options[config.ui_selection_x]) and ui_selection_options[config.ui_selection_x][config.ui_selection_y] is None:
@@ -372,11 +380,11 @@ def ui_selection_up():
 def ui_selection_down():
     return ui_selection_y_next()
 
-def ui_selection_left():
-    return ui_selection_x_prev()
+def ui_selection_left(zero_y = False):
+    return ui_selection_x_prev(zero_y)
 
-def ui_selection_right():
-    return ui_selection_x_next()
+def ui_selection_right(zero_y = False):
+    return ui_selection_x_next(zero_y)
 
 def ui_scroll_minus(scroll_name):
     if config.ui_scroll[scroll_name]['pos'] > 0:
@@ -398,6 +406,20 @@ def ui_scroll_plus(scroll_name):
         return True
     return False
 
+def ui_selection_up_scrollable(scroll_name):
+    valid_input = ui_selection_up()
+    if valid_input is True:
+        if config.ui_selection_y < config.ui_scroll_start_pos:
+            valid_scroll = ui_scroll_minus(scroll_name)
+    return valid_input
+
+def ui_selection_down_scrollable(scroll_name):
+    valid_input = ui_selection_down()
+    if valid_input is True:
+        if config.ui_selection_y >= config.ui_scroll_end_pos:
+            valid_scroll = ui_scroll_plus(scroll_name)
+    return valid_input
+
 def ui_selection_up_or_scroll_plus(scroll_name):
     if config.ui_selection_y == 0:
         return ui_scroll_plus(scroll_name)
@@ -410,14 +432,14 @@ def ui_selection_down_or_scroll_minus(scroll_name):
     else:
         return ui_selection_down()
 
-def ui_selection_left_or_scroll(scroll_name):
+def ui_selection_left_or_scroll(scroll_name, zero_y = False):
     if config.ui_scroll[scroll_name]['pos'] == 0:
-        return ui_selection_left()
+        return ui_selection_left(zero_y)
     return False
 
-def ui_selection_right_or_scroll(scroll_name):
+def ui_selection_right_or_scroll(scroll_name, zero_y = False):
     if config.ui_scroll[scroll_name]['pos'] == 0:
-        return ui_selection_right()
+        return ui_selection_right(zero_y)
     return False
 
 def ui_selection_option_change_scale_plus(current_value, settings):
@@ -459,6 +481,23 @@ def ui_selection_option_change_multi(current_value, target_list, next_value = Tr
 
 def ui_selection_option_change_toggle(current_value):
     return not current_value
+
+def increase_skill(skill_name):
+    config.player['skill_level_' + skill_name] += 1
+    add_log(utils.add_text_tag('Your skill level in ' + config.SKILL_NAMES[skill_name] + ' has increased.', fg = config.TAG_COLOR_LOG_HL))
+
+def add_skill_experience(skill_name):
+    next_level = False
+    config.player['experience_' + skill_name] += 1
+    current_experience = config.player['experience_' + skill_name]
+    current_experience_level = config.player['experience_level_' + skill_name]
+    for experience_level, experience_required in config.EXPERIENCE_LEVELS[skill_name].items():
+        if current_experience_level + 1 == experience_level and current_experience > experience_required:
+            next_level = True
+    if next_level:
+        config.player['experience_level_' + skill_name] += 1
+        config.player['experience_' + skill_name] = 0
+        increase_skill(skill_name)
 
 def enter_room(room_id, logging = False):
     global active_room
@@ -526,7 +565,7 @@ def format_npc_log_text(text, npc, colored = True):
 
 def npc_behaviour():
     for npc_id, npc in active_npcs.items():
-        if npc['disabled'] is False and npc['room'] == active_room and config.player['health_points'] > 0:
+        if npc['disabled'] is False and npc['dead'] is False and npc['room'] == active_room and config.player['health_points'] > 0:
             if npc['hostile'] is True:
                 if npc['ranged'] and npc['position'] != current_position:
                     npc_action_attack_player(npc, ranged = True)
@@ -650,13 +689,13 @@ def npc_take_damage(dmg, dmg_source, npc, killed_text):
         damage_text = 'takes ' + utils.format_log_damage(dmg_num_txt)
         if config.flags['show_battle_num']:
             s = ''
-            if dmg != 1:
+            if diff != 1:
                 s = 's'
             damage_text = 'loses ' + utils.format_log_damage(str(diff) + ' health point' + s)
         add_log(format_npc_log_text('<name> ' + damage_text + ' from ' + dmg_source +'.', npc))
         npc['health_points'] = new_hp
         if new_hp <= 0:
-            npc['disabled'] = True
+            npc['dead'] = True
             config.add_to_stats('npcs_killed', 1)
             add_log(format_npc_log_text('<name> dies from ' + dmg_source + '.', npc))
             if killed_text:
@@ -684,7 +723,7 @@ def player_take_damage(dmg, dmg_source, game_over_text = None, defence_num = 0):
         damage_text = 'take ' + utils.format_log_damage(dmg_num_txt)
         if config.flags['show_battle_num']:
             s = ''
-            if dmg != 1:
+            if diff != 1:
                 s = 's'
             damage_text = 'lose ' + utils.format_log_damage(str(diff) + ' health point' + s)
         if defence_num > 0:
@@ -738,11 +777,11 @@ def heal_player(link):
     if diff == 0:
         heal_num_txt = 'no health'
     elif diff < 5:
-        heal_num_txt = 'minor health'
+        heal_num_txt = 'a minor amount of health'
     elif diff > 40:
         heal_num_txt = 'a colossal amount of health'
     elif diff > 20:
-        heal_num_txt = 'major health'
+        heal_num_txt = 'a major amount of health'
     heal_text = utils.format_log_heal(heal_num_txt)
     if config.flags['show_battle_num']:
         s = ''
@@ -821,25 +860,26 @@ def update_player_health_status():
 
 def player_death():
     config.game['game_over'] = True
+    
+    popup_image = [
+        '         .:=%@@@@%=-.         ',
+        '       .#@@@@@@@@@@@@%.       ',
+        '      #@@@@@@@@@@@@@@@@#.     ',
+        '     %@@@@@@@@@@@@@@@@@@@     ',
+        '     %@*@@@@@@@@@@@@@@*@@     ',
+        '     %@%-%@%##%**#%@@=%@@     ',
+        '     .%%-+::-****:::+-%%:     ',
+        '      .*     :%@+     #.      ',
+        '      #@+-:=*%:.**+::+@#      ',
+        '      =#@+-+@%=:*@#:+%%=      ',
+        '        ++:#%@%@@%%-++        ',
+        '         + -:*-++-+ *:        ',
+        '         =:*=@*#%+#:=.        ',
+        '          -#@@@@@@#=          ',
+        '            """"""            ',
+    ]
+    popup_title = 'You have reached the end of your journey.'
     popup_lines = []
-    popup_lines.append('         .:=%@@@@%=-.         ')
-    popup_lines.append('       .#@@@@@@@@@@@@%.       ')
-    popup_lines.append('      #@@@@@@@@@@@@@@@@#.     ')
-    popup_lines.append('     %@@@@@@@@@@@@@@@@@@@     ')
-    popup_lines.append('     %@*@@@@@@@@@@@@@@*@@     ')
-    popup_lines.append('     %@%-%@%##%**#%@@=%@@     ')
-    popup_lines.append('     .%%-+::-****:::+-%%:     ')
-    popup_lines.append('      .*     :%@+     #.      ')
-    popup_lines.append('      #@+-:=*%:.**+::+@#      ')
-    popup_lines.append('      =#@+-+@%=:*@#:+%%=      ')
-    popup_lines.append('        ++:#%@%@@%%-++        ')
-    popup_lines.append('         + -:*-++-+ *:        ')
-    popup_lines.append('         =:*=@*#%+#:=.        ')
-    popup_lines.append('          -#@@@@@@#=          ')
-    popup_lines.append('            """"""            ')
-    popup_lines.append('<vertical_spacer>')
-    popup_lines.append('« YOU HAVE REACHED THE END OF YOUR JOURNEY »')
-    popup_lines.append('<vertical_spacer>')
     if config.game['game_over_text']:
         popup_lines.append(config.game['game_over_text'])
     popup_lines.append('You played for ' + str(config.game['turn']) + ' turns.')
@@ -857,4 +897,4 @@ def player_death():
         SelectionOption('quit_game', 'Quit game')
     ]]
     config.add_debug_log('Game over')
-    set_popup_content(popup_lines, popup_options, centered = True, play_animation = False)
+    set_popup_content(popup_lines, popup_options, centered = True, play_animation = False, title = popup_title, image = popup_image)
