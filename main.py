@@ -222,6 +222,7 @@ def run():
     popup_window_active = False
     screen_content = None
     ui_options = []
+    ui_windows = []
     clock = pygame.time.Clock()
     # MAIN LOOP
     while config.run_game:
@@ -290,13 +291,26 @@ def run():
                 screen_content = modes.character.run()
             # ITERATE THROUGH CONTENT LAYERS
             for layer_num, content_layer in enumerate(screen_content):
-                ui_options = []
                 layer_type = content_layer[0]
-                layer_lines = content_layer[1]
                 layer_fg_color = content_layer[2]
                 layer_bg_color = content_layer[3]
                 if layer_fg_color is None:
                     layer_fg_color = config.DEFAULT_FG_COLOR
+                layer_lines = []
+                ui_options = []
+                ui_windows = []
+                # ITERATE THROUGH WINDOWS
+                if layer_type == config.LAYER_TYPE_MAIN:
+                    window_start_y = offset_y
+                    for window_name, window_lines in content_layer[1]:
+                        window_size_y = len(window_lines) * font_height
+                        layer_lines.extend(window_lines)
+                        window_rect = pygame.Rect(0, window_start_y, screen_width, window_size_y)
+                        window_entry = (window_name, window_rect)
+                        ui_windows.append(window_entry)
+                        window_start_y += window_size_y
+                elif layer_type == config.LAYER_TYPE_POPUP:
+                    layer_lines = content_layer[1]
                 start_x = 0
                 start_y = 0
                 surfaces[layer_type].fill(COLOR_KEY)
@@ -313,6 +327,7 @@ def run():
                     border_offset_x = 2
                     border_offset_y = 6
                     popup_rect = pygame.Rect(offset_x + centered_x + border_offset_x, offset_y + centered_y + border_offset_y, (layer_size_x - font_width) + (border_offset_x * 2) , (layer_size_y - font_height) + (border_offset_y / 2))
+                    ui_windows.append(('popup', popup_rect))
                     if config.settings['visual_enable_popup_window_shadow']:
                         shadow_rect = popup_rect.move(16,16)
                         surfaces[layer_type].fill(config.PALETTES[palette_name]['black'], shadow_rect)
@@ -341,15 +356,8 @@ def run():
                     if len(layer_lines) > num:
                         line = None
                         line_color = layer_fg_color
-                        # POPUP WINDOW SETUP
-                        if layer_type == config.LAYER_TYPE_POPUP:
-                            line = layer_lines[num][0]
-                            line_offset = layer_lines[num][1]
-                            if line_offset > 0:
-                                popup_offset_y += int(line_offset * font_height)
-                            pos_y -= popup_offset_y
                         # MAIN WINDOW SETUP
-                        else:
+                        if layer_type == config.LAYER_TYPE_MAIN:
                             line = layer_lines[num][0][0]
                             if layer_lines[num][0][1] is not None:
                                 line_color = layer_lines[num][0][1]
@@ -361,6 +369,13 @@ def run():
                                     fill_color = config.DEFAULT_FILL_COLOR
                                 render_fill_line = font.render(fill_line, False, config.PALETTES[palette_name][fill_color])
                                 surfaces[layer_type].blit(render_fill_line, (offset_x + start_x, start_y + pos_y))
+                        # POPUP WINDOW SETUP
+                        elif layer_type == config.LAYER_TYPE_POPUP:
+                            line = layer_lines[num][0]
+                            line_offset = layer_lines[num][1]
+                            if line_offset > 0:
+                                popup_offset_y += int(line_offset * font_height)
+                            pos_y -= popup_offset_y
                         # RENDER LINE
                         clean_line = utils.remove_all_tags(line)
                         if clean_line.strip():
@@ -391,7 +406,7 @@ def run():
                             match_text = match.group(4)
                             start_adj = 22 * tag_num
                             match_start = match.start() - start_adj
-                            # SET OTHERconfig.ui_selection_current
+                            # SET OTHER
                             tag_line_font = None
                             if match_other == config.TAGS['underline']:
                                 tag_line_font = font_underline
@@ -503,6 +518,16 @@ def run():
                         mouse_button = event.button
                         config.last_input_device = 'mouse'
                         debug_print('Mouse button pressed: ' + str(mouse_button))
+                    for window in ui_windows:
+                        if window[1].collidepoint(pygame.mouse.get_pos()):
+                            window_name = window[0]
+                            scroll_dir = None
+                            if mouse_button == 4:
+                                scroll_dir = 'down'
+                            elif mouse_button == 5:
+                                scroll_dir = 'up'
+                            if scroll_dir is not None:
+                                key = 'mouse_scroll_' + window_name + '_' + scroll_dir
                     for option in ui_options:
                         if option[1].collidepoint(pygame.mouse.get_pos()):
                             option_type = option[2]

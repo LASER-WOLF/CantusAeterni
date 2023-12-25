@@ -27,6 +27,28 @@ ui_quit_prompt = False
 main_content = None
 popup_content = None
 
+class Portal:
+    def __init__(self, disabled, room_1st, room_2nd, pos_1st, pos_2nd, dir_1st_to_2nd, interact_text_1st_to_2nd, interact_text_2nd_to_1st, log_text_1st_to_2nd, log_text_2nd_to_1st, on_interact):
+        self.disabled = disabled
+        self.room_1st = room_1st
+        self.room_2nd = room_2nd
+        self.pos_1st = pos_1st
+        self.pos_2nd = pos_2nd
+        self.dir_1st_to_2nd = dir_1st_to_2nd
+        self.interact_text_1st_to_2nd = interact_text_1st_to_2nd
+        self.interact_text_2nd_to_1st = interact_text_2nd_to_1st
+        self.log_text_1st_to_2nd = log_text_1st_to_2nd
+        self.log_text_2nd_to_1st = log_text_2nd_to_1st
+        self.on_interact = on_interact
+    def __str__ (self):
+        return 'Portal(disabled=' + str(self.disabled) + ' ,room_1st=' + str(self.room_1st) + ' ,room_2nd=' + str(self.room_2nd) + ' ,pos_1st=' + str(self.pos_1st) + ' ,pos_2nd=' + str(self.pos_2nd) + ' ,dir_1st_to_2nd=' + str(self.dir_1st_to_2nd) + ' ,interact_text_1st_to_2nd=' + str(self.interact_text_1st_to_2nd) + ' ,interact_text_2nd_to_1st=' + str(self.interact_text_2nd_to_1st) + ' ,on_interact=' + str(self.on_interact) + ')'
+
+def portal_decoder(portal_data):
+    result = {}
+    for portal_id, portal in portal_data.items():
+        result[portal_id] = Portal(portal['disabled'], portal['room_1st'], portal['room_2nd'], portal['pos_1st'], portal['pos_2nd'], portal['dir_1st_to_2nd'], portal['interact_text_1st_to_2nd'], portal['interact_text_2nd_to_1st'], portal['log_text_1st_to_2nd'], portal['log_text_2nd_to_1st'], portal['on_interact'])
+    return result
+
 def initialize_new_game():
     global rooms
     global cutscenes
@@ -42,12 +64,13 @@ def initialize_new_game():
     global active_cutscene
     global active_room
     global active_npcs
+    global active_portals
     global current_position
     global current_target
     rooms = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'rooms.json','r')) 
     cutscenes = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'cutscenes.json','r')) 
     interactables = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'interactables.json','r')) 
-    portals = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'portals.json','r')) 
+    portals = portal_decoder(json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'portals.json','r')))
     statuses = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'statuses.json','r')) 
     items = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'items.json','r')) 
     npcs = json.load(open(config.FOLDER_NAME_RESOURCES + '/' + config.FOLDER_NAME_DATA + '/' + 'npcs.json','r')) 
@@ -56,9 +79,9 @@ def initialize_new_game():
     dialogue_log = []
     inventory_list = []
     active_cutscene = '1'
-    active_room = config.START_ROOM
-    active_npcs = None
-    current_position = config.START_POSITION
+    active_room = None
+    active_portals = None
+    current_position = None
     current_target = None
     config.initialize_new_game()
     change_mode(config.MODE_CUTSCENE)
@@ -499,18 +522,24 @@ def add_skill_experience(skill_name):
         config.player['experience_' + skill_name] = 0
         increase_skill(skill_name)
 
+def set_active_room(room_id):
+    global active_room
+    active_room = (room_id, rooms[room_id])
+    update_active_portals()
+    update_active_npcs()
+
 def enter_room(room_id, logging = False):
     global active_room
+    config.add_debug_log('Loading room -> ' + str(room_id))
     ui_selection_none()
-    active_room = room_id
-    room = rooms[room_id]
-    for line in room['on_enter']:
+    set_active_room(room_id)
+    for line in active_room[1]['on_enter']:
         if not line['disabled'] and (line['position'] == "" or line['position'] == current_position):
             execute_action(line['content'])
     if config.mode != config.MODE_GAME:
         change_mode(config.MODE_GAME)
     if logging:
-        add_log("You enter the " + rooms[active_room]['noun'])
+        add_log("You enter the " + active_room[1]['noun'])
 
 def change_position_logging(name, old_pos, new_pos, plural = False):
     add_s = ''
@@ -523,13 +552,13 @@ def change_position_logging(name, old_pos, new_pos, plural = False):
     log_string = name + " " + action_text + " the " + '<d>' + utils.DIRECTION_ABR[new_pos] + '</d>'
     if new_pos != "c":
         log_string += " side"
-    log_string += " of the " + rooms[active_room]['noun'] + '.'
+    log_string += " of the " + active_room[1]['noun'] + '.'
     add_log(log_string)
 
 def player_change_position(position, logging = False):
     global current_position
     ui_selection_none()
-    rooms[active_room]['visited'][position] = True
+    active_room[1]['visited'][position] = True
     old_pos = current_position
     current_position = position
     if logging:
@@ -541,18 +570,26 @@ def npc_change_position(new_pos, npc, logging = True):
     name = npc['name']
     if npc['name_log']:
         name = npc['name_log']
-    if rooms[active_room]['visited'][old_pos] or rooms[active_room]['visited'][new_pos]:
+    if active_room[1]['visited'][old_pos] or active_room[1]['visited'][new_pos]:
         change_position_logging(name, old_pos, new_pos, plural = True)
 
 def update_active_npcs():
     global active_npcs
     active_npcs = {}
     for npc_id, npc in npcs.items():
-        if npc['disabled'] == False and npc['room'] == active_room:
+        if npc['disabled'] == False and npc['room'] == active_room[0]:
             active_npcs[npc_id] = npc
 
+def update_active_portals():
+    global active_portals
+    active_portals = {}
+    for portal_id in active_room[1]['portal']:
+        portal = portals[portal_id]
+        if portal.disabled == False:
+            active_portals[portal_id] = portal
+
 def format_npc_log_text(text, npc, colored = True):
-    text = text.replace('<pos>', utils.format_position_text_room(npc['position'], rooms[active_room]['noun']))
+    text = text.replace('<pos>', utils.format_position_text_room(npc['position'], active_room[1]['noun']))
     text = text.replace('<name>', utils.format_npc_name(npc, colored = colored))
     text = text.replace('<name_default>', utils.format_npc_name(npc, colored = colored, force_default = True))
     text = text.replace('<name_secret>', utils.format_npc_name(npc, colored = colored, force_secret = True))
@@ -565,7 +602,7 @@ def format_npc_log_text(text, npc, colored = True):
 
 def npc_behaviour():
     for npc_id, npc in active_npcs.items():
-        if npc['disabled'] is False and npc['dead'] is False and npc['room'] == active_room and config.player['health_points'] > 0:
+        if npc['disabled'] is False and npc['dead'] is False and npc['room'] == active_room[0] and config.player['health_points'] > 0:
             if npc['hostile'] is True:
                 if npc['ranged'] and npc['position'] != current_position:
                     npc_action_attack_player(npc, ranged = True)

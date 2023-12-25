@@ -1,5 +1,6 @@
 # TODO:
   # Enable / disable id tied to room?
+  # Restructure json files
   # Portal placement stored in portals and room file (duplicate data)
   # Add NPC spawner system
   # Add quests
@@ -43,6 +44,10 @@
     # solarized -> forest
 
 # DONE:
+    v0000020:
+  # Made Portal class
+  # Changed portal json structure
+  # Added mouse wheel scrolling
     v0000019:
   # Map mode: Store room data in selection
   # Debug mode, log window: Add word wrapping

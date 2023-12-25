@@ -1,12 +1,15 @@
 {
   "1": {
-    "link1": "1",
-    "link2": "2",
-    "pos1": "c",
-    "pos2": "c",
-    "dir": "n",
-    "text1to2": "You dive into <p>the deep slime pool</p>. After a long and terrifying swim through the submerged cave you emerge in a pitch black grotto.",
-    "text2to1": "You jump back into <p>the slime pool</p>. You emerge in a slimy grotto.",
+    "disabled": true,
+    "room_1st": "1",
+    "room_2nd": "2",
+    "pos_1st": "c",
+    "pos_2nd": "c",
+    "dir_1st_to_2nd": "n",
+    "interact_text_1st_to_2nd": "Dive into the deep pool of slime leading north",
+    "interact_text_2nd_to_1st": "Dive into the deep pool of slime leading south",
+    "log_text_1st_to_2nd": "You dive into <p>the deep slime pool</p>. After a long and terrifying swim through the submerged cave you emerge in a pitch black grotto.",
+    "log_text_2nd_to_1st": "You jump back into <p>the slime pool</p>. You emerge in a slimy grotto.",
     "on_interact": [
       {
         "type": "activate_status",
@@ -15,23 +18,29 @@
     ]
   },
   "2": {
-    "link1": "1",
-    "link2": "3",
-    "pos1": "s",
-    "pos2": "n",
-    "dir": "s",
-    "text1to2": "You squeeze yourself through <p>the tight cave opening</p>. You emerge on the other side.",
-    "text2to1": "You head back into <p>the cave</p>. You emerge in a grotto.",
+    "disabled": true,
+    "room_1st": "1",
+    "room_2nd": "3",
+    "pos_1st": "s",
+    "pos_2nd": "n",
+    "dir_1st_to_2nd": "s",
+    "interact_text_1st_to_2nd": "Climb into the cave leading south",
+    "interact_text_2nd_to_1st": "Climb back into the cave leading north",
+    "log_text_1st_to_2nd": "You squeeze yourself through <p>the tight cave opening</p>. You emerge on the other side.",
+    "log_text_2nd_to_1st": "You head back into <p>the cave</p>. You emerge in a grotto.",
     "on_interact": []
   },
   "3": {
-    "link1": "3",
-    "link2": "4",
-    "pos1": "w",
-    "pos2": "e",
-    "dir": "w",
-    "text1to2": "You follow <p>the path west</p>.",
-    "text2to1": "You follow <p>the path east</p>.",
+    "disabled": false,
+    "room_1st": "3",
+    "room_2nd": "4",
+    "pos_1st": "w",
+    "pos_2nd": "e",
+    "dir_1st_to_2nd": "w",
+    "interact_text_1st_to_2nd": "Head westwards on the path through the trees",
+    "interact_text_2nd_to_1st": "Head eastwards on the path through the trees",
+    "log_text_1st_to_2nd": "You follow <p>the path west</p>.",
+    "log_text_2nd_to_1st": "You follow <p>the path east</p>.",
     "on_interact": []
   }
 }

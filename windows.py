@@ -151,8 +151,10 @@ MINIMAP_TILES = {
 def main(target_list):
     # FIND UPPER AND LOWER WINDOWS
     size_upper = 0
+    size_log = 0
     size_lower = 0
     content_upper = []
+    content_log = []
     content_lower = []
     for window in target_list:
         if window.w_type == WINDOW_UPPER:
@@ -165,15 +167,23 @@ def main(target_list):
             size_lower += len(window_formatted)
         elif window.w_type == WINDOW_LOG:
             window_formatted = log(window)
-            content_lower.append(window_formatted)
-            size_lower += len(window_formatted)
+            content_log.append(window_formatted)
+            size_log += len(window_formatted)
     # FIND CENTER WINDOW
     content_center = []
     for window in target_list:
         if window.w_type == WINDOW_CENTER:
-            content_center.append(center(window, size_upper, size_lower))
+            content_center.append(center(window, size_upper, size_log + size_lower))
     # COMBINE ALL WINDOWS
-    result = make_lines_multi(content_upper + content_center + content_lower)
+    result = []
+    if content_upper:
+        result.append(('upper', make_lines_multi(content_upper)))
+    if content_center:
+        result.append(('center', make_lines_multi(content_center)))
+    if content_log:
+        result.append(('log', make_lines_multi(content_log)))
+    if content_lower:
+        result.append(('lower', make_lines_multi(content_lower)))
     return (config.LAYER_TYPE_MAIN, result, None, None)
 
 def popup(content, options = None, title = None, image = None, fill = '░', fill_color = 'bright_black', fg_color = None, bg_color = None, border_color = None, centered = False, margin = 2, min_width = 36):
@@ -719,7 +729,7 @@ def combine_blocks(blocks, margin_size = 4, r_align = None, min_size_list = None
                     lines[line_num] += margin + line
     return lines
 
-def block_minimap(room, npcs = None, position = None, ui_tags = None):
+def block_minimap(room_id, room, npcs = None, portals = None, position = None, ui_tags = None):
     lines = []
     if config.mode == config.MODE_GAME:
         lines.append("MEMORY:".ljust(15))
@@ -763,8 +773,11 @@ def block_minimap(room, npcs = None, position = None, ui_tags = None):
                             tile_top = MINIMAP_TILES['selected_current_top']
                             tile_mid = MINIMAP_TILES['selected_current_mid']
                             tile_low = MINIMAP_TILES['selected_current_low']
-            for portal in room['portal']:
-                if portal['position'] == pos and portal['disabled'] == False and room['visited'][pos]:
+            for portal in portals.values():
+                portal_pos = portal.pos_2nd
+                if portal.room_2nd == room_id:
+                    portal_pos = portal.pos_1st
+                if portal_pos == pos and portal.disabled == False and room['visited'][pos]:
                     tile_top = MINIMAP_TILES['portal_top']
                     tile_mid = MINIMAP_TILES['portal_mid']
                     tile_low = MINIMAP_TILES['portal_low']

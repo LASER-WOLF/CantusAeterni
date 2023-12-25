@@ -3,7 +3,7 @@ import datetime
 import json
 
 # SET VERSION NUMBER
-VERSION_NUMBER = '0000019'
+VERSION_NUMBER = '0000020'
 
 # SET CONSTANTS
 INPUT_COMBO_DEBUG_MODE = 'debugspacemode'
@@ -61,8 +61,6 @@ EXPERIENCE_LEVELS = {
 }
 
 # SET CONSTANTS, GAME
-START_POSITION = 'c'
-START_ROOM = '1'
 PLAYER_START_HP = 100
 PLAYER_START_ATTACK_SKILL = 0
 PLAYER_START_ATTACK_SKILL_RANGED = 0
@@ -659,10 +657,12 @@ controls = {
     ],
     'scroll_center_up': [
         'mouse_scroll_center_up',
+        'mouse_scroll_popup_up',
         'joy_axis_3_neg',
     ],
     'scroll_center_down': [
         'mouse_scroll_center_down',
+        'mouse_scroll_popup_down',
         'joy_axis_3_pos',
     ],
     'scroll_log_up': [

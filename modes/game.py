@@ -8,21 +8,7 @@ import system
 import utils
 import windows
 
-# SET VARS
-room_id = None
-room = None
-
-def set_room():
-    global room_id
-    global room
-    if room_id != system.active_room:
-        room_id = system.active_room
-        room = system.rooms[room_id]
-        config.add_debug_log('Loading room -> ' + str(room_id))
-    system.update_active_npcs()
-
 def run():
-    set_room()
     system.run_queued_actions()
     layers = []
     # MAIN LAYER
@@ -188,7 +174,7 @@ def input_main(key, mod = None):
                 examine(selected_option.link, selected_option.display_name)
             elif selected_option.name == "portal":
                 config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
-                action_portal(selected_option.link)
+                action_portal(selected_option.link[0], selected_option.link[1])
             elif selected_option.name == "attack":
                 config.trigger_animation(config.ANIMATION_UI_DEFAULT, 'ui_confirm', 'ui')
                 action_attack(selected_option.link[0], selected_option.link[1])
@@ -263,7 +249,7 @@ def window_lower():
         selection_options_display[0].insert(0, 'ARE YOU SURE?')
     else:
         if config.game_settings['show_minimap']:
-            ui_blocks.append(windows.block_minimap(room, system.active_npcs, system.current_position, check_move_options(True)))
+            ui_blocks.append(windows.block_minimap(system.active_room[0], system.active_room[1], system.active_npcs, system.active_portals, system.current_position, check_move_options(True)))
         option_titles = ["MOVE OR WAIT:", "INTERACT:", "OTHER:"]
         selection_options_display = windows.format_selection_options_display_add_titles(selection_options_display, option_titles)
         selection_options_display[2].insert(3, 'SYSTEM:')
@@ -272,22 +258,20 @@ def window_lower():
     return windows.Content(windows.WINDOW_LOWER, windows.combine_blocks(ui_blocks, r_align = 2))
 
 def npc_block_player():
-    block_action = False
     blocking_npc = None
     for npc in system.active_npcs.values():
         if npc['hostile'] is True and npc['dead'] is False:
+            block_action = False
             if npc['position'] == system.current_position:
                 block_action = random.choice([False, True, True, True])
-            #elif npc['ranged'] is True:
-            #    block_action = random.choice([False, True])
             if block_action is True:
                 blocking_npc = npc
                 break
-    return (block_action, blocking_npc)
+    return blocking_npc
 
 def action_move(link):
-    block_action, blocking_npc = npc_block_player()
-    if block_action is False:
+    blocking_npc = npc_block_player()
+    if blocking_npc is None:
         system.player_change_position(link, logging = True)
         system.end_turn('move', link, 'success')
         config.add_to_stats('times_moved', 1)
@@ -295,15 +279,15 @@ def action_move(link):
         system.add_log(system.format_npc_log_text('<name> blocks you from moving.', blocking_npc))
         system.end_turn('move', link, 'blocked')
 
-def action_portal(link):
-    block_action, blocking_npc = npc_block_player()
-    if block_action is False:
-        enter_portal(link)
-        system.end_turn('portal', link, 'success')
+def action_portal(portal_id, portal):
+    blocking_npc = npc_block_player()
+    if blocking_npc is None:
+        enter_portal(portal)
+        system.end_turn('portal', portal_id, 'success')
         config.add_to_stats('portals_entered', 1)
     else:
         system.add_log(system.format_npc_log_text('<name> blocks you from leaving.', blocking_npc))
-        system.end_turn('portal', link, 'blocked')
+        system.end_turn('portal', portal_id, 'blocked')
 
 def action_attack(npc_id, npc):
     system.end_turn('attack', npc_id, player_attack_npc(npc))
@@ -331,7 +315,7 @@ def check_move_options(minimap_mode = False):
             position_text = 'Move to the ' + text
             if pos != "c":
                 position_text += " side"
-            position_text += " of the " + room['noun']
+            position_text += " of the " + system.active_room[1]['noun']
             result.append(system.SelectionOption("move", position_text, pos))
             result_minimap[pos] = num
             num += 1
@@ -364,12 +348,17 @@ def check_interact_options():
         elif npc['position'] == system.current_position and npc['dialogue'] is not None and npc['dead'] is False:
             dialogue_text = 'Start a conversation with ' + utils.format_npc_name(npc, False)
             result.append(system.SelectionOption("dialogue_load", dialogue_text, (npc['dialogue'], dialogue_text, npc_id)))
-    for entry in room['interactable']:
+    for entry in system.active_room[1]['interactable']:
         if entry['position'] == system.current_position and not entry['disabled']:
             result.append(system.SelectionOption("examine", entry['content'], entry['link']))
-    for entry in room['portal']:
-        if entry['position'] == system.current_position and not entry['disabled']:
-            result.append(system.SelectionOption("portal", entry['content'], entry['link']))
+    for portal_id, portal in system.active_portals.items():
+        interact_pos = portal.pos_1st
+        interact_text = portal.interact_text_1st_to_2nd
+        if system.active_room[0] == portal.room_2nd:
+            interact_pos = portal.pos_2nd
+            interact_text = portal.interact_text_2nd_to_1st
+        if interact_pos == system.current_position and portal.disabled is False:
+            result.append(system.SelectionOption("portal", interact_text, (portal_id, portal)))
     return result
 
 def enable_event(link, category, disable = False):
@@ -412,12 +401,6 @@ def enable_event_sound(link, disable = False):
 def disable_event_sound(link):
     enable_event_sound(link, True)
 
-def enable_event_portal(link, disable = False):
-    enable_event(link, "portal", disable)
-
-def disable_event_portal(link):
-    enable_event_portal(link, True)
-
 def enable_event_all(link):
     enable_event_sight(link)
     enable_event_smell(link)
@@ -428,16 +411,23 @@ def disable_event_all(link):
     disable_event_smell(link)
     disable_event_sound(link)
 
+def enable_portal(portal_id, portal, disabled = False):
+    portal.disabled = disabled
+    config.add_debug_log('Portal ' + str(portal_id) + ' set disabled ->' + str(disabled))
+
+def disable_portal(portal_id, portal):
+    enable_portal(portal_id, portal, disabled = True)
+
 def load_room():
     result = []
     if(config.settings['debug_mode']):
-        result.append("DEBUG: You are in room " + str(room_id))
-    result.append(room['location'])
+        result.append("DEBUG: You are in room " + str(system.active_room[0]))
+    result.append(system.active_room[1]['location'])
     result.extend(sense_sight())
     result.extend(sense_sound())
     result.extend(sense_smell())
     result.append("")
-    result.append("You are positioned at the " + utils.format_position_text_room(system.current_position, room['noun']) + '.')
+    result.append("You are positioned at the " + utils.format_position_text_room(system.current_position, system.active_room[1]['noun']) + '.')
     result.extend(sense_sight(True))
     result.extend(sense_sound(True))
     result.extend(sense_smell(True))
@@ -452,7 +442,7 @@ def show_active_status():
 
 def sense_scan(sense, sense_text, position_mode = False):
     result = []
-    for line in room[sense]:
+    for line in system.active_room[1][sense]:
         if not line['disabled']:
             content = utils.format_color_tags(line['content'])
             if not position_mode and (line['position'] == "" or (line['position'][0] == "-" and line['position'][1:] != system.current_position)):
@@ -530,21 +520,20 @@ def sense_smell(position_mode = False):
         result.append(sense_text + "You don't smell anything.")
     return result
 
-def enter_portal(link):
-    portal = system.portals[link]
+def enter_portal(portal):
     target_room = None
     target_pos = None
-    if portal['link1'] == room_id:
-        target_room = portal['link2']
-        target_pos = portal['pos2']
-        system.add_log(portal['text1to2'])
+    if portal.room_1st == system.active_room[0]:
+        target_room = portal.room_2nd
+        target_pos = portal.pos_2nd
+        system.add_log(portal.log_text_1st_to_2nd)
     else:
-        target_room = portal['link1']
-        target_pos = portal['pos1']
-        system.add_log(portal['text2to1'])
+        target_room = portal.room_1st
+        target_pos = portal.pos_1st
+        system.add_log(portal.log_text_2nd_to_1st)
     system.enter_room(target_room)
     system.player_change_position(target_pos)
-    for line in portal['on_interact']:
+    for line in portal.on_interact:
         system.execute_action(line)
 
 def add_to_inventory(item):
@@ -573,9 +562,10 @@ def examine_confirm(link):
         system.add_log("You pick up " + interactable['log_text'])
         action_pickup(interactable['link'])
     elif interactable['type'] == "portal":
-        enable_event_portal(interactable['link'])
+        portal = system.portals[interactable['link']]
+        enable_portal(interactable['link'], portal)
         system.add_log("You have discovered " + interactable['log_text'])
-        action_portal(interactable['link'])
+        action_portal(interactable['link'], portal)
         system.ui_selection_popup_prev_none()
     for line in interactable['on_interact']:
         execute_action(line)
