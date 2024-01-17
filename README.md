@@ -7,7 +7,7 @@ Video #1: [Cantus Aeterni v1 - v11 (early versions)](https://youtu.be/jdcJPsH6J5
 Video #2: [Cantus Aeterni v20](https://youtu.be/0KAZ0i-4F9o?si=dbx6QeQnZs4pIu9f)
 
 > [!TIP]
-> See [todo.txt](todo.txt) for more info.
+> See [TODO.txt](TODO.txt) for more info.
 
 ![screenshot](screenshots/screenshot_00.png?raw=true "screenshot")
 

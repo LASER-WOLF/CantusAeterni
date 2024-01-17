@@ -229,7 +229,3 @@
   # boot screen
   # ui sounds
   # correct direction selection in map screen
-
-# OTHER:
-  # https://www.compart.com/en/unicode/
-  # https://mandolingals.tripod.com/midi/midis.html
